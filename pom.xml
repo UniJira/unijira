@@ -11,8 +11,8 @@
     <groupId>it.unical.unijira</groupId>
     <artifactId>unijira</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>unijira</name>
-    <description>unijira</description>
+    <name>UniJira</name>
+    <description>Non importa che sia bello. l'importante è che Jira</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -118,6 +118,11 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.0</version>
             </plugin>
         </plugins>
     </build>
