@@ -19,4 +19,4 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Test with Maven
-      run: ./mvnw test --file pom.xml
+      run: ./mvnw -Dspring.profiles.active=dev test --file pom.xml
