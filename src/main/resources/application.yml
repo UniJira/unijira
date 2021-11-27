@@ -1,0 +1,11 @@
+spring:
+  profiles:
+    active: @environment@
+
+logging:
+  level:
+    - org.springframework.web: ERROR
+    - org.springframework.boot: ERROR
+
+server:
+  port: 7080

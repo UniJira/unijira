@@ -1,0 +1,16 @@
+logging:
+  level:
+    - it.unical.unijira: TRACE
+
+spring:
+  datasource:
+    username: sa
+    password:
+    driver-class-name: org.hsqldb.jdbcDriver
+    url: jdbc:hsqldb:mem:unijira
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      dialect: org.hibernate.dialect.HSQLDialect
+
