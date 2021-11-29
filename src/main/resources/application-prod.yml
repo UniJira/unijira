@@ -18,5 +18,3 @@ spring:
 server:
   compression:
     enabled: true
-
-# TODO: (Nice to have) Aggiungere supporto a HTTPS
