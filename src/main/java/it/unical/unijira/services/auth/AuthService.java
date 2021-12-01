@@ -37,4 +37,8 @@ public record AuthService(AuthenticationManager authenticationManager) {
 
     }
 
+    public boolean isAuthenticated() {
+        return SecurityContextHolder.getContext().getAuthentication() != null;
+    }
+
 }

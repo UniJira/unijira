@@ -1,6 +1,8 @@
 package it.unical.unijira.controllers;
 
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.auth.AuthenticationRequest;
+import it.unical.unijira.services.UserService;
 import it.unical.unijira.services.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 
 
 @RestController
 @RequestMapping("/auth")
-public record AuthController(AuthService authService) {
+public record AuthController(AuthService authService, UserService userService) {
 
     @Autowired
     public AuthController {}
@@ -34,6 +37,30 @@ public record AuthController(AuthService authService) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         return ResponseEntity.ok().build();
+
+    }
+
+
+    @PostMapping("register")
+    public ResponseEntity<Void> register(@RequestBody User user) {
+
+        if(user.getUsername().isBlank())
+            return ResponseEntity.badRequest().build();
+
+        if(user.getPassword().isBlank())
+            return ResponseEntity.badRequest().build();
+
+
+        if(userService().findByUsername(user.getUsername()).isPresent())
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
+
+        return userService.save(user)
+                .<ResponseEntity<Void>>map (
+                        v  -> ResponseEntity.created(URI.create("/users/" + v.getId())).build())
+                .orElseGet (
+                        () -> ResponseEntity.badRequest().build()
+                );
 
     }
 

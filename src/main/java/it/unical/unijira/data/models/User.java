@@ -6,7 +6,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,6 +13,12 @@ import java.util.List;
 @Table
 @Getter @Setter
 public class User {
+
+    public enum Role {
+        ADMIN,
+        USER
+    }
+
 
     @Id
     @GeneratedValue
@@ -25,14 +30,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
 
 
     public List<GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(getRole().name()));
+        return Collections.emptyList();
     }
 
 }

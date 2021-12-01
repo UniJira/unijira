@@ -1,7 +1,7 @@
 package it.unical.unijira;
 
 
-import it.unical.unijira.data.models.Role;
+import it.unical.unijira.data.models.User.Role;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.UserService;
 import lombok.Getter;
@@ -39,8 +39,7 @@ public abstract class UniJiraTest {
 
             User user = new User();
             user.setUsername("admin");
-            user.setPassword(passwordEncoder.encode("admin"));
-            user.setRole(Role.ADMIN);
+            user.setPassword("Admin123");
 
             userService.save(user);
 

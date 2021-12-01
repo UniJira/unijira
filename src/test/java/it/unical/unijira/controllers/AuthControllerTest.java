@@ -1,8 +1,8 @@
-package it.unical.unijira.services.auth;
+package it.unical.unijira.controllers;
+
 
 import it.unical.unijira.UniJiraTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -10,8 +10,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
+
 @SpringBootTest
-class AuthServiceTest extends UniJiraTest {
+class AuthControllerTest extends UniJiraTest {
 
     @Test
     void authenticateSuccessful() throws Exception {
@@ -23,7 +24,7 @@ class AuthServiceTest extends UniJiraTest {
                 .content("""
                         {
                             "username": "admin",
-                            "password": "admin"
+                            "password": "Admin123"
                         }
                         """)
         ).andExpect(status().isOk());
@@ -63,8 +64,36 @@ class AuthServiceTest extends UniJiraTest {
     }
 
     @Test
-    void register() {
+    void registerSuccessful() throws Exception {
+
+        mockMvc.perform(post("/auth/register")
+                .with(csrf())
+                .contentType("application/json")
+                .content("""
+                        {
+                            "username": "new-user",
+                            "password": "new-password123ABC"
+                        }
+                        """)
+        ).andExpect(status().isCreated());
 
     }
+
+    @Test
+    void registerWrongPassword() throws Exception {
+
+        mockMvc.perform(post("/auth/register")
+                .with(csrf())
+                .contentType("application/json")
+                .content("""
+                        {
+                            "username": "new-user2",
+                            "password": "new-password"
+                        }
+                        """)
+        ).andExpect(status().isBadRequest());
+
+    }
+
 
 }
