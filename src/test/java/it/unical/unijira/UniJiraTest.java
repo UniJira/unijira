@@ -1,18 +1,16 @@
 package it.unical.unijira;
 
 
-import it.unical.unijira.data.models.User.Role;
+import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.User;
-import it.unical.unijira.services.UserService;
+import it.unical.unijira.services.impl.UserServiceImpl;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.test.web.servlet.MockMvc;
 
 
@@ -22,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 public abstract class UniJiraTest {
 
     @Autowired
-    protected UserService userService;
+    protected UserRepository userRepository;
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
@@ -33,15 +31,15 @@ public abstract class UniJiraTest {
     @BeforeEach
     public void init() {
 
-        Assertions.assertNotNull(userService);
+        Assertions.assertNotNull(userRepository);
 
-        if(userService.findByUsername("admin").isEmpty()) {
+        if(userRepository.findByUsername("admin").isEmpty()) {
 
             User user = new User();
             user.setUsername("admin");
-            user.setPassword("Admin123");
+            user.setPassword(passwordEncoder.encode("Admin123"));
 
-            userService.save(user);
+            userRepository.save(user);
 
         }
 

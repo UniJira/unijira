@@ -2,8 +2,8 @@ package it.unical.unijira.controllers;
 
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.auth.AuthenticationRequest;
-import it.unical.unijira.services.UserService;
-import it.unical.unijira.services.auth.AuthService;
+import it.unical.unijira.services.auth.impl.AuthServiceImpl;
+import it.unical.unijira.services.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/auth")
-public record AuthController(AuthService authService, UserService userService) {
+public record AuthController(AuthServiceImpl authService, UserServiceImpl userService) {
 
     @Autowired
     public AuthController {}
@@ -53,6 +53,7 @@ public record AuthController(AuthService authService, UserService userService) {
 
         if(userService().findByUsername(user.getUsername()).isPresent())
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
 
 
         return userService.save(user)

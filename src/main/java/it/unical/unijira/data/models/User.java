@@ -3,7 +3,6 @@ package it.unical.unijira.data.models;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
 import java.util.Collections;
@@ -29,6 +28,9 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column
+    private boolean active;
 
 
 

@@ -1,6 +1,18 @@
 spring:
   profiles:
     active: @environment@
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "unijira20@gmail.com"
+    password: "mascalzonef"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 
 logging:
   level:

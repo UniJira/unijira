@@ -71,7 +71,7 @@ class AuthControllerTest extends UniJiraTest {
                 .contentType("application/json")
                 .content("""
                         {
-                            "username": "new-user",
+                            "username": "antonio.natale97@hotmail.com",
                             "password": "new-password123ABC"
                         }
                         """)
