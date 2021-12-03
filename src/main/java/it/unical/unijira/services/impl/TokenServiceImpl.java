@@ -1,7 +1,6 @@
 package it.unical.unijira.services.impl;
 
 import it.unical.unijira.data.dao.TokenRepository;
-import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.Token;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.TokenService;

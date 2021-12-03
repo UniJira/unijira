@@ -3,7 +3,6 @@ package it.unical.unijira;
 
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.User;
-import it.unical.unijira.services.impl.UserServiceImpl;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

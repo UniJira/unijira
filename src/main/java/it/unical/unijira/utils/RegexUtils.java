@@ -1,7 +1,5 @@
 package it.unical.unijira.utils;
 
-import java.util.Optional;
-
 public class RegexUtils {
 
     public static boolean isValidPassword(String password) {

@@ -4,6 +4,7 @@ import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.Token;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.UserService;
+import it.unical.unijira.utils.Config;
 import it.unical.unijira.utils.Locale;
 import it.unical.unijira.utils.RegexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,16 @@ public class UserServiceImpl implements UserService {
     private final Locale locale;
     private final TokenServiceImpl tokenService;
     private final EmailServiceImpl emailService;
+    private final Config config;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, Locale locale, TokenServiceImpl tokenService, EmailServiceImpl emailService) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, Config config, Locale locale, TokenServiceImpl tokenService, EmailServiceImpl emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.locale = locale;
         this.tokenService = tokenService;
         this.emailService = emailService;
+        this.config = config;
     }
 
 
@@ -62,7 +65,7 @@ public class UserServiceImpl implements UserService {
             if(!emailService.send(username,
                     locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
                     locale.get("MAIL_ACCOUNT_CONFIRM_BODY")
-                            .replace("%%BASE_URL%%", locale.get("BASE_URL"))
+                            .replace("%%BASE_URL%%", config.getBaseURL())
                             .replace("%%TOKEN%%", tokenService.generate(owner, Token.TokenType.ACCOUNT_CONFIRM, null))
             )) {
                 throw new RuntimeException("Error sending email to %s".formatted(username));

@@ -14,3 +14,7 @@ spring:
     properties:
       dialect: org.hibernate.dialect.HSQLDialect
 
+
+config:
+  baseURL: "http://localhost:8080"
+

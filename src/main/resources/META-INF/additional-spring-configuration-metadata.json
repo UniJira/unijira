@@ -1,9 +1,14 @@
 {
   "properties": [
     {
-      "name": "platform.locale.language",
+      "name": "config.locale",
       "type": "java.lang.String",
-      "description": "Description for platform.locale.language."
+      "description": "Description for config.locale."
+    },
+    {
+      "name": "config.baseURL",
+      "type": "java.lang.String",
+      "description": "Description for config.baseURL."
     }
   ]
 }

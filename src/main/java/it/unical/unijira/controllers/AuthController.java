@@ -22,6 +22,7 @@ public record AuthController(AuthServiceImpl authService, UserServiceImpl userSe
     public AuthController {}
 
 
+    
     @PostMapping("authenticate")
     public ResponseEntity<Void> authenticate (HttpServletRequest request, @RequestBody AuthenticationRequest authenticationRequest) {
 
