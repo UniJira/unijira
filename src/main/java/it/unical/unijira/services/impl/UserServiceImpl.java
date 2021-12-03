@@ -61,10 +61,9 @@ public class UserServiceImpl implements UserService {
 
             if(!emailService.send(username,
                     locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
-                    locale.get("MAIL_ACCOUNT_CONFIRM_BODY"
+                    locale.get("MAIL_ACCOUNT_CONFIRM_BODY")
                             .replace("%%BASE_URL%%", locale.get("BASE_URL"))
                             .replace("%%TOKEN%%", tokenService.generate(owner, Token.TokenType.ACCOUNT_CONFIRM, null))
-                    )
             )) {
                 throw new RuntimeException("Error sending email to %s".formatted(username));
             }
