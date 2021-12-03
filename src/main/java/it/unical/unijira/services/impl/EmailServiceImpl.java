@@ -26,6 +26,7 @@ public record EmailServiceImpl(JavaMailSender mailSender) implements EmailServic
 
         try {
 
+            LOGGER.info("Sending email to {} with subject '{}'", to, subject);
 
             final var mime = mailSender.createMimeMessage();
             final var helper = new MimeMessageHelper(mime, true);

@@ -19,5 +19,9 @@ logging:
     - org.springframework.web: ERROR
     - org.springframework.boot: ERROR
 
+platform:
+  locale:
+    language: "it"
+
 server:
   port: 7080

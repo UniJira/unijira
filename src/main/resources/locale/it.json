@@ -1,0 +1,5 @@
+{
+  "BASE_URL": "http://localhost:8080",
+  "MAIL_ACCOUNT_CONFIRM_SUBJECT": "Registrazione",
+  "MAIL_ACCOUNT_CONFIRM_BODY": "Benvenuto su UniJira!<br>Clicca su <a href=\"%%BASE_URL%%/auth/active?q=%%TOKEN%%\">Attiva il mio account</a> per confermare la tua email."
+}

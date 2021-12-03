@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "platform.locale.language",
+      "type": "java.lang.String",
+      "description": "Description for platform.locale.language."
+    }
+  ]
+}

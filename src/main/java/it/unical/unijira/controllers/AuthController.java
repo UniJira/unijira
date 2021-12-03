@@ -3,14 +3,12 @@ package it.unical.unijira.controllers;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.auth.AuthenticationRequest;
 import it.unical.unijira.services.auth.impl.AuthServiceImpl;
+import it.unical.unijira.services.impl.TokenServiceImpl;
 import it.unical.unijira.services.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -18,7 +16,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/auth")
-public record AuthController(AuthServiceImpl authService, UserServiceImpl userService) {
+public record AuthController(AuthServiceImpl authService, UserServiceImpl userService, TokenServiceImpl tokenService) {
 
     @Autowired
     public AuthController {}
@@ -62,6 +60,21 @@ public record AuthController(AuthServiceImpl authService, UserServiceImpl userSe
                 .orElseGet (
                         () -> ResponseEntity.badRequest().build()
                 );
+
+    }
+
+
+    @GetMapping("active")
+    public ResponseEntity<Void> register(@RequestParam String tokenId) {
+
+        if(!tokenService.check(tokenId))
+            return ResponseEntity.badRequest().build();
+
+        if(tokenService.find(tokenId).isEmpty())
+            return ResponseEntity.notFound().build();
+
+        userService.active(tokenService.find(tokenId).get().getUser());
+        return ResponseEntity.ok().build();
 
     }
 
