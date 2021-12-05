@@ -42,8 +42,8 @@ public class Locale {
 
     }
 
-    public String get(String key) {
-        return dictionary.get(key);
+    public String get(String key, Object... args) {
+        return dictionary.get(key).formatted(args);
     }
 
 }

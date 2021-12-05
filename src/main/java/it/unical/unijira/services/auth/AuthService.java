@@ -1,6 +1,6 @@
 package it.unical.unijira.services.auth;
 
 public interface AuthService {
-    boolean authenticate(String username, String password);
-    boolean isAuthenticated();
+    String authenticate(String username, String password);
+    void logout(String token);
 }
