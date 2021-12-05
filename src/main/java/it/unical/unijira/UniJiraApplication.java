@@ -10,4 +10,5 @@ public class UniJiraApplication {
         SpringApplication.run(UniJiraApplication.class, args);
     }
 
+
 }
