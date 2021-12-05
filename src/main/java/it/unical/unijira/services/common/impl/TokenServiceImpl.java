@@ -1,11 +1,11 @@
-package it.unical.unijira.services.impl;
+package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.TokenRepository;
 import it.unical.unijira.data.models.Token;
 import it.unical.unijira.data.models.User;
-import it.unical.unijira.services.TokenService;
-import lombok.NonNull;
+import it.unical.unijira.services.common.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public record TokenServiceImpl(TokenRepository tokenRepository) implements Token
     public TokenServiceImpl {}
 
     @Override
-    public String generate(@NonNull User owner, @NonNull Token.TokenType type, LocalDateTime expireDate) {
+    public String generate(User owner, Token.TokenType type, @Nullable LocalDateTime expireDate) {
 
         if(expireDate == null)
             expireDate = LocalDateTime.now().plusDays(1);
@@ -52,4 +52,6 @@ public record TokenServiceImpl(TokenRepository tokenRepository) implements Token
     public Optional<Token> find(String tokenId) {
         return tokenRepository.findById(tokenId);
     }
+
+
 }

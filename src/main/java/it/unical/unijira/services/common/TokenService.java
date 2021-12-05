@@ -1,10 +1,11 @@
-package it.unical.unijira.services;
+package it.unical.unijira.services.common;
 
 import it.unical.unijira.data.models.Token;
 import it.unical.unijira.data.models.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+
 
 public interface TokenService {
     Optional<Token> find(String tokenId);

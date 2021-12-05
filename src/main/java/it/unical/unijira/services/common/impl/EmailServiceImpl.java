@@ -1,6 +1,6 @@
-package it.unical.unijira.services.impl;
+package it.unical.unijira.services.common.impl;
 
-import it.unical.unijira.services.EmailService;
+import it.unical.unijira.services.common.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

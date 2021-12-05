@@ -2,6 +2,7 @@ package it.unical.unijira.controllers;
 
 
 import it.unical.unijira.UniJiraTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12,55 +13,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SpringBootTest
-class AuthControllerTest extends UniJiraTest {
+public class AuthControllerTest extends UniJiraTest {
 
     @Test
     void authenticateSuccessful() throws Exception {
-
-
-        mockMvc.perform(post("/auth/authenticate")
-                .with(csrf())
-                .contentType("application/json")
-                .content("""
-                        {
-                            "username": "admin",
-                            "password": "Admin123"
-                        }
-                        """)
-        ).andExpect(status().isOk());
-
+        Assertions.assertFalse(this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD).isBlank());
     }
 
     @Test
     void authenticateWrongPassword() throws Exception {
-
-        mockMvc.perform(post("/auth/authenticate")
-                .with(csrf())
-                .contentType("application/json")
-                .content("""
-                        {
-                            "username": "admin",
-                            "password": "wrong-password"
-                        }
-                        """)
-        ).andExpect(status().isUnauthorized());
-
+        Assertions.assertTrue(this.performLogin(UniJiraTest.USERNAME, "wrong-password-123").isBlank());
     }
 
     @Test
     void authenticateWrongUsername() throws Exception {
-
-        mockMvc.perform(post("/auth/authenticate")
-                .with(csrf())
-                .contentType("application/json")
-                .content("""
-                        {
-                            "username": "wrong-username-1234absc",
-                            "password": "wrong-password"
-                        }
-                        """)
-        ).andExpect(status().isUnauthorized());
-
+        Assertions.assertTrue(this.performLogin("wrong-username-123", "wrong-password-123").isBlank());
     }
 
     @Test
@@ -87,7 +54,7 @@ class AuthControllerTest extends UniJiraTest {
                 .contentType("application/json")
                 .content("""
                         {
-                            "username": "new-user2",
+                            "username": "new-user2@wrong.com",
                             "password": "new-password"
                         }
                         """)

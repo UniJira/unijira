@@ -21,3 +21,7 @@ server:
 
 config:
   baseURL: "https://unijira.com"
+
+jwt:
+  secret: "mCW559~QS|R6UJ~BL`DTXNP*Vpqd,z#@QOnrl!W=l^/+^!Z3R_0c[WqLRVf6q6k.1JZY}#F0J3[stJz"
+  expiration: 3600
