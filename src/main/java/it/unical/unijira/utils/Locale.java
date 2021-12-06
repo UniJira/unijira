@@ -23,7 +23,7 @@ public class Locale {
     @Autowired
     public Locale(Config config) throws IOException {
 
-        try(final var stream = Locale.class.getClassLoader().getResourceAsStream("locale/%s.json".formatted(config.getLocale()))) {
+        try(final var stream = Resources.getResourceAsStream("locale/%s.json".formatted(config.getLocale()))) {
 
             if(stream == null)
                 throw new IOException("Unable to find locale file for language %s".formatted(config.getLocale()));

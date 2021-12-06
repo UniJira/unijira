@@ -1,57 +1,78 @@
 package it.unical.unijira.services.common.impl;
 
-import it.unical.unijira.data.dao.TokenRepository;
-import it.unical.unijira.data.models.Token;
-import it.unical.unijira.data.models.User;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.services.common.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public record TokenServiceImpl(TokenRepository tokenRepository) implements TokenService {
+public class TokenServiceImpl implements TokenService {
+
+    private final String tokenSecret;
+    private final Long tokenExpiration;
 
     @Autowired
-    public TokenServiceImpl {}
+    public TokenServiceImpl(
+            @Value("${jwt.secret}") String tokenSecret,
+            @Value("${jwt.expiration}") Long tokenExpiration) {
 
-    @Override
-    public String generate(User owner, Token.TokenType type, @Nullable LocalDateTime expireDate) {
-
-        if(expireDate == null)
-            expireDate = LocalDateTime.now().plusDays(1);
-
-        if(expireDate.isBefore(LocalDateTime.now()))
-            throw new IllegalArgumentException("Expire date must be in the future");
-
-
-        final var token = new Token();
-        token.setId(UUID.randomUUID().toString());
-        token.setUser(owner);
-        token.setTokenType(type);
-        token.setExpireDate(expireDate);
-
-        return tokenRepository.saveAndFlush(token).getId();
-
-    }
-
-    @Override
-    public boolean check(String tokenId) {
-
-        return tokenRepository.findById(tokenId)
-                .map(i -> i.getExpireDate().isAfter(LocalDateTime.now()))
-                .orElse(false);
+        this.tokenSecret = tokenSecret;
+        this.tokenExpiration = tokenExpiration;
 
     }
 
 
     @Override
-    public Optional<Token> find(String tokenId) {
-        return tokenRepository.findById(tokenId);
+    public boolean isNotValid(String token) {
+        try {
+            JWT.decode(token);
+            return false;
+        } catch (JWTDecodeException e) {
+            return true;
+        }
+
     }
 
+    @Override
+    public boolean isExpired(String token) {
+        return JWT.decode(token).getExpiresAt().before(Date.from(Instant.now()));
+    }
+
+    @Override
+    public TokenType getType(String token) {
+        return JWT.decode(token).getClaim("type").as(TokenType.class);
+    }
+
+    @Override
+    public Optional<String> getPayload(String token, String claim) {
+        return Optional.of(JWT.decode(token).getClaim(claim).asString());
+    }
+
+    @Override
+    public String generate(TokenType type, Map<String, String> claims) {
+
+        var jwt = JWT.create()
+                .withSubject(UUID.randomUUID().toString())
+                .withIssuer("unijira")
+                .withIssuedAt(Date.from(Instant.now()))
+                .withExpiresAt(Date.from(Instant.now().plusSeconds(tokenExpiration)))
+                .withClaim("type", type.name());
+
+        for (var claim : claims.entrySet())
+            jwt.withClaim(claim.getKey(), claim.getValue());
+
+        return jwt.sign(Algorithm.HMAC256(tokenSecret));
+
+    }
 
 }

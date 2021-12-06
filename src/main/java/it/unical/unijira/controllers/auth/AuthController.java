@@ -3,6 +3,7 @@ package it.unical.unijira.controllers.auth;
 import it.unical.unijira.data.dto.user.UserAuthenticationDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.dto.user.UserRegisterDTO;
+import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.auth.AuthUserDetails;
@@ -62,7 +63,7 @@ public class AuthController {
 
 
     @PostMapping("register")
-    public ResponseEntity<UserInfoDTO> register(@RequestBody UserRegisterDTO user) {
+    public ResponseEntity<String> register(@RequestBody UserRegisterDTO user) {
 
         if(user.getUsername().isBlank())
             return ResponseEntity.badRequest().build();
@@ -77,9 +78,7 @@ public class AuthController {
 
         return userService.save(modelMapper.map(user, User.class))
                 .map (
-                        v  -> ResponseEntity
-                                .created(URI.create("/users/%d".formatted(v.getId())))
-                                .body(modelMapper.map(v, UserInfoDTO.class)))
+                        v  -> ResponseEntity.created(URI.create("")).body(""))
                 .orElseGet (
                         () -> ResponseEntity.badRequest().build()
                 );
@@ -88,16 +87,22 @@ public class AuthController {
 
 
     @GetMapping("active")
-    public ResponseEntity<Void> active(@RequestParam String tokenId) {
+    public ResponseEntity<Boolean> active(@RequestParam String token) {
 
-        if(!tokenService.check(tokenId))
-            return ResponseEntity.badRequest().build();
+        if(tokenService.isNotValid(token))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        if(tokenService.find(tokenId).isEmpty())
-            return ResponseEntity.notFound().build();
+        if(tokenService.isExpired(token))
+            return ResponseEntity.status(HttpStatus.GONE).build();
 
-        userService.active(tokenService.find(tokenId).get().getUser());
-        return ResponseEntity.ok().build();
+        if(tokenService.getType(token) != TokenType.ACCOUNT_CONFIRM)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        return tokenService.getPayload(token, "userId")
+                .map(Long::valueOf)
+                .map(userService::activate)
+                .map(v -> ResponseEntity.ok(true))
+                .orElse(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
 
     }
 
