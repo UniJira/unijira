@@ -21,16 +21,16 @@ public interface CrudController<T, S> {
             @RequestParam (required = false, defaultValue = "10000") Integer size
     );
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     ResponseEntity<T> read(ModelMapper modelMapper, @PathVariable S id);
 
     @PostMapping("")
     ResponseEntity<T> create(ModelMapper modelMapper, @RequestBody T dto);
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     ResponseEntity<T> update(ModelMapper modelMapper, @PathVariable S id, @RequestBody T dto);
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(@PathVariable S id);
 
 
