@@ -19,6 +19,11 @@
       "name": "jwt.expiration",
       "type": "java.lang.String",
       "description": "Description for jwt.expiration."
+    },
+    {
+      "name": "security.public-routes",
+      "type": "java.lang.String",
+      "description": "Description for security.public-routes."
     }
   ]
 }

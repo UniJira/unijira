@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final Integer tokenExpiration;
 
     @Autowired
-    public AuthServiceImpl(AuthenticationManager authenticationManager, UserRepository userRepository,
+    public AuthServiceImpl(AuthenticationManager authenticationManager,
             @Value("${jwt.secret}") String tokenSecret,
             @Value("${jwt.expiration}") Integer tokenExpiration) {
 
@@ -70,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String token) {
+    public void logout() {
         SecurityContextHolder.clearContext();
     }
 
