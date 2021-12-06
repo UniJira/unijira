@@ -3,6 +3,7 @@ package it.unical.unijira.controllers.auth;
 import it.unical.unijira.data.dto.user.UserAuthenticationDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.dto.user.UserRegisterDTO;
+import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.auth.AuthUserDetails;
@@ -86,18 +87,22 @@ public class AuthController {
 
 
     @GetMapping("active")
-    public ResponseEntity<Void> active(@RequestParam String tokenId) {
+    public ResponseEntity<Boolean> active(@RequestParam String token) {
 
-        if(!tokenService.check(tokenId))
-            return ResponseEntity.badRequest().build();
+        if(tokenService.isNotValid(token))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        if(tokenService.find(tokenId).isEmpty())
-            return ResponseEntity.notFound().build();
+        if(tokenService.isExpired(token))
+            return ResponseEntity.status(HttpStatus.GONE).build();
 
-        userService.active(tokenService.find(tokenId).get().getUser());
+        if(tokenService.getType(token) != TokenType.ACCOUNT_CONFIRM)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-
-        return ResponseEntity.ok().build();
+        return tokenService.getPayload(token, "userId")
+                .map(Long::valueOf)
+                .map(userService::activate)
+                .map(v -> ResponseEntity.ok(true))
+                .orElse(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
 
     }
 

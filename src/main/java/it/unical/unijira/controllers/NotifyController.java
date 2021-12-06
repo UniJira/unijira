@@ -77,7 +77,7 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
     }
 
     @Override
-    public ResponseEntity<Void> delete(Long id) {
+    public ResponseEntity<Boolean> delete(Long id) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
     }
 }

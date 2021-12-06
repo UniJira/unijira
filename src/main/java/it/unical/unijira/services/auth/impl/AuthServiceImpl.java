@@ -3,7 +3,7 @@ package it.unical.unijira.services.auth.impl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import it.unical.unijira.data.dao.UserRepository;
-import it.unical.unijira.data.models.Token;
+import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.auth.AuthUserDetails;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
         return JWT.create()
                 .withSubject(userDetails.getUsername())
-                .withClaim("type", Token.TokenType.AUTHORIZATION.name())
+                .withClaim("type", TokenType.AUTHORIZATION.name())
                 .withClaim("username", username)
                 .withClaim("password", password)
                 .withExpiresAt(Date.from(LocalDateTime.now().plusSeconds(tokenExpiration).toInstant(java.time.ZoneOffset.UTC)))

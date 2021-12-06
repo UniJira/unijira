@@ -1,5 +1,6 @@
 package it.unical.unijira.common;
 
+import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dto.NotifyDTO;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
@@ -10,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class ModelMapperTest {
+public class DtoMapperTest extends UniJiraTest {
 
     @Autowired
     private ModelMapper modelMapper;
@@ -35,6 +36,25 @@ public class ModelMapperTest {
         Assertions.assertEquals("message", notifyDTO.getMessage());
         Assertions.assertEquals(2L, notifyDTO.getUserId());
 
+
+    }
+
+    @Test
+    void DTOtoNotifyTest() {
+
+        var notifyDTO = new NotifyDTO() {{
+            setTitle("title");
+            setMessage("message");
+            setUserId(1L);
+        }};
+
+        Notify notify = modelMapper.map(notifyDTO, Notify.class);
+
+        Assertions.assertEquals("title", notify.getTitle());
+        Assertions.assertEquals("message", notify.getMessage());
+        Assertions.assertEquals(1L, notify.getUser().getId());
+        Assertions.assertNotNull(notify.getUser().getUsername());
+        Assertions.assertNotNull(notify.getUser().getPassword());
 
     }
 

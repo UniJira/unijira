@@ -31,7 +31,7 @@ public interface CrudController<T, S> {
     ResponseEntity<T> update(ModelMapper modelMapper, @PathVariable S id, @RequestBody T dto);
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> delete(@PathVariable S id);
+    ResponseEntity<Boolean> delete(@PathVariable S id);
 
 
 

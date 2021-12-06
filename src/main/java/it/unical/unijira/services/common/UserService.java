@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface UserService {
     Optional<User> findByUsername(String username);
     Optional<User> save(User user);
-    void active(User user);
+    boolean activate(Long id);
 }
