@@ -2,8 +2,12 @@ package it.unical.unijira;
 
 
 import it.unical.unijira.data.dao.NotifyRepository;
+import it.unical.unijira.data.dao.ProjectRepository;
+import it.unical.unijira.data.dao.UserProjectRepository;
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.models.Member;
 import it.unical.unijira.data.models.Notify;
+import it.unical.unijira.data.models.Project;
 import it.unical.unijira.data.models.User;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,7 +39,13 @@ public abstract class UniJiraTest {
     protected NotifyRepository notifyRepository;
 
     @Autowired
+    protected ProjectRepository projectRepository;
+
+    @Autowired
     protected PasswordEncoder passwordEncoder;
+
+    @Autowired
+    protected UserProjectRepository userProjectRepository;
 
     @Autowired
     protected MockMvc mockMvc;
@@ -50,6 +62,7 @@ public abstract class UniJiraTest {
             User user = new User();
             user.setUsername(USERNAME);
             user.setPassword(passwordEncoder.encode(PASSWORD));
+            user.setMembers(Collections.emptyList());
 
             userRepository.saveAndFlush(user);
 
@@ -60,6 +73,22 @@ public abstract class UniJiraTest {
             notify.setMessage("Test");
 
             notifyRepository.saveAndFlush(notify);
+
+            Project project = new Project();
+            project.setOwner(user);
+            project.setName("Test");
+            project.setKey("TST");
+            project.setMembers(Collections.emptyList());
+
+            projectRepository.saveAndFlush(project);
+
+            Member member = new Member();
+            member.setStatus(Member.Status.ENABLED);
+            member.setRole(Member.Role.SCRUM_MASTER);
+            member.setUser(user);
+            member.setProject(project);
+
+            userProjectRepository.saveAndFlush(member);
 
         }
 

@@ -2,7 +2,6 @@ package it.unical.unijira.services.auth.impl;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.auth.AuthUserDetails;
@@ -29,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
     private final Integer tokenExpiration;
 
     @Autowired
-    public AuthServiceImpl(AuthenticationManager authenticationManager, UserRepository userRepository,
+    public AuthServiceImpl(AuthenticationManager authenticationManager,
             @Value("${jwt.secret}") String tokenSecret,
             @Value("${jwt.expiration}") Integer tokenExpiration) {
 
@@ -70,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String token) {
+    public void logout() {
         SecurityContextHolder.clearContext();
     }
 

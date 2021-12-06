@@ -26,3 +26,6 @@ config:
 server:
   port: 7080
 
+
+security:
+    public-routes: "/auth/authenticate;/auth/register;/auth/active"
