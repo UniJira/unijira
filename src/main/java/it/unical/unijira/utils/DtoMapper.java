@@ -58,9 +58,9 @@ public class DtoMapper extends ModelMapper {
             try {
 
                 field.setAccessible(true);
-                field.set(entity, entityManager.find(field.getType(), resolveId(entity)));
+                field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(entity))));
 
-            } catch (IllegalAccessException | IllegalArgumentException ignored) {}
+            } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {}
 
         }
 
