@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,14 @@ public class User {
     @OneToMany
     @ToString.Exclude
     private List<Notify> notifies;
+
+    @OneToMany
+    @ToString.Exclude
+    private List<Project> ownedProjects;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    private List<Member> members = new ArrayList<>();
 
 
     public List<GrantedAuthority> getAuthorities() {
