@@ -62,7 +62,7 @@ public class AuthController {
 
 
     @PostMapping("register")
-    public ResponseEntity<String> register(@RequestBody UserRegisterDTO user) {
+    public ResponseEntity<UserInfoDTO> register(@RequestBody UserRegisterDTO user) {
 
         if(user.getUsername().isBlank())
             return ResponseEntity.badRequest().build();
@@ -77,7 +77,9 @@ public class AuthController {
 
         return userService.save(modelMapper.map(user, User.class))
                 .map (
-                        v  -> ResponseEntity.created(URI.create("")).body(""))
+                        v  -> ResponseEntity
+                                .created(URI.create("/users/%d".formatted(v.getId())))
+                                .body(modelMapper.map(v, UserInfoDTO.class)))
                 .orElseGet (
                         () -> ResponseEntity.badRequest().build()
                 );
@@ -95,8 +97,6 @@ public class AuthController {
             return ResponseEntity.notFound().build();
 
         userService.active(tokenService.find(tokenId).get().getUser());
-
-
         return ResponseEntity.ok().build();
 
     }
