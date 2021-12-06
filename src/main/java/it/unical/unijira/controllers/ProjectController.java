@@ -86,14 +86,14 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> delete(Long id) {
+    public ResponseEntity<Boolean> delete(Long id) {
 
         return projectService.findById(id)
                 .stream()
                 .filter(project -> project.getOwner().getId().equals(getAuthenticatedUser().getId()))
                 .peek(projectService::delete)
                 .findFirst()
-                .<ResponseEntity<Void>>map(project -> ResponseEntity.noContent().build())
+                .<ResponseEntity<Boolean>>map(project -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
 
     }
