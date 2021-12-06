@@ -2,6 +2,7 @@ package it.unical.unijira.controllers;
 
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.NotifyDTO;
+import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.services.common.NotifyService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,9 +48,8 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
         return notifyService.findById(id)
                 .stream()
                 .filter(notify -> notify.getUser().getId().equals(getAuthenticatedUser().getId()))
-                .peek(notify -> notifyService.markAsRead(id))
-                .map(notify -> modelMapper.map(notify, NotifyDTO.class))
                 .findFirst()
+                .map(notify -> modelMapper.map(notify, NotifyDTO.class))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
 
@@ -56,12 +57,23 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     @Override
     public ResponseEntity<NotifyDTO> create(ModelMapper modelMapper, NotifyDTO dto) {
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
+
+        return notifyService.create(modelMapper.map(dto, Notify.class))
+                .map(notify -> ResponseEntity
+                        .created(URI.create("/notifies/%d".formatted(notify.getId())))
+                        .body(modelMapper.map(notify, NotifyDTO.class)))
+                .orElse(ResponseEntity.badRequest().build());
+
     }
 
     @Override
     public ResponseEntity<NotifyDTO> update(ModelMapper modelMapper, Long id, NotifyDTO dto) {
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
+
+        return notifyService.update(id, modelMapper.map(dto, Notify.class))
+                .map(notify -> modelMapper.map(notify, NotifyDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+
     }
 
     @Override
