@@ -1,7 +1,7 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.UserRepository;
-import it.unical.unijira.data.models.Token;
+import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.UserService;
 import it.unical.unijira.utils.Config;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -65,7 +66,9 @@ public class UserServiceImpl implements UserService {
 
             if(!emailService.send(username,
                     locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
-                    locale.get("MAIL_ACCOUNT_CONFIRM_BODY", config.getBaseURL(), tokenService.generate(owner, Token.TokenType.ACCOUNT_CONFIRM, null))
+                    locale.get("MAIL_ACCOUNT_CONFIRM_BODY",
+                            config.getBaseURL(),
+                            tokenService.generate(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId().toString())))
             )) {
                 throw new RuntimeException("Error sending email to %s".formatted(username));
             }
@@ -77,10 +80,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void active(User user) {
+    public boolean activate(Long id) {
 
-        user.setActivated(true);
-        userRepository.saveAndFlush(user);
+        return userRepository.findById(id)
+                .stream()
+                .peek(user -> user.setActivated(true))
+                .peek(userRepository::saveAndFlush)
+                .findFirst()
+                .isPresent();
 
     }
 }

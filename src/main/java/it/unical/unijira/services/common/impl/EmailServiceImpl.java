@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.io.File;
 
 
@@ -24,9 +25,9 @@ public record EmailServiceImpl(JavaMailSender mailSender) implements EmailServic
     @Override
     public boolean send(String to, String subject, String body, String... attachments) {
 
-        try {
+        LOGGER.info("Sending email to {} with subject '{}'", to, subject);
 
-            LOGGER.info("Sending email to {} with subject '{}'", to, subject);
+        try {
 
             final var mime = mailSender.createMimeMessage();
             final var helper = new MimeMessageHelper(mime, true);
@@ -38,12 +39,16 @@ public record EmailServiceImpl(JavaMailSender mailSender) implements EmailServic
             for (final var attachment : attachments)
                 helper.addAttachment(attachment, new FileSystemResource(new File(attachment)));
 
-            mailSender.send(mime);
+            new Thread(() -> {
+                try {
+                    mailSender.send(mime);
+                } catch (Exception e) {
+                    LOGGER.error("Error sending email to {}: {}", to, e);
+                }
+            }).start();
 
-
-        } catch (Exception e) {
-            LOGGER.error("Error sending email to {}: {}", to, e);
-            return false;
+        } catch (MessagingException e) {
+            LOGGER.error("Error preparing email to {}: {}", to, e);
         }
 
         return true;

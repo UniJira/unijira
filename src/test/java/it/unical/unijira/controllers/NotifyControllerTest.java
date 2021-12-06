@@ -26,8 +26,16 @@ public class NotifyControllerTest extends UniJiraTest {
     @Test
     void readSingleNotificationSuccessful() throws Exception {
 
-        mockMvc.perform(get("/notifies?id=1").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+        mockMvc.perform(get("/notifies/2").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void readSingleNotificationUnsuccessful() throws Exception {
+
+        mockMvc.perform(get("/notifies/9999").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                .andExpect(status().isNotFound());
 
     }
 
