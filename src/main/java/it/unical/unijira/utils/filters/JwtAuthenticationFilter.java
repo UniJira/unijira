@@ -1,7 +1,7 @@
 package it.unical.unijira.utils.filters;
 
 import com.auth0.jwt.JWT;
-import it.unical.unijira.data.models.Token;
+import it.unical.unijira.data.models.TokenType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if(jwt.getExpiresAt().after(Date.from(Instant.now()))) {
 
-                if(jwt.getClaim("type").asString().equals(Token.TokenType.AUTHORIZATION.name())) {
+                if(jwt.getClaim("type").asString().equals(TokenType.AUTHORIZATION.name())) {
 
                     try {
 

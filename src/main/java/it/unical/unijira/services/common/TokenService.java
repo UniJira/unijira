@@ -1,14 +1,18 @@
 package it.unical.unijira.services.common;
 
-import it.unical.unijira.data.models.Token;
-import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.TokenType;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 
 public interface TokenService {
-    Optional<Token> find(String tokenId);
-    String generate(User owner, Token.TokenType type, LocalDateTime expireDate);
-    boolean check(String tokenId);
+
+    boolean isNotValid(String token);
+    boolean isExpired(String token);
+    TokenType getType(String token);
+    Optional<String> getPayload(String token, String claim);
+
+    String generate(TokenType type, Map<String, String> claims);
+
 }
