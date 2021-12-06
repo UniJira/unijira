@@ -1,16 +1,24 @@
 logging:
   level:
-    - it.unical.unijira: TRACE
+    root: INFO
+    it.unical.unijira: TRACE
 
 spring:
   datasource:
     username: sa
     password:
     driver-class-name: org.hsqldb.jdbcDriver
-    url: jdbc:hsqldb:mem:unijira
+    url: jdbc:hsqldb:file:/tmp/db/unijira
   jpa:
     hibernate:
       ddl-auto: create
     properties:
       dialect: org.hibernate.dialect.HSQLDialect
+      show_sql: true
 
+config:
+  baseURL: "http://localhost:8080"
+
+jwt:
+  secret: "qz,CWz1Sb[J*+yH1dj@,2CEd8C9AT}e@rXJ6iY}l{5 y,%4qAkMrC2`:c&GniD-#QQV #zl0|6x+07-"
+  expiration: 3600

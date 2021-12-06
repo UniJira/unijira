@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "config.locale",
+      "type": "java.lang.String",
+      "description": "Description for config.locale."
+    },
+    {
+      "name": "config.baseURL",
+      "type": "java.lang.String",
+      "description": "Description for config.baseURL."
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Description for jwt.secret."
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.String",
+      "description": "Description for jwt.expiration."
+    },
+    {
+      "name": "security.public-routes",
+      "type": "java.lang.String",
+      "description": "Description for security.public-routes."
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "MAIL_ACCOUNT_CONFIRM_SUBJECT": "Registration",
+  "MAIL_ACCOUNT_CONFIRM_BODY": "Welcome on UniJira!<br>Click on <a href=\"%s/auth/active?q=%s\">activate my account</a> to confirm your email."
+}
