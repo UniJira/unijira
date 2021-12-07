@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Entity
 @Table
 @Getter @Setter @ToString
-public class Member {
+public class Member extends AbstractBaseEntity {
 
     public enum Role {
         SCRUM_MASTER,
