@@ -19,7 +19,7 @@ public class NotifyCleanerScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void execute() {
-        notifyRepository.deleteAll(notifyRepository.findAll((root, query, cb) -> cb.equal(root.get("read"), false)));
+        notifyRepository.deleteAll(notifyRepository.findAll((root, query, cb) -> cb.equal(root.get("read"), true)));
     }
 
 }

@@ -5,7 +5,7 @@ import it.unical.unijira.data.dao.NotifyRepository;
 import it.unical.unijira.data.dao.ProjectRepository;
 import it.unical.unijira.data.dao.UserProjectRepository;
 import it.unical.unijira.data.dao.UserRepository;
-import it.unical.unijira.data.models.Member;
+import it.unical.unijira.data.models.Membership;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.Project;
 import it.unical.unijira.data.models.User;
@@ -59,37 +59,43 @@ public abstract class UniJiraTest {
 
         if(userRepository.findByUsername(USERNAME).isEmpty()) {
 
-            User user = new User();
-            user.setUsername(USERNAME);
-            user.setPassword(passwordEncoder.encode(PASSWORD));
-            user.setActivated(true);
-            user.setMembers(Collections.emptyList());
+            User user = User.builder()
+                    .username(USERNAME)
+                    .password(passwordEncoder.encode(PASSWORD))
+                    .activated(true)
+                    .memberships(Collections.emptyList())
+                    .build();
 
             userRepository.saveAndFlush(user);
 
 
-            Notify notify = new Notify();
-            notify.setUser(user);
-            notify.setTitle("Test");
-            notify.setMessage("Test");
+            Notify notify = Notify.builder()
+                    .user(user)
+                    .title("Test")
+                    .message("Test")
+                    .build();
 
             notifyRepository.saveAndFlush(notify);
 
-            Project project = new Project();
-            project.setOwner(user);
-            project.setName("Test");
-            project.setKey("TST");
-            project.setMembers(Collections.emptyList());
+
+            Project project = Project.builder()
+                    .owner(user)
+                    .name("Test")
+                    .key("TST")
+                    .memberships(Collections.emptyList())
+                    .build();
 
             projectRepository.saveAndFlush(project);
 
-            Member member = new Member();
-            member.setStatus(Member.Status.ENABLED);
-            member.setRole(Member.Role.SCRUM_MASTER);
-            member.setUser(user);
-            member.setProject(project);
 
-            userProjectRepository.saveAndFlush(member);
+            Membership membership = Membership.builder()
+                    .status(Membership.Status.ENABLED)
+                    .role(Membership.Role.SCRUM_MASTER)
+                    .user(user)
+                    .project(project)
+                    .build();
+
+            userProjectRepository.saveAndFlush(membership);
 
         }
 
