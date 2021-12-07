@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table
 @Getter @Setter @ToString
-public class Notify {
+public class Notify extends AbstractBaseEntity {
 
     public enum Priority {
         LOW,

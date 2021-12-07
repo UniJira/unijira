@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Table
 @Getter @Setter @ToString
-public class Project {
+public class Project extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue

@@ -62,6 +62,7 @@ public abstract class UniJiraTest {
             User user = new User();
             user.setUsername(USERNAME);
             user.setPassword(passwordEncoder.encode(PASSWORD));
+            user.setActivated(true);
             user.setMembers(Collections.emptyList());
 
             userRepository.saveAndFlush(user);

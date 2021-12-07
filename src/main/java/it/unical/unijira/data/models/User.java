@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table
 @Getter @Setter @ToString
-public class User {
+public class User extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue
