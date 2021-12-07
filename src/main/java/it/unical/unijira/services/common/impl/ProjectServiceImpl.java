@@ -30,7 +30,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository) implements
         p.setName(project.getName());
         p.setKey(project.getKey());
         p.setOwner(project.getOwner());
-        p.setMembers(Collections.emptyList());
+        p.setMemberships(Collections.emptyList());
 
         return Optional.of(projectRepository.saveAndFlush(p));
 
@@ -45,7 +45,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository) implements
                     p.setName(project.getName());
                     p.setKey(project.getKey());
                     p.setOwner(project.getOwner());
-                    p.setMembers(project.getMembers());
+                    p.setMemberships(project.getMemberships());
                 })
                 .findFirst()
                 .map(projectRepository::saveAndFlush);
@@ -63,7 +63,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository) implements
 
     @Override
     public List<Project> findAllByMemberId(Long userId, int page, int size) {
-        return projectRepository.findByMembersUserId(userId, PageRequest.of(page, size));
+        return projectRepository.findByMembershipsUserId(userId, PageRequest.of(page, size));
     }
 
 }

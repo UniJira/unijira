@@ -14,6 +14,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByOwnerId(Long id, Pageable pageable);
 
-    List<Project> findByMembersUserId(Long id, Pageable pageable);
+    List<Project> findByMembershipsUserId(Long id, Pageable pageable);
 
 }

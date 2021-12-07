@@ -1,7 +1,7 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.controllers.common.CrudController;
-import it.unical.unijira.data.dto.MemberDTO;
+import it.unical.unijira.data.dto.MembershipDTO;
 import it.unical.unijira.data.dto.ProjectDTO;
 import it.unical.unijira.data.models.Project;
 import it.unical.unijira.services.common.ProjectService;
@@ -98,14 +98,14 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     }
 
-    @GetMapping("{id}/members")
+    @GetMapping("{id}/memberships")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<MemberDTO>> readRoles(ModelMapper modelMapper, @PathVariable Long id, Integer page, Integer size) {
+    public ResponseEntity<List<MembershipDTO>> readRoles(ModelMapper modelMapper, @PathVariable Long id, Integer page, Integer size) {
 
         return ResponseEntity.ok(projectService
                 .findById(id)
                 .stream()
-                .map(p -> modelMapper.map(p.getMembers(), MemberDTO.class))
+                .map(p -> modelMapper.map(p.getMemberships(), MembershipDTO.class))
                 .collect(Collectors.toList()));
 
     }

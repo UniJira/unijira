@@ -1,15 +1,13 @@
 package it.unical.unijira.data.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.net.URL;
 
 
-@Getter
-@Setter
-@ToString
+@Builder
+@Getter @Setter @ToString
+@NoArgsConstructor @AllArgsConstructor
 public class NotifyDTO {
 
     private String title;

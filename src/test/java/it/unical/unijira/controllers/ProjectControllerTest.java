@@ -50,7 +50,7 @@ public class ProjectControllerTest extends UniJiraTest {
     @Test
     void readAllRolesSuccessful() throws Exception {
 
-        mockMvc.perform(get("/projects/3/members").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+        mockMvc.perform(get("/projects/3/memberships").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("[]"))));
 

@@ -1,8 +1,6 @@
 package it.unical.unijira.data.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -12,7 +10,9 @@ import java.util.List;
 
 @Entity
 @Table
+@Builder
 @Getter @Setter @ToString
+@NoArgsConstructor @AllArgsConstructor
 public class User extends AbstractBaseEntity {
 
     @Id
@@ -43,7 +43,7 @@ public class User extends AbstractBaseEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
-    private List<Member> members = new ArrayList<>();
+    private List<Membership> memberships = new ArrayList<>();
 
 
     public List<GrantedAuthority> getAuthorities() {

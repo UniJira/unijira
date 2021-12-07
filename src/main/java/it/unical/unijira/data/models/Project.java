@@ -1,8 +1,6 @@
 package it.unical.unijira.data.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.net.URL;
@@ -11,7 +9,9 @@ import java.util.List;
 
 @Entity
 @Table
+@Builder
 @Getter @Setter @ToString
+@NoArgsConstructor @AllArgsConstructor
 public class Project extends AbstractBaseEntity {
 
     @Id
@@ -35,7 +35,7 @@ public class Project extends AbstractBaseEntity {
 
     @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
-    private List<Member> members = new ArrayList<>();
+    private List<Membership> memberships = new ArrayList<>();
 
 
 }
