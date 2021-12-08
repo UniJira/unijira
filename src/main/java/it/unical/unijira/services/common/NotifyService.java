@@ -17,5 +17,6 @@ public interface NotifyService {
     Optional<Notify> findById(Long id);
 
     List<Notify> findAllByUserId(Long userId, int page, int size);
-
+  
+    Optional<List<Notify>> findAll();
 }
