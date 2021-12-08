@@ -9,7 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class AbstractBaseEntityTest extends UniJiraTest {
 
     @Test
-    void updateUserTest() {
+    void updateUserTest() throws InterruptedException {
+
+        Thread.sleep(100);
 
         var user = userRepository.findById(1L)
                 .stream()
@@ -17,6 +19,7 @@ public class AbstractBaseEntityTest extends UniJiraTest {
                 .peek(userRepository::saveAndFlush)
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("User not found"));
+
 
         Assertions.assertTrue(user.isActivated());
         Assertions.assertNotNull(user.getCreatedAt());
