@@ -1,15 +1,15 @@
 package it.unical.unijira.data.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table
+@Builder
 @Getter @Setter @ToString
-public class Member {
+@NoArgsConstructor @AllArgsConstructor
+public class Membership extends AbstractBaseEntity {
 
     public enum Role {
         SCRUM_MASTER,

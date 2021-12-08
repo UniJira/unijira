@@ -1,8 +1,6 @@
 package it.unical.unijira.data.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.net.URL;
@@ -10,8 +8,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table
+@Builder
 @Getter @Setter @ToString
-public class Notify {
+@NoArgsConstructor @AllArgsConstructor
+public class Notify extends AbstractBaseEntity {
 
     public enum Priority {
         LOW,
