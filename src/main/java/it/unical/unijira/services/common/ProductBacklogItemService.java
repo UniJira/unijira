@@ -13,6 +13,7 @@ public interface ProductBacklogItemService {
     void delete(ProductBacklogItem pbi);
     Optional<ProductBacklogItem> findById(Long id);
     List<ProductBacklogItem> findAll();
-    List<ProductBacklogItem> findAllByFather(ProductBacklogItem father);
+    List<ProductBacklogItem> findAllByFather(Long fatherId, int page, int size);
+    List<ProductBacklogItem> findAllByUser(Long userId, int page, int size);
 
 }

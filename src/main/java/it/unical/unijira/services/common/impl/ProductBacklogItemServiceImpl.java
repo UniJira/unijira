@@ -1,20 +1,23 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogItemRepository;
+import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.ProductBacklogItem;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.ProductBacklogItemService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public record ProductBacklogItemServiceImpl(ProductBacklogItemRepository pbiRepository)
+public record ProductBacklogItemServiceImpl(ProductBacklogItemRepository pbiRepository, UserRepository userRepository)
         implements ProductBacklogItemService {
 
      public Optional<ProductBacklogItem> save (ProductBacklogItem pbi){
@@ -68,8 +71,19 @@ public record ProductBacklogItemServiceImpl(ProductBacklogItemRepository pbiRepo
     }
 
     @Override
-    public List<ProductBacklogItem> findAllByFather(ProductBacklogItem father) {
-        return pbiRepository.findAllByFather(father);
+    public List<ProductBacklogItem> findAllByFather(Long fatherId, int page, int size) {
+        Optional<ProductBacklogItem> father = pbiRepository.findById(fatherId);
+        if (father.get() != null )
+            return pbiRepository.findAllByFather(father.get(), PageRequest.of(page, size));
+        return Collections.emptyList();
+     }
+
+    @Override
+    public List<ProductBacklogItem> findAllByUser(Long userId, int page, int size) {
+        Optional<User> assignee = userRepository.findById(userId);
+        if (assignee.get() != null)
+            return pbiRepository.findAllByAssignee(assignee.get(), PageRequest.of(page, size));
+        return Collections.emptyList();
     }
 
 
