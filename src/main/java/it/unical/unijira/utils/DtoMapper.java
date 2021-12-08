@@ -8,6 +8,7 @@ import org.modelmapper.convention.NameTokenizers;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import java.util.List;
 import java.util.Objects;
 
 public class DtoMapper extends ModelMapper {
@@ -52,15 +53,36 @@ public class DtoMapper extends ModelMapper {
 
         for(var field : entity.getClass().getDeclaredFields()) {
 
-            if(field.getType().getAnnotation(Entity.class) == null)
-                continue;
+            if(field.getType().getAnnotation(Entity.class) != null) {
+                try {
 
-            try {
+                    field.setAccessible(true);
+                    field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(entity))));
 
+                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
+                    ignored.printStackTrace();
+                }
+
+            }
+            else if (List.class.equals(field.getType())) {
                 field.setAccessible(true);
-                field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(entity))));
+                try {
+                    List<?> list = null;
+                    list = (List<?>) field.get(entity);
+                    if (list != null) {
+                        for (Object listItem : list) {
+                            if (listItem.getClass().getAnnotation(Entity.class) != null) {
+                                resolveEntity(listItem);
+                            }
 
-            } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {}
+                        }
+                    }
+                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
+                    ignored.printStackTrace();
+                }
+            }
+
+
 
         }
 

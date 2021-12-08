@@ -1,10 +1,7 @@
 package it.unical.unijira;
 
 
-import it.unical.unijira.data.dao.NotifyRepository;
-import it.unical.unijira.data.dao.ProjectRepository;
-import it.unical.unijira.data.dao.UserProjectRepository;
-import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.dao.*;
 import it.unical.unijira.data.models.Member;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.Project;
@@ -48,6 +45,15 @@ public abstract class UniJiraTest {
     protected UserProjectRepository userProjectRepository;
 
     @Autowired
+    protected ProductBacklogItemRepository pbiRepository;
+
+    @Autowired
+    protected ItemAssignmentRepository itemAssignmentRepository;
+
+    @Autowired
+    protected NoteRepository noteRepository;
+
+    @Autowired
     protected MockMvc mockMvc;
 
 
@@ -65,7 +71,6 @@ public abstract class UniJiraTest {
             user.setMembers(Collections.emptyList());
 
             userRepository.saveAndFlush(user);
-
 
             Notify notify = new Notify();
             notify.setUser(user);
