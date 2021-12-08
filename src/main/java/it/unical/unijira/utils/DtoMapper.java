@@ -55,13 +55,11 @@ public class DtoMapper extends ModelMapper {
 
             if(field.getType().getAnnotation(Entity.class) != null) {
                 try {
-
                     field.setAccessible(true);
-                    field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(entity))));
+                    field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(),
+                            resolveId(field.get(entity)))));
 
-                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
-                    ignored.printStackTrace();
-                }
+                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {}
 
             }
             else if (List.class.equals(field.getType())) {
@@ -77,9 +75,7 @@ public class DtoMapper extends ModelMapper {
 
                         }
                     }
-                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
-                    ignored.printStackTrace();
-                }
+                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {}
             }
 
 
