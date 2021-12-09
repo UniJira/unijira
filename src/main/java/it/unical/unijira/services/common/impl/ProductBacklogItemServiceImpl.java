@@ -82,7 +82,7 @@ public record ProductBacklogItemServiceImpl(ProductBacklogItemRepository pbiRepo
     public List<ProductBacklogItem> findAllByUser(Long userId, int page, int size) {
         Optional<User> assignee = userRepository.findById(userId);
         if (assignee.get() != null)
-            return pbiRepository.findAllByAssignee(assignee.get(), PageRequest.of(page, size));
+            return pbiRepository.findAllByAssignee(assignee.get());
         return Collections.emptyList();
     }
 

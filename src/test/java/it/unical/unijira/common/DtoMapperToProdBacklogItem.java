@@ -1,5 +1,6 @@
 package it.unical.unijira.common;
 
+import it.unical.unijira.UniJiraApplication;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dto.user.ItemAssignmentDTO;
 import it.unical.unijira.data.dto.user.ProductBacklogItemDTO;
@@ -14,13 +15,13 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-@SpringBootTest
+@SpringBootTest(classes = UniJiraApplication.class)
 public class DtoMapperToProdBacklogItem extends UniJiraTest {
 
     @Autowired
@@ -36,7 +37,7 @@ public class DtoMapperToProdBacklogItem extends UniJiraTest {
         User userCiccio = new User();
         userCiccio.setUsername("ciccio");
         userCiccio.setPassword(passwordEncoder.encode(PASSWORD));
-        userCiccio.setMembers(Collections.emptyList());
+        userCiccio.setMemberships(Collections.emptyList());
 
         userRepository.saveAndFlush(userCiccio);
         List<User> users = userRepository.findAll();

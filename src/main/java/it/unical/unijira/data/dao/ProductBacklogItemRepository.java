@@ -20,5 +20,5 @@ public interface ProductBacklogItemRepository extends JpaRepository<ProductBackl
     List<ProductBacklogItem> findAllByFather(ProductBacklogItem father, Pageable pageable);
 
     @Query(value = "SELECT ia.item FROM ItemAssignment ia where ia.assignee = :assignee")
-    List<ProductBacklogItem> findAllByAssignee(User assignee, PageRequest of);
+    List<ProductBacklogItem> findAllByAssignee(User assignee);
 }
