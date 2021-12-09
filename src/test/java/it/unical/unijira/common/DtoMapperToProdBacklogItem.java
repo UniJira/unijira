@@ -99,10 +99,14 @@ public class DtoMapperToProdBacklogItem extends UniJiraTest {
         ProductBacklogItem itemAssignment = modelMapper.map(item, ProductBacklogItem.class);
 
         Assertions.assertNotNull(itemAssignment.getId());
-        itemAssignment.getType();
-        itemAssignment.getDescription();
-        itemAssignment.getEvaluation();
-        itemAssignment.getOwner();
+        Assertions.assertNotNull(itemAssignment.getType());
+        Assertions.assertNotNull(itemAssignment.getDescription());
+        Assertions.assertNotNull(itemAssignment.getSummary());
+        Assertions.assertNotNull(itemAssignment.getEvaluation());
+        Assertions.assertNotNull(itemAssignment.getAssignees());
+        Assertions.assertTrue(itemAssignment.getAssignees().size() > 0);
+        Assertions.assertNotNull(itemAssignment.getCreatedAt());
+        Assertions.assertNotNull(itemAssignment.getUpdatedAt());
 
 
     }
