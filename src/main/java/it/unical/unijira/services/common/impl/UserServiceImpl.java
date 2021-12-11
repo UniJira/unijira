@@ -1,8 +1,11 @@
 package it.unical.unijira.services.common.impl;
 
+import com.auth0.jwt.JWT;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.services.auth.AuthService;
+import it.unical.unijira.services.common.EmailService;
 import it.unical.unijira.services.common.UserService;
 import it.unical.unijira.utils.Config;
 import it.unical.unijira.utils.Locale;
@@ -18,19 +21,19 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private final AuthService authService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final Locale locale;
-    private final TokenServiceImpl tokenService;
-    private final EmailServiceImpl emailService;
+    private final EmailService emailService;
     private final Config config;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, Config config, Locale locale, TokenServiceImpl tokenService, EmailServiceImpl emailService) {
+    public UserServiceImpl(AuthService authService, UserRepository userRepository, PasswordEncoder passwordEncoder, Config config, Locale locale, EmailService emailService) {
+        this.authService = authService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.locale = locale;
-        this.tokenService = tokenService;
         this.emailService = emailService;
         this.config = config;
     }
@@ -69,7 +72,7 @@ public class UserServiceImpl implements UserService {
                     locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
                     locale.get("MAIL_ACCOUNT_CONFIRM_BODY",
                             config.getBaseURL(),
-                            tokenService.generate(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId().toString())))
+                            authService.generateToken(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId().toString())))
             )) {
                 throw new RuntimeException("Error sending email to %s".formatted(username));
             }
@@ -91,9 +94,5 @@ public class UserServiceImpl implements UserService {
                 .isPresent();
 
     }
-    
-    
-    public Optional<List<User>> findAll() {
-        return Optional.of(userRepository.findAll());
-    }
+
 }

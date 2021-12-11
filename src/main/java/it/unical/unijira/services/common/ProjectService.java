@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProjectService {
+
     Optional<Project> findById(Long id);
     Optional<Project> save(Project project);
     Optional<Project> create(Project project);
@@ -13,6 +14,5 @@ public interface ProjectService {
     void delete(Project project);
     List<Project> findAllByOwnerId(Long userId, int page, int size);
     List<Project> findAllByMemberId(Long userId, int page, int size);
-  
-  Optional<List<Project>> findAll();
+
 }
