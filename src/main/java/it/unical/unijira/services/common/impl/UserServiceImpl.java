@@ -94,9 +94,5 @@ public class UserServiceImpl implements UserService {
                 .isPresent();
 
     }
-    
-    
-    public Optional<List<User>> findAll() {
-        return Optional.of(userRepository.findAll());
-    }
+
 }
