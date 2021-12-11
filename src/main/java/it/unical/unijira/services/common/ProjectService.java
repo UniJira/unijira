@@ -13,4 +13,6 @@ public interface ProjectService {
     void delete(Project project);
     List<Project> findAllByOwnerId(Long userId, int page, int size);
     List<Project> findAllByMemberId(Long userId, int page, int size);
+  
+  Optional<List<Project>> findAll();
 }

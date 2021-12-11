@@ -65,5 +65,10 @@ public record ProjectServiceImpl(ProjectRepository projectRepository) implements
     public List<Project> findAllByMemberId(Long userId, int page, int size) {
         return projectRepository.findByMembershipsUserId(userId, PageRequest.of(page, size));
     }
-
+    
+    @Override
+    public Optional<List<Project>> findAll() {
+        return Optional.of(projectRepository.findAll());
+    }
+    
 }
