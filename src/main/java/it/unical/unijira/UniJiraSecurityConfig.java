@@ -3,6 +3,7 @@ package it.unical.unijira;
 import it.unical.unijira.services.auth.AuthTokenException;
 import it.unical.unijira.services.auth.AuthTokenFilter;
 import it.unical.unijira.services.auth.AuthUserDetailsService;
+import it.unical.unijira.utils.Config;
 import it.unical.unijira.utils.DtoMapper;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -43,11 +44,11 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthUserDetailsService userDetailsService;
     private final EntityManager entityManager;
-    private final List<String> publicUrls;
+    private final Config config;
 
     @Autowired
-    public UniJiraSecurityConfig(@Value("${security.public-routes}") String publicUrls, AuthUserDetailsService userDetailsService, EntityManager entityManager) {
-        this.publicUrls = List.of(publicUrls.split(";"));
+    public UniJiraSecurityConfig(Config config, AuthUserDetailsService userDetailsService, EntityManager entityManager) {
+        this.config = config;
         this.userDetailsService = userDetailsService;
         this.entityManager = entityManager;
     }
@@ -68,14 +69,14 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint((r, s, e) -> this.unauthorizedEntryPoint(s, r.getAttribute("auth-token-exception")));
 
 
-        for(String url : publicUrls)
+        for(String url : config.getPublicUrls())
             httpSecurity.authorizeRequests().antMatchers(url).permitAll();
 
         httpSecurity
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new AuthTokenFilter(authenticationManager(), publicUrls), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new AuthTokenFilter(authenticationManager(), config), UsernamePasswordAuthenticationFilter.class);
 
     }
 

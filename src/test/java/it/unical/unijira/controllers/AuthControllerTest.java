@@ -16,16 +16,13 @@ import java.util.Date;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 
 @SpringBootTest
 public class AuthControllerTest extends UniJiraTest {
-
-    @Value("${jwt.secret}")
-    private String tokenSecret;
-
 
     @Test
     void authenticateSuccessful() throws Exception {
@@ -63,12 +60,41 @@ public class AuthControllerTest extends UniJiraTest {
     void getMeWithExpiredToken() throws Exception {
 
         var expiredToken = JWT.create()
-                .withClaim("type", TokenType.AUTHORIZATION.name())
-                .withExpiresAt(Date.from(Instant.now().minusSeconds(3600)))
-                .sign(Algorithm.HMAC512(this.tokenSecret));
+                        .withIssuer(config.getJWTIssuer())
+                        .withIssuedAt(Date.from(Instant.now().minusSeconds(config.getTokenExpiration() + 1)))
+                        .withExpiresAt(Date.from(Instant.now().minusSeconds(config.getTokenExpiration() + 1)))
+                        .withClaim("type", TokenType.AUTHORIZATION.toString())
+                        .withClaim("username", UniJiraTest.USERNAME)
+                        .withClaim("password", UniJiraTest.PASSWORD)
+                        .sign(config.getJWTAlgorithm());
+
 
         mockMvc.perform(get("/auth/me").header("Authorization", "Bearer " + expiredToken))
                 .andExpect(status().isIAmATeapot());
+
+    }
+
+    @Test
+    void refreshExpiredToken() throws Exception {
+
+        var expiredToken = JWT.create()
+                .withIssuer(config.getJWTIssuer())
+                .withIssuedAt(Date.from(Instant.now().minusSeconds(config.getTokenExpiration() + 1)))
+                .withExpiresAt(Date.from(Instant.now().minusSeconds(config.getTokenExpiration() + 1)))
+                .withClaim("type", TokenType.AUTHORIZATION.toString())
+                .withClaim("username", UniJiraTest.USERNAME)
+                .withClaim("password", UniJiraTest.PASSWORD)
+                .sign(config.getJWTAlgorithm());
+
+
+        mockMvc.perform(post("/auth/refresh").header("Authorization", "Bearer " + expiredToken)
+                .contentType("application/json")
+                .content("""
+                        {
+                            "token": "${expiredToken}"
+                        }
+                        """.replace("${expiredToken}", expiredToken))
+                ).andExpect(status().isOk()).andDo(print());
 
     }
 

@@ -18,7 +18,7 @@ spring:
 
 config:
   baseURL: "http://localhost:8080"
-
-jwt:
-  secret: "qz,CWz1Sb[J*+yH1dj@,2CEd8C9AT}e@rXJ6iY}l{5 y,%4qAkMrC2`:c&GniD-#QQV #zl0|6x+07-"
-  expiration: 3600
+  jwt:
+    secret: "qz,CWz1Sb[J*+yH1dj@,2CEd8C9AT}e@rXJ6iY}l{5 y,%4qAkMrC2`:c&GniD-#QQV #zl0|6x+07-"
+    expiration: 3600
+    leeway: 7200
