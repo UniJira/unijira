@@ -56,8 +56,8 @@ public class ProductBacklogItemType {
 
     }
 
-    public boolean isNotCoherentType(String type){
-        return null != type && (type == this.ISSUE || type == this.TASK || type == this.STORY || type == this.EPIC);
+    public boolean isCoherentType(String type){
+        return null != type && (this.ISSUE.equals(type) || this.TASK.equals(type) || this.STORY.equals(type) || this.EPIC.equals(type));
     }
 
 }

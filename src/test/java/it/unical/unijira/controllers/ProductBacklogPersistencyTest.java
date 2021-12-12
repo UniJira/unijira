@@ -14,12 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
-import java.util.Optional;
 
 @SpringBootTest
 public class ProductBacklogPersistencyTest extends UniJiraTest {
@@ -91,14 +87,6 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
             itemAssignmentRepository.save(assignment);
         }
 
-
-
-
-
-
-
-
-
     }
 
     @Test
@@ -119,11 +107,20 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
             Assertions.assertNotNull(item.getTags());
             Assertions.assertTrue(item.getTags().startsWith("#") && item.getTags().endsWith("#"));
             Assertions.assertNotNull(item.getType());
-            Assertions.assertTrue(ProductBacklogItemType.getInstance().isNotCoherentType(item.getType()));
+            Assertions.assertTrue(ProductBacklogItemType.getInstance().isCoherentType(item.getType()));
         }
 
         var firstId = items.get(0).getId();
         var secondId = items.get(1).getId();
+
+        ProductBacklogItem toUpdate = pbiService.findById(secondId).get();
+        System.err.println(toUpdate.getTags());
+        Assertions.assertNotNull(toUpdate);
+        toUpdate.setTags("#UPDATED#");
+        pbiRepository.saveAndFlush(toUpdate);
+
+        ProductBacklogItem updated = pbiService.findById(secondId).get();
+        Assertions.assertEquals("#UPDATED#", updated.getTags());
 
         ProductBacklogItem retrieved = pbiService.findById(firstId).get();
         List<ItemAssignment> assignmentList = retrieved.getAssignees();
@@ -131,16 +128,10 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
 
         pbiService.delete(retrieved);
 
-        Assertions.assertNull(pbiRepository.getById(firstId));
+        Assertions.assertFalse(pbiService.findById(firstId).isPresent());
+        Assertions.assertFalse(pbiService.findById(secondId).isPresent());
 
-        ProductBacklogItem secondRetrieved = pbiService.findById(secondId).get();
-        System.err.println(secondRetrieved.getTags());
-        Assertions.assertNotNull(secondRetrieved);
-        secondRetrieved.setTags("#UPDATED#");
-        pbiRepository.saveAndFlush(secondRetrieved);
 
-        ProductBacklogItem updated = pbiService.findById(secondId).get();
-        Assertions.assertEquals("#UPDATED#", updated.getTags());
 
     }
 

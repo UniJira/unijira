@@ -55,7 +55,7 @@ public class ProductBacklogItemController implements CrudController<ProductBackl
         if(itemDto.getDescription().isBlank())
             return ResponseEntity.badRequest().build();
         if(itemDto.getType().isBlank() ||
-                ProductBacklogItemType.getInstance().isNotCoherentType(itemDto.getType()))
+               ! ProductBacklogItemType.getInstance().isCoherentType(itemDto.getType()))
             return ResponseEntity.badRequest().build();
 
         return pbiService.save(modelMapper.map(itemDto, ProductBacklogItem.class))

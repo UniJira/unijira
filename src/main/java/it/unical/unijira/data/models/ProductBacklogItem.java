@@ -82,7 +82,7 @@ public class ProductBacklogItem {
     private String type;
 
     public void setType(String type) throws NonValidItemTypeException {
-        if (ProductBacklogItemType.getInstance().isNotCoherentType(type)) {
+        if (ProductBacklogItemType.getInstance().isCoherentType(type)) {
             this.type = type;
         } else {
             throw new NonValidItemTypeException(String.format(Errors.INVALID_BACKLOG_ITEM_TYPE,type));
@@ -119,11 +119,16 @@ public class ProductBacklogItem {
     @ToString.Exclude
     private List<ItemAssignment> assignees = new ArrayList<>();
 
-
     @ManyToOne
     @JoinColumn
     @Getter
     private ProductBacklogItem father;
+
+    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @Getter
+    @ToString.Exclude
+    private List<ProductBacklogItem> sons;
 
     public void setFather(ProductBacklogItem father) throws NonValidItemTypeException{
 
@@ -136,7 +141,6 @@ public class ProductBacklogItem {
                 ? father : null;
 
     }
-
 
 
 
