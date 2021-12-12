@@ -3,13 +3,10 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.ItemAssignmentRepository;
 import it.unical.unijira.data.models.ItemAssignment;
 import it.unical.unijira.data.models.ProductBacklogItem;
-import it.unical.unijira.data.models.Project;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.ItemAssignmentService;
-import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,7 +27,6 @@ public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentR
                 .stream()
                 .peek(updatedItem -> {
                    updatedItem.setItem(itemAssignment.getItem());
-                   updatedItem.setUpdatedAt(LocalDateTime.now());
                    updatedItem.setAssignee(itemAssignment.getAssignee());
                 })
                 .findFirst()

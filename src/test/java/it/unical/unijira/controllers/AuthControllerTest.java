@@ -2,12 +2,10 @@ package it.unical.unijira.controllers;
 
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.TokenType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;

@@ -1,6 +1,5 @@
 package it.unical.unijira.data.dto.user;
 
-import it.unical.unijira.data.models.ProductBacklogItem;
 import lombok.*;
 
 import java.time.LocalDateTime;

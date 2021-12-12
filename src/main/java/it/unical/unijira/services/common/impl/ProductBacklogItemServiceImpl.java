@@ -9,7 +9,6 @@ import it.unical.unijira.services.common.ProductBacklogItemService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,6 @@ public record ProductBacklogItemServiceImpl(ProductBacklogItemRepository pbiRepo
                 .peek(updatedItem -> {
                     updatedItem.setTags(pbi.getTags());
                     updatedItem.setDescription(pbi.getDescription());
-                    updatedItem.setUpdatedAt(LocalDateTime.now());
                     updatedItem.setEvaluation(pbi.getEvaluation());
                     updatedItem.setNotes(pbi.getNotes());
                     updatedItem.setAssignees(pbi.getAssignees());

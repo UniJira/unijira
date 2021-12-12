@@ -9,8 +9,8 @@ import lombok.*;
 public class MembershipDTO {
 
     private Long id;
-    private String userId;
-    private String projectId;
+    private Long userId;
+    private Long projectId;
     private Membership.Role role;
     private Membership.Status status;
 
