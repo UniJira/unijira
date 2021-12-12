@@ -1,6 +1,7 @@
 package it.unical.unijira;
 
 
+import it.unical.unijira.data.dao.*;
 import it.unical.unijira.data.dao.NotifyRepository;
 import it.unical.unijira.data.dao.ProjectRepository;
 import it.unical.unijira.data.dao.UserProjectRepository;
@@ -50,6 +51,15 @@ public abstract class UniJiraTest {
 
     @Autowired
     protected UserProjectRepository userProjectRepository;
+
+    @Autowired
+    protected ProductBacklogItemRepository pbiRepository;
+
+    @Autowired
+    protected ItemAssignmentRepository itemAssignmentRepository;
+
+    @Autowired
+    protected NoteRepository noteRepository;
 
     @Autowired
     protected MockMvc mockMvc;

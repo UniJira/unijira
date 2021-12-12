@@ -2,6 +2,10 @@ package it.unical.unijira.common;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dto.NotifyDTO;
+import it.unical.unijira.data.dto.user.ItemAssignmentDTO;
+import it.unical.unijira.data.dto.user.ProductBacklogItemDTO;
+import it.unical.unijira.data.dto.user.UserInfoDTO;
+import it.unical.unijira.data.models.ItemAssignment;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
 import org.junit.jupiter.api.Assertions;
@@ -9,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 public class DtoMapperTest extends UniJiraTest {
@@ -41,6 +48,8 @@ public class DtoMapperTest extends UniJiraTest {
 
     @Test
     void DTOtoNotifyTest() {
+
+        List<User> users = userRepository.findAll();
 
         var notifyDTO = new NotifyDTO() {{
             setTitle("title");
