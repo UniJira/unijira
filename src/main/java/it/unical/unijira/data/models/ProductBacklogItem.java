@@ -6,6 +6,8 @@ import it.unical.unijira.utils.ProductBacklogItemType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -94,7 +96,8 @@ public class ProductBacklogItem {
     // Every ProductBacklog refers to a Project
 
 
-    @OneToMany(mappedBy = "refersTo")
+    @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @Setter
     @ToString.Exclude
@@ -109,7 +112,8 @@ public class ProductBacklogItem {
     private User owner;
 
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @Setter
     @ToString.Exclude
