@@ -66,4 +66,5 @@ public record ProjectServiceImpl(ProjectRepository projectRepository) implements
         return projectRepository.findByMembershipsUserId(userId, PageRequest.of(page, size));
     }
 
+    
 }

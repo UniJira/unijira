@@ -10,6 +10,7 @@ import it.unical.unijira.data.models.Membership;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.Project;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.utils.Config;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,9 @@ public abstract class UniJiraTest {
 
     protected final static String USERNAME = "unijira20@gmail.com";
     protected final static String PASSWORD = "Unijira20";
+
+    @Autowired
+    protected Config config;
 
     @Autowired
     protected UserRepository userRepository;

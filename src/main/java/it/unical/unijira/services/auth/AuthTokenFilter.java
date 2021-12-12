@@ -1,7 +1,9 @@
 package it.unical.unijira.services.auth;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.data.models.TokenType;
+import it.unical.unijira.utils.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Date;
-import java.time.Instant;
-import java.util.List;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 
@@ -26,18 +25,18 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 
     private final AuthenticationManager authenticationManager;
-    private final List<String> publicUrls;
+    private final Config config;
 
-    public AuthTokenFilter(AuthenticationManager authenticationManager, List<String> publicUrls) {
+    public AuthTokenFilter(AuthenticationManager authenticationManager, Config config) {
         this.authenticationManager = authenticationManager;
-        this.publicUrls = publicUrls;
+        this.config = config;
     }
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if(publicUrls.stream().anyMatch(request.getRequestURI()::equals)) {
+        if(config.getPublicUrls().stream().anyMatch(request.getRequestURI()::equals)) {
 
             filterChain.doFilter(request, response);
 
@@ -53,36 +52,49 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 
                 final var authorization = request.getHeader("Authorization").substring(7);
-                final var jwt = JWT.decode(authorization);
-
-                if (jwt.getExpiresAt().before(Date.from(Instant.now())))
-                    throw new AuthTokenException(HttpStatus.I_AM_A_TEAPOT, "Token expired %s".formatted(authorization));
-
-                if (!jwt.getClaim("type").asString().equals(TokenType.AUTHORIZATION.name()))
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Invalid authorization token %s".formatted(authorization));
 
 
                 try {
 
-
-                    SecurityContextHolder.getContext()
-                            .setAuthentication(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                                    jwt.getClaim("username").asString(),
-                                    jwt.getClaim("password").asString()
-                            )));
-
-                    filterChain.doFilter(request, response);
-                    return;
+                    var decoded = JWT.require(config.getJWTAlgorithm())
+                            .withIssuer(config.getJWTIssuer())
+                            .withClaim("type", TokenType.AUTHORIZATION.name())
+                            .withClaimPresence("username")
+                            .withClaimPresence("password")
+                            .build()
+                            .verify(authorization);
 
 
-                } catch (AuthenticationException e) {
-                    LOGGER.error("Invalid credentials with token {} from {}: {} {}, {}", authorization, request.getRemoteAddr(), jwt.getClaim("username").asString(), jwt.getClaim("password").asString(), e);
+                    try {
+
+
+                        SecurityContextHolder.getContext()
+                                .setAuthentication(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                                        decoded.getClaim("username").asString(),
+                                        decoded.getClaim("password").asString()
+                                )));
+
+
+                        filterChain.doFilter(request, response);
+                        return;
+
+
+                    } catch (AuthenticationException e) {
+                        LOGGER.error("Invalid credentials with token {} from {} <{}>, {}", authorization, request.getRemoteAddr(), decoded.getClaim("username").asString(), e);
+                    } catch (Exception e) {
+                        LOGGER.error("Unexpected error with token {} from {}: {}", authorization, request.getRemoteAddr(), e);
+                    }
+
+
+                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authentication failed with token %s".formatted(authorization));
+
+
+                } catch (TokenExpiredException e) {
+                    throw new AuthTokenException(HttpStatus.I_AM_A_TEAPOT, "Token expired %s".formatted(authorization));
                 } catch (Exception e) {
-                    LOGGER.error("Unexpected error with token {} from {}: {}", authorization, request.getRemoteAddr(), e);
+                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Invalid authorization token %s: %s".formatted(authorization, e));
                 }
 
-
-                throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authentication failed with token %s".formatted(authorization));
 
 
             } catch (AuthTokenException e) {
