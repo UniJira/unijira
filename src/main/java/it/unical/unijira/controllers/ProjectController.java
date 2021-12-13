@@ -65,6 +65,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(project.getKey().isBlank())
             return ResponseEntity.badRequest().build();
 
+        if(project.getOwnerId() != null)
+            return ResponseEntity.badRequest().build();
+
+        project.setOwnerId(getAuthenticatedUser().getId());
+
         return projectService.create(modelMapper.map(project, Project.class))
                 .map(p -> ResponseEntity
                         .created(URI.create("/projects/%d".formatted(p.getId())))

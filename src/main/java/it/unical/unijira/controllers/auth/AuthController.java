@@ -30,15 +30,13 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
-    private final Config config;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public AuthController(ModelMapper modelMapper, Config config, AuthService authService, UserService userService) {
+    public AuthController(ModelMapper modelMapper, AuthService authService, UserService userService) {
         this.modelMapper = modelMapper;
         this.authService = authService;
         this.userService = userService;
-        this.config = config;
     }
 
     
