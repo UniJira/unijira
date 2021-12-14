@@ -10,7 +10,6 @@ import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.auth.AuthUserDetails;
 import it.unical.unijira.services.common.UserService;
-import it.unical.unijira.utils.Config;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
