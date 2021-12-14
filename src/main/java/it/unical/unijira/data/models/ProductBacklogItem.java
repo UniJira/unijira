@@ -10,7 +10,6 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ import java.util.List;
 @Table
 @ToString
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class ProductBacklogItem {
+public class ProductBacklogItem extends AbstractBaseEntity {
 
     // SIMPLE FIELDS
     @Id
@@ -33,20 +32,6 @@ public class ProductBacklogItem {
     @Getter
     @Setter
     private String summary;
-
-
-    @Column
-    @Basic(optional = false)
-    @Getter
-    @Setter
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-
-    @Column
-    @Basic
-    @Getter
-    @Setter
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
 
     @Column

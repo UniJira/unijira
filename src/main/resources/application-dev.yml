@@ -17,7 +17,7 @@ spring:
       show_sql: true
 
 config:
-  baseURL: "http://localhost:8080"
+  baseURL: "http://localhost:8100"
   jwt:
     secret: "qz,CWz1Sb[J*+yH1dj@,2CEd8C9AT}e@rXJ6iY}l{5 y,%4qAkMrC2`:c&GniD-#QQV #zl0|6x+07-"
     expiration: 3600

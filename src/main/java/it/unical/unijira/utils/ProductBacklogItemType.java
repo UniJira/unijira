@@ -1,10 +1,5 @@
 package it.unical.unijira.utils;
 
-import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import lombok.Getter;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.ApplicationScope;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +22,7 @@ public class ProductBacklogItemType {
 
 
     // key is father, values are available sons
-    private HashMap<String, List<String>> fatherAndSon;
+    private final HashMap<String, List<String>> fatherAndSon;
 
     private static ProductBacklogItemType instance;
 
@@ -51,13 +46,13 @@ public class ProductBacklogItemType {
 
     public boolean isValidAssignment(String father, String son) {
         if (null == father) return false;
-        List sons = this.fatherAndSon.get(father);
+        List<String> sons = this.fatherAndSon.get(father);
         return sons.contains(son);
 
     }
 
     public boolean isCoherentType(String type){
-        return null != type && (this.ISSUE.equals(type) || this.TASK.equals(type) || this.STORY.equals(type) || this.EPIC.equals(type));
+        return (this.ISSUE.equals(type) || this.TASK.equals(type) || this.STORY.equals(type) || this.EPIC.equals(type));
     }
 
 }
