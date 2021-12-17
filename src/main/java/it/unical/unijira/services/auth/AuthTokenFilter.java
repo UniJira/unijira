@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 
@@ -44,14 +45,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
             try {
 
+                //! FIXME: Use HttpOnly cookies
+
                 if (request.getHeader("Authorization") == null)
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Invalid authorization type");
+                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authorization header is null");
 
                 if (!request.getHeader("Authorization").startsWith("Bearer "))
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Invalid authorization type");
+                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authorization header is not valid: %s".formatted(request.getHeader("Authorization")));
+
 
 
                 final var authorization = request.getHeader("Authorization").substring(7);
+
+                if(authorization.isBlank())
+                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authorization token is empty");
+
 
 
                 try {
