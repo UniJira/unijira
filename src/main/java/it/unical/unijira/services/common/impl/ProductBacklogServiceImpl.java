@@ -3,6 +3,7 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.ProductBacklogItemRepository;
 import it.unical.unijira.data.dao.ProductBacklogRepository;
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.ProductBacklogItem;
 import it.unical.unijira.services.common.ProductBacklogService;
@@ -23,7 +24,15 @@ public record ProductBacklogServiceImpl(ProductBacklogRepository productBacklogR
 
     @Override
     public Optional<ProductBacklog> update(Long id, ProductBacklog backlog) {
-        return Optional.empty();
+
+        return productBacklogRepository.findById(id)
+                .stream()
+                .peek(updatedItem -> {
+                    updatedItem.setSprints(backlog.getSprints());
+                    updatedItem.setProject(backlog.getProject());
+                })
+                .findFirst()
+                .map(productBacklogRepository::saveAndFlush);
     }
 
     @Override
