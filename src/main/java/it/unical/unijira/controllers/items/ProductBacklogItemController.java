@@ -3,6 +3,7 @@ package it.unical.unijira.controllers.items;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.user.ProductBacklogItemDTO;
 import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.services.common.NoteService;
 import it.unical.unijira.services.common.ProductBacklogItemService;
 import it.unical.unijira.utils.ProductBacklogItemType;
 import org.modelmapper.ModelMapper;
@@ -20,10 +21,12 @@ import java.util.stream.Collectors;
 public class ProductBacklogItemController implements CrudController<ProductBacklogItemDTO, Long> {
 
     private final ProductBacklogItemService pbiService;
+    private final NoteService noteService;
 
     @Autowired
-    public ProductBacklogItemController(ProductBacklogItemService pbiService) {
+    public ProductBacklogItemController(ProductBacklogItemService pbiService, NoteService noteService) {
         this.pbiService = pbiService;
+        this.noteService = noteService;
     }
 
 
