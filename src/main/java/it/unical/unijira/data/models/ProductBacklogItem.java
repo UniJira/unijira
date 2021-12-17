@@ -17,8 +17,7 @@ import java.util.List;
 @Entity
 @Table
 @ToString
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class ProductBacklogItem {
+public class ProductBacklogItem extends AbstractBaseEntity{
 
     // SIMPLE FIELDS
     @Id
@@ -33,20 +32,6 @@ public class ProductBacklogItem {
     @Getter
     @Setter
     private String summary;
-
-
-    @Column
-    @Basic(optional = false)
-    @Getter
-    @Setter
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-
-    @Column
-    @Basic
-    @Getter
-    @Setter
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
 
     @Column
@@ -92,8 +77,7 @@ public class ProductBacklogItem {
 
     // RELATIONSHIPS
 
-    // TODO Add relationship, every productBacklogItem refers to a ProductBacklog
-    // Every ProductBacklog refers to a Project
+
 
 
     @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL)
@@ -142,6 +126,30 @@ public class ProductBacklogItem {
 
     }
 
+    //This is a list but an item can stay just in one backlog.
+    //but the insertion has its own fields, so i decided to keep the tables separated
+
+    @OneToOne(mappedBy = "item", cascade = CascadeType.REMOVE)
+    @Getter
+    @Setter
+    @ToString.Exclude
+    private ProductBacklogInsertion backlogImIn;
+
+
+    @OneToMany(mappedBy = "pbi")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @Getter
+    @Setter
+    @ToString.Exclude
+    private List<SprintInsertion> sprintsImIn;
+
+
+    @OneToMany(mappedBy = "pbi")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @Getter
+    @Setter
+    @ToString.Exclude
+    private List<RoadmapInsertion> roadmapsImIn;
 
 
 

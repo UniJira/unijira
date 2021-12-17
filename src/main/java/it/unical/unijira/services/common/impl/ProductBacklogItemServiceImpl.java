@@ -31,7 +31,6 @@ public record ProductBacklogItemServiceImpl(ProductBacklogItemRepository pbiRepo
                 .peek(updatedItem -> {
                     updatedItem.setTags(pbi.getTags());
                     updatedItem.setDescription(pbi.getDescription());
-                    updatedItem.setUpdatedAt(LocalDateTime.now());
                     updatedItem.setEvaluation(pbi.getEvaluation());
                     updatedItem.setNotes(pbi.getNotes());
                     updatedItem.setAssignees(pbi.getAssignees());
