@@ -5,7 +5,6 @@ import it.unical.unijira.data.models.Note;
 import it.unical.unijira.services.common.NoteService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -21,7 +20,6 @@ public record NoteServiceImpl(NoteRepository noteRepository) implements NoteServ
                 .stream()
                 .peek(updatedItem -> {
                    updatedItem.setAuthor(note.getAuthor());
-                   updatedItem.setUpdatedAt(LocalDateTime.now());
                    updatedItem.setMessage(note.getMessage());
                    updatedItem.setReplyTo(note.getReplyTo());
                    updatedItem.setTimestamp(note.getTimestamp());

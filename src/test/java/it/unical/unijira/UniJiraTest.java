@@ -2,10 +2,6 @@ package it.unical.unijira;
 
 
 import it.unical.unijira.data.dao.*;
-import it.unical.unijira.data.dao.NotifyRepository;
-import it.unical.unijira.data.dao.ProjectRepository;
-import it.unical.unijira.data.dao.UserProjectRepository;
-import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.Membership;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.Project;

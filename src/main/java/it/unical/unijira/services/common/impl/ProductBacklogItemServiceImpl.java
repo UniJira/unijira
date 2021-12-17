@@ -9,7 +9,6 @@ import it.unical.unijira.services.common.ProductBacklogItemService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

@@ -1,13 +1,10 @@
 package it.unical.unijira.services.auth.impl;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.services.auth.AuthService;
-import it.unical.unijira.services.auth.AuthUserDetails;
 import it.unical.unijira.utils.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 

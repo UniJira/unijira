@@ -10,14 +10,14 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table
 @ToString
-public class ProductBacklogItem extends AbstractBaseEntity{
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public class ProductBacklogItem extends AbstractBaseEntity {
 
     // SIMPLE FIELDS
     @Id
@@ -77,7 +77,8 @@ public class ProductBacklogItem extends AbstractBaseEntity{
 
     // RELATIONSHIPS
 
-
+    // TODO Add relationship, every productBacklogItem refers to a ProductBacklog
+    // Every ProductBacklog refers to a Project
 
 
     @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL)
@@ -126,30 +127,6 @@ public class ProductBacklogItem extends AbstractBaseEntity{
 
     }
 
-    //This is a list but an item can stay just in one backlog.
-    //but the insertion has its own fields, so i decided to keep the tables separated
-
-    @OneToOne(mappedBy = "item", cascade = CascadeType.REMOVE)
-    @Getter
-    @Setter
-    @ToString.Exclude
-    private ProductBacklogInsertion backlogImIn;
-
-
-    @OneToMany(mappedBy = "pbi")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @Getter
-    @Setter
-    @ToString.Exclude
-    private List<SprintInsertion> sprintsImIn;
-
-
-    @OneToMany(mappedBy = "pbi")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @Getter
-    @Setter
-    @ToString.Exclude
-    private List<RoadmapInsertion> roadmapsImIn;
 
 
 

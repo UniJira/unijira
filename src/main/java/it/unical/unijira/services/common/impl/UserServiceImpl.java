@@ -1,6 +1,5 @@
 package it.unical.unijira.services.common.impl;
 
-import com.auth0.jwt.JWT;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 

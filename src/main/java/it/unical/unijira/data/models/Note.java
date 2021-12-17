@@ -12,21 +12,11 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-public class Note {
+public class Note extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue
     private Long id;
-
-
-    @Column
-    @Basic(optional = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-
-    @Column
-    @Basic(optional = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
 
     @Column
