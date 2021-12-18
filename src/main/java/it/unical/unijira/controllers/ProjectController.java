@@ -171,7 +171,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{project}/backlogs")
+    @PostMapping("/{project}/backlogs")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProductBacklogDTO> createBacklog(ModelMapper modelMapper,  @PathVariable Long project,
                                                            @RequestBody ProductBacklogDTO dto) {
@@ -191,7 +191,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @GetMapping("/{project}/backlogs/{backlog}")
+    @PutMapping("/{project}/backlogs/{backlog}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProductBacklogDTO> updateBacklog(ModelMapper modelMapper,  @PathVariable Long project,
                                                            @PathVariable Long backlog,
@@ -211,7 +211,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{project}/backlogs/{backlog}")
+    @DeleteMapping("/{project}/backlogs/{backlog}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Boolean> deleteBacklog(@PathVariable Long project, @PathVariable Long backlog) {
 

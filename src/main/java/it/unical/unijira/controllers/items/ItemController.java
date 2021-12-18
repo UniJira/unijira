@@ -111,7 +111,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
     }
 
     /* TODO Notes management
-    @PostMapping("{item}/note")
+    @PostMapping("{item}/notes")
     public ResponseEntity<ProductBacklogItemDTO> addNote(ModelMapper modelMapper, @PathVariable Long item, @RequestBody NoteDTO note) {
 
     }
@@ -122,18 +122,18 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     }
 
-     @PutMapping("{item}/note/{note}")
+     @PutMapping("{item}/notes/{note}")
      public ResponseEntity<ProductBacklogItemDTO> getNoteById(ModelMapper modelMapper, @PathVariable Long item, @PathVariable Long note) {
 
      }
 
-    @PutMapping("{item}/note/{note}")
+    @PutMapping("{item}/notes/{note}")
     public ResponseEntity<ProductBacklogItemDTO> updateNote(ModelMapper modelMapper, @RequestBody NoteDTO note) {
 
     }
 
 
-    @PutMapping("{item}/note/{note}")
+    @PutMapping("{item}/notes/{note}")
     public ResponseEntity<ProductBacklogItemDTO> deleteNote(@PathVariable Long item, @PathVariable Long note) {
 
     }

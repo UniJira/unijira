@@ -15,6 +15,4 @@ public interface SprintInsertionRepository extends JpaRepository<SprintInsertion
     @Query(value = "SELECT insertion.pbi FROM SprintInsertion insertion where insertion.sprint = :sprint")
     List<Item> findItemsBySprint(Sprint sprint);
 
-
-    List<SprintInsertion> findAllBySprint();
 }
