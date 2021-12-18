@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/backlog/items")
+@RequestMapping("/items")
 public class ProductBacklogItemController implements CrudController<ProductBacklogItemDTO, Long> {
 
     private final ProductBacklogItemService pbiService;
