@@ -12,5 +12,5 @@ public interface SprintInsertionService {
     void delete (SprintInsertion sprintInsertion);
     Optional<SprintInsertion> findById(Long id);
     List<SprintInsertion> findAll();
-    List<ProductBacklogItem> findItemsBySprint(Sprint s);
+    List<Item> findItemsBySprint(Sprint s);
 }

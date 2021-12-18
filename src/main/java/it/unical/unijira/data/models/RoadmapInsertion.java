@@ -38,7 +38,7 @@ public class RoadmapInsertion extends AbstractBaseEntity{
     @JoinColumn
     @Getter
     @Setter
-    private ProductBacklogItem pbi;
+    private Item pbi;
 
 
     @ManyToOne

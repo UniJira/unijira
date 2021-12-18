@@ -1,6 +1,6 @@
 package it.unical.unijira.data.dao;
 
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.SprintInsertion;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +13,7 @@ import java.util.List;
 public interface SprintInsertionRepository extends JpaRepository<SprintInsertion, Long> {
 
     @Query(value = "SELECT insertion.pbi FROM SprintInsertion insertion where insertion.sprint = :sprint")
-    List<ProductBacklogItem> findItemsBySprint(Sprint sprint);
+    List<Item> findItemsBySprint(Sprint sprint);
 
 
     List<SprintInsertion> findAllBySprint();

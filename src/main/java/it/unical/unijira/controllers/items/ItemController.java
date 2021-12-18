@@ -1,11 +1,11 @@
 package it.unical.unijira.controllers.items;
 
 import it.unical.unijira.controllers.common.CrudController;
-import it.unical.unijira.data.dto.user.ProductBacklogItemDTO;
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.dto.user.ItemDTO;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.services.common.NoteService;
-import it.unical.unijira.services.common.ProductBacklogItemService;
-import it.unical.unijira.utils.ProductBacklogItemType;
+import it.unical.unijira.services.common.ItemService;
+import it.unical.unijira.utils.ItemType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/items")
-public class ProductBacklogItemController implements CrudController<ProductBacklogItemDTO, Long> {
+public class ItemController implements CrudController<ItemDTO, Long> {
 
-    private final ProductBacklogItemService pbiService;
+    private final ItemService pbiService;
     private final NoteService noteService;
 
     @Autowired
-    public ProductBacklogItemController(ProductBacklogItemService pbiService, NoteService noteService) {
+    public ItemController(ItemService pbiService, NoteService noteService) {
         this.pbiService = pbiService;
         this.noteService = noteService;
     }
@@ -35,18 +35,18 @@ public class ProductBacklogItemController implements CrudController<ProductBackl
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProductBacklogItemDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
+    public ResponseEntity<List<ItemDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
         return ResponseEntity.ok(pbiService.findAll().stream()
-                        .map(item -> modelMapper.map(item, ProductBacklogItemDTO.class))
+                        .map(item -> modelMapper.map(item, ItemDTO.class))
                                 .collect(Collectors.toList()));
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogItemDTO> read(ModelMapper modelMapper, Long id) {
+    public ResponseEntity<ItemDTO> read(ModelMapper modelMapper, Long id) {
         return pbiService.findById(id)
                 .stream()
-                .map(item -> modelMapper.map(item, ProductBacklogItemDTO.class))
+                .map(item -> modelMapper.map(item, ItemDTO.class))
                 .findFirst()
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -54,28 +54,28 @@ public class ProductBacklogItemController implements CrudController<ProductBackl
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogItemDTO> create(ModelMapper modelMapper, ProductBacklogItemDTO itemDto) {
+    public ResponseEntity<ItemDTO> create(ModelMapper modelMapper, ItemDTO itemDto) {
 
         if(itemDto.getSummary().isBlank())
             return ResponseEntity.badRequest().build();
         if(itemDto.getDescription().isBlank())
             return ResponseEntity.badRequest().build();
         if(itemDto.getType().isBlank() ||
-               ! ProductBacklogItemType.getInstance().isCoherentType(itemDto.getType()))
+               ! ItemType.getInstance().isCoherentType(itemDto.getType()))
             return ResponseEntity.badRequest().build();
 
-        return pbiService.save(modelMapper.map(itemDto, ProductBacklogItem.class))
+        return pbiService.save(modelMapper.map(itemDto, Item.class))
                 .map(createdDTO -> ResponseEntity
                         .created(URI.create("/backlog/items/%d".formatted(createdDTO.getId())))
-                        .body(modelMapper.map(createdDTO, ProductBacklogItemDTO.class)))
+                        .body(modelMapper.map(createdDTO, ItemDTO.class)))
                 .orElse(ResponseEntity.badRequest().build());
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogItemDTO> update(ModelMapper modelMapper, Long id, ProductBacklogItemDTO dto) {
-        return pbiService.update(id, modelMapper.map(dto, ProductBacklogItem.class))
-                .map(newDto -> modelMapper.map(newDto, ProductBacklogItemDTO.class))
+    public ResponseEntity<ItemDTO> update(ModelMapper modelMapper, Long id, ItemDTO dto) {
+        return pbiService.update(id, modelMapper.map(dto, Item.class))
+                .map(newDto -> modelMapper.map(newDto, ItemDTO.class))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
 
@@ -93,20 +93,20 @@ public class ProductBacklogItemController implements CrudController<ProductBackl
     }
 
 
-    @GetMapping("by_user/{user}")
+    @GetMapping("by-user/{user}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProductBacklogItemDTO>> itemsByUser(ModelMapper modelMapper, @PathVariable Long user, Integer page, Integer size) {
+    public ResponseEntity<List<ItemDTO>> itemsByUser(ModelMapper modelMapper, @PathVariable Long user, Integer page, Integer size) {
         return ResponseEntity.ok(pbiService.findAllByUser(user, page, size).stream()
-                .map(item -> modelMapper.map(item, ProductBacklogItemDTO.class))
+                .map(item -> modelMapper.map(item, ItemDTO.class))
                 .collect(Collectors.toList()));
 
     }
 
-    @GetMapping("by_father/{father}")
+    @GetMapping("by-father/{father}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProductBacklogItemDTO>> itemsByFather(ModelMapper modelMapper, @PathVariable Long father, Integer page, Integer size){
+    public ResponseEntity<List<ItemDTO>> itemsByFather(ModelMapper modelMapper, @PathVariable Long father, Integer page, Integer size){
         return ResponseEntity.ok(pbiService.findAllByFather(father, page, size).stream()
-                .map(item -> modelMapper.map(item, ProductBacklogItemDTO.class))
+                .map(item -> modelMapper.map(item, ItemDTO.class))
                 .collect(Collectors.toList()));
     }
 

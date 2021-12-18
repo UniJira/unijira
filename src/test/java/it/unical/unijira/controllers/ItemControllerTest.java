@@ -2,8 +2,8 @@ package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import it.unical.unijira.data.models.ProductBacklogItem;
-import it.unical.unijira.utils.ProductBacklogItemType;
+import it.unical.unijira.data.models.Item;
+import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,13 +16,13 @@ public class ItemControllerTest extends UniJiraTest {
 
     @BeforeEach
     void insertDummyObject(){
-        ProductBacklogItem father = new ProductBacklogItem();
+        Item father = new Item();
         father.setDescription("this is an useless epic");
         father.setEvaluation(77);
         father.setMeasureUnit("metri");
         father.setSummary("useless epic");
         try {
-            father.setType(ProductBacklogItemType.getInstance().EPIC);
+            father.setType(ItemType.getInstance().EPIC);
             father.setFather(null);
         } catch (NonValidItemTypeException e) {}
 

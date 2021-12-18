@@ -1,7 +1,7 @@
 package it.unical.unijira.data.dao;
 
 import it.unical.unijira.data.models.ItemAssignment;
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.User;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
@@ -14,5 +14,5 @@ public interface ItemAssignmentRepository extends CrudRepository<ItemAssignment,
         JpaSpecificationExecutor<ItemAssignment> {
 
     List<ItemAssignment> findAllByAssignee(User assignee);
-    List<ItemAssignment> findAllByItem(ProductBacklogItem pbi);
+    List<ItemAssignment> findAllByItem(Item pbi);
 }

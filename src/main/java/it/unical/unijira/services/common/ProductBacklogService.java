@@ -1,9 +1,10 @@
 package it.unical.unijira.services.common;
 
 import it.unical.unijira.data.models.ProductBacklog;
-import it.unical.unijira.data.models.ProductBacklogItem;
-import org.springframework.stereotype.Service;
+import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.Project;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +26,7 @@ public interface ProductBacklogService {
     void delete (ProductBacklog backlog);
     Optional<ProductBacklog> findById(Long id);
     List<ProductBacklog> findAll();
-    List<ProductBacklogItem> findItems(ProductBacklog backlog);
+    List<Item> findItems(ProductBacklog backlog);
+
+    List<ProductBacklog> findAllByProject(Project project);
 }

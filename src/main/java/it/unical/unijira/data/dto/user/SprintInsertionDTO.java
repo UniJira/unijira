@@ -10,5 +10,5 @@ import lombok.*;
 public class SprintInsertionDTO {
     private Long id;
     private SprintDTO sprint;
-    private ProductBacklogItemDTO item;
+    private ItemDTO item;
 }

@@ -2,7 +2,6 @@ package it.unical.unijira.services.common;
 
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.ProductBacklogInsertion;
-import it.unical.unijira.data.models.ProductBacklogItem;
 
 import java.util.List;
 import java.util.Optional;

@@ -26,7 +26,7 @@ public class ProductBacklogInsertion extends AbstractBaseEntity{
     @OneToOne
     @JoinColumn
     @Getter
-    private ProductBacklogItem item;
+    private Item item;
 
     @Column
     @Basic(optional = false)

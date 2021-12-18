@@ -2,7 +2,7 @@ package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ItemAssignmentRepository;
 import it.unical.unijira.data.models.ItemAssignment;
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.ItemAssignmentService;
 import org.springframework.stereotype.Service;
@@ -56,7 +56,7 @@ public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentR
     }
 
     @Override
-    public List<ItemAssignment> findAllByItem(ProductBacklogItem pbi) {
+    public List<ItemAssignment> findAllByItem(Item pbi) {
         return itemAssignmentRepo.findAllByItem(pbi);
     }
 }

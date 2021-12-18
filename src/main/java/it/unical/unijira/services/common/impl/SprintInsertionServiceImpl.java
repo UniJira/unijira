@@ -39,7 +39,7 @@ public record SprintInsertionServiceImpl(SprintInsertionRepository sprintInserti
 
 
     @Override
-    public List<ProductBacklogItem> findItemsBySprint(Sprint s) {
+    public List<Item> findItemsBySprint(Sprint s) {
         return sprintInsertionRepository.findItemsBySprint(s);
     }
 }

@@ -14,6 +14,6 @@ public class RoadmapInsertionDTO {
     private Long id;
     private LocalDateTime startingDate;
     private LocalDateTime endingDate;
-    private ProductBacklogItemDTO item;
+    private ItemDTO item;
     private RoadmapDTO roadmap;
 }

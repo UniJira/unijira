@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 @ApplicationScope
  */
-public class ProductBacklogItemType {
+public class ItemType {
 
 
     public final String EPIC = "epic";
@@ -24,9 +24,9 @@ public class ProductBacklogItemType {
     // key is father, values are available sons
     private final HashMap<String, List<String>> fatherAndSon;
 
-    private static ProductBacklogItemType instance;
+    private static ItemType instance;
 
-    private ProductBacklogItemType(){
+    private ItemType(){
         this.fatherAndSon = new HashMap<>();
         this.fatherAndSon.put(this.EPIC, Arrays.asList(this.STORY, this.TASK));
         this.fatherAndSon.put(this.STORY, Arrays.asList(this.TASK, this.ISSUE));
@@ -35,10 +35,10 @@ public class ProductBacklogItemType {
 
     }
 
-    public static ProductBacklogItemType getInstance(){
+    public static ItemType getInstance(){
 
         if (instance == null){
-            instance = new ProductBacklogItemType();
+            instance = new ItemType();
         }
         return instance;
 

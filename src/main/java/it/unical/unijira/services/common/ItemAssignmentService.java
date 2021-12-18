@@ -1,7 +1,7 @@
 package it.unical.unijira.services.common;
 
 import it.unical.unijira.data.models.ItemAssignment;
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.User;
 
 import java.util.List;
@@ -17,5 +17,5 @@ public interface ItemAssignmentService {
     Optional<ItemAssignment> findById(Long id);
     List<ItemAssignment> findAll();
     List<ItemAssignment> findAllByAssignee(User assignee);
-    List<ItemAssignment> findAllByItem(ProductBacklogItem pbi);
+    List<ItemAssignment> findAllByItem(Item pbi);
 }

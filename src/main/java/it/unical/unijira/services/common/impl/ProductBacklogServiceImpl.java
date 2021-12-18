@@ -2,7 +2,8 @@ package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogRepository;
 import it.unical.unijira.data.models.ProductBacklog;
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.Project;
 import it.unical.unijira.services.common.ProductBacklogService;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,12 @@ public record ProductBacklogServiceImpl(ProductBacklogRepository productBacklogR
     }
 
     @Override
-    public List<ProductBacklogItem> findItems(ProductBacklog backlog) {
+    public List<Item> findItems(ProductBacklog backlog) {
         return productBacklogRepository.findItems(backlog);
+    }
+
+    @Override
+    public List<ProductBacklog> findAllByProject(Project project) {
+        return productBacklogRepository.findAllByProject(project);
     }
 }

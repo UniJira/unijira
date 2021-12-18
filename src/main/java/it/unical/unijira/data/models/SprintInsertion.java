@@ -29,5 +29,5 @@ public class SprintInsertion extends AbstractBaseEntity{
     @JoinColumn
     @Getter
     @Setter
-    private ProductBacklogItem pbi;
+    private Item pbi;
 }

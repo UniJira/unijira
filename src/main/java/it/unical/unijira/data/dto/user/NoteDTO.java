@@ -15,6 +15,6 @@ public class NoteDTO {
     private LocalDateTime timestamp;
     private String message;
     private NoteDTO replyTo;
-    private ProductBacklogItemDTO refersTo;
+    private ItemDTO refersTo;
     private UserInfoDTO author;
 }

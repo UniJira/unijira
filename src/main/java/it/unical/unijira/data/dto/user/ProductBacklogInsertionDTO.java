@@ -10,7 +10,7 @@ import lombok.*;
 public class ProductBacklogInsertionDTO {
 
     private Long id;
-    private ProductBacklogItemDTO item;
+    private ItemDTO item;
     private ProductBacklogDTO backlog;
     private Integer priority;
 }

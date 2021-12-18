@@ -4,13 +4,13 @@ import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.ItemAssignment;
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.impl.ItemAssignmentServiceImpl;
 import it.unical.unijira.services.common.impl.NoteServiceImpl;
-import it.unical.unijira.services.common.impl.ProductBacklogItemServiceImpl;
+import it.unical.unijira.services.common.impl.ItemServiceImpl;
 import it.unical.unijira.services.common.impl.UserServiceImpl;
-import it.unical.unijira.utils.ProductBacklogItemType;
+import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
 
 
     @Autowired
-    private ProductBacklogItemServiceImpl pbiService;
+    private ItemServiceImpl pbiService;
 
     @Autowired
     private UserServiceImpl userService;
@@ -46,13 +46,13 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
         Assertions.assertNotNull(itemAssignmentRepository);
         Assertions.assertNotNull(userRepository);
 
-        ProductBacklogItem father = new ProductBacklogItem();
+        Item father = new Item();
         father.setDescription("this is an useless epic");
         father.setEvaluation(77);
         father.setMeasureUnit("metri");
         father.setSummary("useless epic");
         try {
-            father.setType(ProductBacklogItemType.getInstance().EPIC);
+            father.setType(ItemType.getInstance().EPIC);
             father.setFather(null);
         } catch (NonValidItemTypeException e) {}
 
@@ -63,13 +63,13 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
         father = pbiRepository.saveAndFlush(father);
 
 
-        ProductBacklogItem son = new ProductBacklogItem();
+        Item son = new Item();
         son.setDescription("this is an useless item");
         son.setEvaluation(77);
         son.setMeasureUnit("centimetrimetri");
         son.setSummary("useless item");
         try {
-            son.setType(ProductBacklogItemType.getInstance().STORY);
+            son.setType(ItemType.getInstance().STORY);
             son.setFather(father);
         } catch (NonValidItemTypeException e) {}
 
@@ -96,7 +96,7 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
 
         Iterable<ItemAssignment> assignments = itemAssignmentRepository.findAll();
         Assertions.assertTrue(assignments.iterator().hasNext());
-        List<ProductBacklogItem> items = pbiRepository.findAll();
+        List<Item> items = pbiRepository.findAll();
         Assertions.assertTrue(items.size() >= 2);
         for(var item : items) {
             Assertions.assertNotNull(item.getUpdatedAt());
@@ -109,22 +109,22 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
             Assertions.assertNotNull(item.getTags());
             Assertions.assertTrue(item.getTags().startsWith("#") && item.getTags().endsWith("#"));
             Assertions.assertNotNull(item.getType());
-            Assertions.assertTrue(ProductBacklogItemType.getInstance().isCoherentType(item.getType()));
+            Assertions.assertTrue(ItemType.getInstance().isCoherentType(item.getType()));
         }
 
         var firstId = items.get(0).getId();
         var secondId = items.get(1).getId();
 
-        ProductBacklogItem toUpdate = pbiService.findById(secondId).get();
+        Item toUpdate = pbiService.findById(secondId).get();
         System.err.println(toUpdate.getTags());
         Assertions.assertNotNull(toUpdate);
         toUpdate.setTags("#UPDATED#");
         pbiRepository.saveAndFlush(toUpdate);
 
-        ProductBacklogItem updated = pbiService.findById(secondId).get();
+        Item updated = pbiService.findById(secondId).get();
         Assertions.assertEquals("#UPDATED#", updated.getTags());
 
-        ProductBacklogItem retrieved = pbiService.findById(firstId).get();
+        Item retrieved = pbiService.findById(firstId).get();
         List<ItemAssignment> assignmentList = retrieved.getAssignees();
         Assertions.assertNotNull(retrieved);
 
@@ -136,6 +136,9 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
 
 
     }
+
+    @Test
+    void initBacklog() {}
 
 
 

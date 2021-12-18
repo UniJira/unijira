@@ -19,7 +19,7 @@ public class ItemAssignment extends AbstractBaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private ProductBacklogItem item;
+    private Item item;
 
     @ManyToOne
     @JoinColumn
