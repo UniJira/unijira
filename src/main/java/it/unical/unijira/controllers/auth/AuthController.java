@@ -96,7 +96,7 @@ public class AuthController {
 
         return userService.save(modelMapper.map(user, User.class))
                 .map (
-                        v  -> ResponseEntity.created(URI.create("")).body(""))
+                        v  -> ResponseEntity.created(URI.create("/users/%d".formatted(v.getId()))).body(""))
                 .orElseGet (
                         () -> ResponseEntity.badRequest().build()
                 );
