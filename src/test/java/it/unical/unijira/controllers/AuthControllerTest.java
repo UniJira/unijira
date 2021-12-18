@@ -50,7 +50,7 @@ public class AuthControllerTest extends UniJiraTest {
     void getMeWithoutAuthorization() throws Exception {
 
         mockMvc.perform(get("/auth/me"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
 
     }
 
