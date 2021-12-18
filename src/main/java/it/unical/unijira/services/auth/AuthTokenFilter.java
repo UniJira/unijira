@@ -48,17 +48,17 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 //! FIXME: Use HttpOnly cookies
 
                 if (request.getHeader("Authorization") == null)
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authorization header is null");
+                    throw new AuthTokenException(HttpStatus.FORBIDDEN, "Authorization header is null");
 
                 if (!request.getHeader("Authorization").startsWith("Bearer "))
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authorization header is not valid: %s".formatted(request.getHeader("Authorization")));
+                    throw new AuthTokenException(HttpStatus.FORBIDDEN, "Authorization header is not valid: %s".formatted(request.getHeader("Authorization")));
 
 
 
                 final var authorization = request.getHeader("Authorization").substring(7);
 
                 if(authorization.isBlank())
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authorization token is empty");
+                    throw new AuthTokenException(HttpStatus.FORBIDDEN, "Authorization token is empty");
 
 
 
@@ -94,13 +94,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                     }
 
 
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Authentication failed with token %s".formatted(authorization));
+                    throw new AuthTokenException(HttpStatus.FORBIDDEN, "Authentication failed with token %s".formatted(authorization));
 
 
                 } catch (TokenExpiredException e) {
                     throw new AuthTokenException(HttpStatus.I_AM_A_TEAPOT, "Token expired %s".formatted(authorization));
                 } catch (Exception e) {
-                    throw new AuthTokenException(HttpStatus.UNAUTHORIZED, "Invalid authorization token %s: %s".formatted(authorization, e));
+                    throw new AuthTokenException(HttpStatus.FORBIDDEN, "Invalid authorization token %s: %s".formatted(authorization, e));
                 }
 
 
