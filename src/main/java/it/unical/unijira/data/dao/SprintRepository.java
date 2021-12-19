@@ -13,5 +13,5 @@ import java.util.List;
 public interface SprintRepository extends JpaRepository<Sprint, Long> {
 
     @Query(value = "FROM Sprint sprint where sprint.backlog = :backlog")
-    List<Item> sprintsOfABacklog(ProductBacklog backlog);
+    List<Sprint> sprintsOfABacklog(ProductBacklog backlog);
 }

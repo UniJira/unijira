@@ -1,8 +1,18 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
+import it.unical.unijira.data.models.*;
+import it.unical.unijira.services.common.*;
+import it.unical.unijira.utils.ItemType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -12,6 +22,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 public class ProjectControllerTest extends UniJiraTest {
+
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private ProductBacklogService backlogService;
+
+    @Autowired
+    private ItemService itemService;
+
+    @Autowired
+    private ProductBacklogInsertionService insertionService;
+
+    @Autowired
+    private SprintService sprintService;
 
     @Test
     void readAllProjectSuccessful() throws Exception {
@@ -83,5 +108,338 @@ public class ProjectControllerTest extends UniJiraTest {
                         .andExpect(status().isNoContent());
 
     }
+
+    @Test
+    void addBacklogToAProject() throws Exception {
+        mockMvc.perform(post("/projects")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "name": "Test-1",
+                            "key": "TS1"
+                        }
+                        """)
+                )
+                .andExpect(status().isCreated());
+
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+
+        mockMvc.perform(post("/projects/"+firstId+"/backlogs")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "project": {
+                            "id" : "3",
+                            "name": "Test",
+                            "key": "TST",
+                            "ownerId" : "1"
+                            }
+                        }
+                        """)
+                )
+                .andExpect(status().isCreated());
+
+    }
+
+    @Test
+    void addBacklogToAProjectImplicit() throws Exception {
+        mockMvc.perform(post("/projects")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "name": "Test-1",
+                            "key": "TS1"
+                        }
+                        """)
+                )
+                .andExpect(status().isCreated());
+
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+
+        mockMvc.perform(post("/projects/"+firstId+"/backlogs")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            
+                        }
+                        """)
+                )
+                .andExpect(status().isCreated());
+
+
+
+    }
+
+    @Test
+    void readAllBacklogsOfAProject() throws Exception {
+        mockMvc.perform(post("/projects")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "name": "Test-1",
+                            "key": "TS1"
+                        }
+                        """)
+                )
+                .andExpect(status().isCreated());
+
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+
+
+
+        mockMvc.perform(get("/projects/"+firstId+"/backlogs")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                )
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void readOneBacklog() throws Exception {
+        mockMvc.perform(post("/projects")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "name": "Test-1",
+                            "key": "TS1"
+                        }
+                        """)
+                )
+                .andExpect(status().isCreated());
+
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(projectList.get(0));
+        if (backlogsOfThisProject.size() ==  0) {
+
+            mockMvc.perform(post("/projects/" + firstId + "/backlogs")
+                            .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                            .contentType("application/json")
+                            .content("""
+                                    {
+                                        
+                                    }
+                                    """)
+                    )
+                    .andExpect(status().isCreated());
+
+            backlogsOfThisProject = backlogService.findAllByProject(projectList.get(0));
+
+        }
+
+
+        mockMvc.perform(get("/projects/" + firstId + "/backlogs/" + backlogsOfThisProject.get(0).getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                )
+                .andExpect(status().isOk());
+
+
+    }
+
+
+    @Test
+    void deleteOneBacklog() throws Exception {
+        this.readOneBacklog();
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(projectList.get(0));
+
+        mockMvc.perform(delete("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                )
+                .andExpect(status().isNoContent());
+
+        Assertions.assertNull(backlogService.findById(backlogsOfThisProject.get(0).getId()).orElse(null));
+    }
+
+    @Test
+    void addItemToOneBacklog() throws Exception {
+
+        Item i = new Item();
+        i.setId(1L);
+        i.setSummary("schifo di item");
+        i.setDescription("questo schifo di item");
+        i.setType(ItemType.getInstance().EPIC);
+        i.setEvaluation(1);
+
+        itemService.save(i);
+
+        this.addBacklogToAProjectImplicit();
+        this.readOneBacklog();
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(projectList.get(0));
+
+        System.out.println("Calling: "+"/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items");
+
+        mockMvc.perform(post("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                .contentType("application/json")
+                .content("""
+                                    {
+                                        "item": {
+                                            "id" : "1",
+                                            "summary" : "schifo di item",
+                                            "description" : "questo schifo di item ",
+                                            "evaluation" : "1",
+                                            "type" : "epic"
+
+                                        },
+                                        "priority": "1"
+                                    }
+                                    """)
+        ).andExpect(status().isCreated());
+
+
+        List<ProductBacklogInsertion> tmp =this.insertionService.findAllByBacklog(backlogsOfThisProject.get(0));
+        System.out.println(tmp.size());
+    }
+
+    @Test
+    void readBacklogContent() throws Exception {
+
+        this.addItemToOneBacklog();
+
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(projectList.get(0));
+
+
+
+        System.out.println("Calling: "+"/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items");
+
+        ResultActions call = mockMvc.perform(get("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
+
+
+        MvcResult returnValue = call.andReturn();
+
+        call.andExpect(status().isOk());
+
+        System.out.println(returnValue.getResponse().getContentAsString());
+    }
+
+    @Test
+    void readOneBacklogContent() throws Exception {
+        this.addItemToOneBacklog();
+        Project pj = projectService.findById(3L).orElse(null);
+        long firstId = pj.getId();
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(pj);
+
+
+
+        System.out.println("Calling: "+"/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items");
+
+        ResultActions call = mockMvc.perform(get("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items/1")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
+
+
+        MvcResult returnValue = call.andReturn();
+
+        call.andExpect(status().isOk());
+
+        System.out.println(returnValue.getResponse().getContentAsString());
+    }
+
+    @Test
+    void deleteItemFromBacklog() throws Exception {
+        this.addItemToOneBacklog();
+        Project pj = projectService.findById(3L).orElse(null);
+        long firstId = pj.getId();
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(pj);
+
+
+
+        System.out.println("Calling: "+"/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items");
+
+        ResultActions call = mockMvc.perform(delete("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items/1")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
+
+
+        MvcResult returnValue = call.andReturn();
+
+        call.andExpect(status().isNoContent());
+
+    }
+
+    @Test
+    void updateOneFromOneBacklog() throws Exception {
+        this.addItemToOneBacklog();
+        Project pj = projectService.findById(3L).orElse(null);
+        long firstId = pj.getId();
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(pj);
+
+
+
+        System.out.println("Calling: "+"/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items");
+
+        mockMvc.perform(put("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items/1")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+         .contentType("application/json")
+                .content("""
+                                    {
+                                        "item": {
+                                            "id" : "1",
+                                            "summary" : "schifo di item",
+                                            "description" : "questo schifo di item ",
+                                            "evaluation" : "1",
+                                            "type" : "epic"
+
+                                        },
+                                        "priority": "3"
+                                    }
+                                    """)
+        ).andExpect(status().isOk());
+    }
+
+
+    @Test
+    void addSprintToABacklog() throws Exception{
+        this.addBacklogToAProjectImplicit();
+
+        this.readOneBacklog();
+        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
+        long firstId = projectList.get(0).getId();
+        List<ProductBacklog> backlogsOfThisProject = backlogService.findAllByProject(projectList.get(0));
+
+        System.out.println("Calling: "+"/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/sprints");
+
+        mockMvc.perform(post("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/sprints")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                .contentType("application/json")
+                .content("""
+                        {
+                         	"id": "1",
+                         	"backlog" : {
+                         		"id": "1",
+                         		"project": {
+                         	                "id" : "3",
+                         	                "name": "Test",
+                         	                "key": "TST",
+                         	                "ownerId" : "1"
+                                         }
+                                               
+                         	
+                         	}
+                         }
+                                    """)
+        ).andExpect(status().isCreated());
+
+
+        List<Sprint> tmp =this.sprintService.findSprintsByBacklog(backlogsOfThisProject.get(0));
+        System.out.println(tmp.size());
+
+    }
+
 
 }

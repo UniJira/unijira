@@ -1,6 +1,7 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.RoadmapRepository;
+import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.services.common.RoadmapService;
 import org.springframework.stereotype.Service;
@@ -40,5 +41,11 @@ public record RoadmapServiceImpl(RoadmapRepository roadmapRepository)
     @Override
     public List<Roadmap> findAll() {
         return roadmapRepository.findAll();
+    }
+
+
+    @Override
+    public List<Roadmap> findByBacklog(ProductBacklog backlog) {
+       return roadmapRepository.findByBacklog(backlog);
     }
 }

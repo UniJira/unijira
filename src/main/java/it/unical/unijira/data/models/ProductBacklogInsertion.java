@@ -3,6 +3,7 @@ package it.unical.unijira.data.models;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 
@@ -26,6 +27,7 @@ public class ProductBacklogInsertion extends AbstractBaseEntity{
     @OneToOne
     @JoinColumn
     @Getter
+    @Setter
     private Item item;
 
     @Column

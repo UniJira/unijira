@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -25,12 +26,14 @@ public class Sprint  extends  AbstractBaseEntity{
     @Basic
     @Getter
     @Setter
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime startingDate = LocalDateTime.now();
 
     @Column
     @Basic
     @Getter
     @Setter
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime endingDate;
 
 

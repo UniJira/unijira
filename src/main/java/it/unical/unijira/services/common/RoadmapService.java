@@ -13,4 +13,6 @@ public interface RoadmapService {
     void delete (Roadmap roadmap);
     Optional<Roadmap> findById(Long id);
     List<Roadmap> findAll();
+
+    List<Roadmap> findByBacklog(ProductBacklog backlog);
 }

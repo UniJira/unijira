@@ -31,20 +31,25 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final ItemService pbiService;
     private final SprintService sprintService;
     private final SprintInsertionService sprintInsertionService;
-
+    private final RoadmapService roadmapService;
+    private final RoadmapInsertionService roadmapInsertionService;
     @Autowired
     public ProjectController(ProjectService projectService,
                              ProductBacklogService backlogService,
                              ProductBacklogInsertionService insertionService,
                              ItemService pbiService,
                              SprintService sprintService,
-                             SprintInsertionService sprintInsertionService) {
+                             SprintInsertionService sprintInsertionService,
+                             RoadmapService roadmapService,
+                             RoadmapInsertionService roadmapInsertionService) {
         this.projectService = projectService;
         this.backlogService = backlogService;
         this.insertionService = insertionService;
         this.pbiService = pbiService;
         this.sprintService = sprintService;
         this.sprintInsertionService = sprintInsertionService;
+        this.roadmapService = roadmapService;
+        this.roadmapInsertionService = roadmapInsertionService;
     }
 
     @Override
@@ -191,7 +196,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @PutMapping("/{project}/backlogs/{backlog}")
+
+    // Per come è strutturata l'entità, l'update del backlog è una cosa assolutamente priva di senso, perché
+    // sono praticamente tutte chiavi esterne, quindi basta chiamare l'update degli altri oggetti
+   /* @PutMapping("/{project}/backlogs/{backlog}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProductBacklogDTO> updateBacklog(ModelMapper modelMapper,  @PathVariable Long project,
                                                            @PathVariable Long backlog,
@@ -210,7 +218,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    */
     @DeleteMapping("/{project}/backlogs/{backlog}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Boolean> deleteBacklog(@PathVariable Long project, @PathVariable Long backlog) {
@@ -247,9 +255,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         }
 
         dto.setBacklog(modelMapper.map(backlogObj, ProductBacklogDTO.class));
-        return insertionService.save(modelMapper.map(dto, ProductBacklogInsertion.class))
+        ProductBacklogInsertion toSave = modelMapper.map(dto, ProductBacklogInsertion.class);
+        return insertionService.save(toSave)
                 .map(createdDTO -> ResponseEntity
-                        .created(URI.create("projects/%d/backlog/%d/insertion/%d"
+                        .created(URI.create("projects/%d/backlogs/%d/items/%d"
                                 .formatted(project,backlog, createdDTO.getId())))
                         .body(modelMapper.map(createdDTO, ProductBacklogInsertionDTO.class)))
                 .orElse(ResponseEntity.badRequest().build());
