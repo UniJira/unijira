@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public abstract class UniJiraTest {
 
     protected final static String USERNAME = "unijira20@gmail.com";
-    protected final static String PASSWORD = "Unijira20";
+    protected final static String PASSWORD = "Unijira.20";
 
     @Autowired
     protected Config config;
@@ -73,6 +73,7 @@ public abstract class UniJiraTest {
                     .username(USERNAME)
                     .password(passwordEncoder.encode(PASSWORD))
                     .activated(true)
+                    .ownedProjects(Collections.emptyList())
                     .memberships(Collections.emptyList())
                     .build();
 
