@@ -6,8 +6,6 @@ import it.unical.unijira.services.auth.AuthUserDetailsService;
 import it.unical.unijira.utils.Config;
 import it.unical.unijira.utils.DtoMapper;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -37,8 +35,6 @@ import java.io.IOException;
 @EnableAutoConfiguration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(UniJiraSecurityConfig.class);
 
 
     private final AuthUserDetailsService userDetailsService;
@@ -121,7 +117,7 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
 
         }
 
-        response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized");
+        response.sendError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase());
 
     }
 
