@@ -37,7 +37,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if(config.getPublicUrls().stream().anyMatch(request.getRequestURI()::equals)) {
+        if(Arrays.asList(config.getPublicUrls()).contains(request.getRequestURI())) {
 
             filterChain.doFilter(request, response);
 

@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public String generateToken(TokenType type, Map<String, String> claims) {
+    public String generateToken(TokenType type, Map<String, ?> claims) {
 
         return JWT.create()
                 .withIssuer(config.getJWTIssuer())
