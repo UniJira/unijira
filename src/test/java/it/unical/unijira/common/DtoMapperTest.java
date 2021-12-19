@@ -23,7 +23,7 @@ public class DtoMapperTest extends UniJiraTest {
     @Getter
     @Setter
     private static class TestDTO {
-        private List<Long> notifiesIds;
+        private List<Long> notificationsIds;
     }
 
 
@@ -69,11 +69,11 @@ public class DtoMapperTest extends UniJiraTest {
     }
 
 //    @Test
-//    void DTOtoUserNotifiesTest() {
+//    void DTOtoUserNotificationsTest() {
 //
 //        TestDTO testDTO = new TestDTO() {{
 //
-//            setNotifiesIds(notifyRepository.findAll()
+//            setNotificationsIds(notifyRepository.findAll()
 //                    .stream()
 //                    .mapToLong(Notify::getId)
 //                    .boxed()
@@ -82,8 +82,8 @@ public class DtoMapperTest extends UniJiraTest {
 //        }};
 //
 //
-//        Assertions.assertNotNull(testDTO.getNotifiesIds());
-//        Assertions.assertTrue(testDTO.getNotifiesIds().size() > 0);
+//        Assertions.assertNotNull(testDTO.getNotificationsIds());
+//        Assertions.assertTrue(testDTO.getNotificationsIds().size() > 0);
 //
 //
 //        Converter<List<Long>, List<Notify>> idToNotify = c -> c.getSource()
@@ -92,20 +92,20 @@ public class DtoMapperTest extends UniJiraTest {
 //                .collect(Collectors.toList());
 //
 //
-//        modelMapper.createTypeMap(TestDTO.class, User.class, "IdsToNotifies")
-//                .addMappings(m -> m.using(idToNotify).map(TestDTO::getNotifiesIds, User::setNotifies));
+//        modelMapper.createTypeMap(TestDTO.class, User.class, "IdsToNotifications")
+//                .addMappings(m -> m.using(idToNotify).map(TestDTO::getNotificationsIds, User::setNotifications));
 //
 //
-//        User user = modelMapper.map(testDTO, User.class, "IdsToNotifies");
+//        User user = modelMapper.map(testDTO, User.class, "IdsToNotifications");
 //
-//        System.err.println(user.getNotifies().size());
-//        user.getNotifies().forEach(System.err::println);
+//        System.err.println(user.getNotifications().size());
+//        user.getNotifications().forEach(System.err::println);
 //
-//        Assertions.assertNotNull(user.getNotifies());
-//        Assertions.assertEquals(notifyRepository.count(), user.getNotifies().size());
-//        Assertions.assertTrue(user.getNotifies().stream().allMatch(n -> n.getId() != null));
-//        Assertions.assertTrue(user.getNotifies().stream().allMatch(n -> n.getMessage() != null));
-//        Assertions.assertTrue(user.getNotifies().stream().allMatch(n -> n.getUser() != null));
+//        Assertions.assertNotNull(user.getNotifications());
+//        Assertions.assertEquals(notifyRepository.count(), user.getNotifications().size());
+//        Assertions.assertTrue(user.getNotifications().stream().allMatch(n -> n.getId() != null));
+//        Assertions.assertTrue(user.getNotifications().stream().allMatch(n -> n.getMessage() != null));
+//        Assertions.assertTrue(user.getNotifications().stream().allMatch(n -> n.getUser() != null));
 //
 //    }
 

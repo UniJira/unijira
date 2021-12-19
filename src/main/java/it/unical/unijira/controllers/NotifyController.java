@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/notifies")
+@RequestMapping("/notifications")
 public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     private final NotifyService notifyService;
@@ -61,7 +61,7 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
 
         return notifyService.create(modelMapper.map(dto, Notify.class))
                 .map(notify -> ResponseEntity
-                        .created(URI.create("/notifies/%d".formatted(notify.getId())))
+                        .created(URI.create("/notifications/%d".formatted(notify.getId())))
                         .body(modelMapper.map(notify, NotifyDTO.class)))
                 .orElse(ResponseEntity.badRequest().build());
 
