@@ -24,10 +24,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 
 @Configuration
@@ -55,7 +60,8 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
 
         httpSecurity
                 .csrf().disable()
-                .cors().configurationSource(r -> new CorsConfiguration().applyPermitDefaultValues()).and()
+                .cors().configurationSource(corsConfigurationSource())
+                .and()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -80,6 +86,7 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder.userDetailsService(userDetailsService);
     }
+
 
 
     @Bean
@@ -108,6 +115,8 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
+
+
     private void unauthorizedEntryPoint(HttpServletResponse response, Object exception) throws IOException {
 
         if(exception instanceof AuthTokenException e) {
@@ -119,6 +128,21 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
 
         response.sendError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase());
 
+    }
+
+
+    private CorsConfigurationSource corsConfigurationSource() {
+        return new UrlBasedCorsConfigurationSource() {{
+
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOriginPatterns(Collections.singletonList(CorsConfiguration.ALL));
+            config.setAllowedMethods(Collections.singletonList(CorsConfiguration.ALL));
+            config.setAllowedHeaders(Collections.singletonList(CorsConfiguration.ALL));
+            config.setAllowCredentials(true);
+
+            this.registerCorsConfiguration("/**", config);
+
+        }};
     }
 
 }
