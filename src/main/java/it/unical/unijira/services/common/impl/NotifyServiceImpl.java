@@ -71,5 +71,10 @@ public record NotifyServiceImpl(NotifyRepository notifyRepository, EmailService 
         return notifyRepository.findByUserIdOrderByReadAscPriorityAscDateDesc(userId, PageRequest.of(page, size));
     }
 
+    @Override
+    public List<Notify> findAllByUserId(Long userId) {
+        return notifyRepository.findByUserIdOrderByReadAscPriorityAscDateDesc(userId);
+    }
+
     
 }
