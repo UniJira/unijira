@@ -67,13 +67,11 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint((r, s, e) -> this.unauthorizedEntryPoint(s, r.getAttribute("auth-token-exception")));
-
-
-        for(String url : config.getPublicUrls())
-            httpSecurity.authorizeRequests().antMatchers(url).permitAll();
-
-        httpSecurity
+                .authenticationEntryPoint((r, s, e) -> this.unauthorizedEntryPoint(s, r.getAttribute("auth-token-exception")))
+                .and()
+                .authorizeRequests()
+                .antMatchers(config.getPublicUrls()).permitAll()
+                .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()

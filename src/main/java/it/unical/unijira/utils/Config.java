@@ -20,7 +20,7 @@ public class Config {
     private final String tokenSecret;
     private final Integer tokenExpiration;
     private final Integer tokenLeeway;
-    private final List<String> publicUrls;
+    private final String[] publicUrls;
 
     @Autowired
     public Config(
@@ -39,7 +39,7 @@ public class Config {
         this.tokenSecret = tokenSecret;
         this.tokenExpiration = tokenExpiration;
         this.tokenLeeway = tokenLeeway;
-        this.publicUrls = List.of(publicUrls.split(";"));
+        this.publicUrls = publicUrls.split(";");
 
     }
 
