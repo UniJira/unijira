@@ -1,5 +1,6 @@
 package it.unical.unijira.data.models;
 
+import it.unical.unijira.data.models.items.Item;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

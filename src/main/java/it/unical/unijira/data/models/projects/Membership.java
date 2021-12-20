@@ -1,5 +1,6 @@
-package it.unical.unijira.data.models;
+package it.unical.unijira.data.models.projects;
 
+import it.unical.unijira.data.models.AbstractBaseEntity;
 import lombok.*;
 
 import javax.persistence.*;

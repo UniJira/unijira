@@ -1,8 +1,8 @@
 package it.unical.unijira.services.common;
 
-import it.unical.unijira.data.models.Membership;
-import it.unical.unijira.data.models.MembershipKey;
-import it.unical.unijira.data.models.Project;
+import it.unical.unijira.data.models.projects.Membership;
+import it.unical.unijira.data.models.projects.MembershipKey;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.data.models.User;
 
 import java.util.List;

@@ -1,13 +1,13 @@
-package it.unical.unijira.data.models;
+package it.unical.unijira.data.models.items;
 
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
+import it.unical.unijira.data.models.AbstractBaseEntity;
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.utils.Errors;
 import it.unical.unijira.utils.ItemType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -53,6 +53,15 @@ public class Item extends AbstractBaseEntity {
     private Integer evaluation;
 
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    @Getter
+    @Setter
+    private ItemStatus status;
+
+
+
+
     // Important to assert for the tags structure
     //Tags are separated by ; and surrounded by ##
     @Column
@@ -81,8 +90,7 @@ public class Item extends AbstractBaseEntity {
     // Every ProductBacklog refers to a Project
 
 
-    @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL)
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Getter
     @Setter
     @ToString.Exclude
@@ -97,8 +105,7 @@ public class Item extends AbstractBaseEntity {
     private User owner;
 
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Getter
     @Setter
     @ToString.Exclude
@@ -109,11 +116,12 @@ public class Item extends AbstractBaseEntity {
     @Getter
     private Item father;
 
-    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE)
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @Getter
     @ToString.Exclude
     private List<Item> sons;
+
+
 
     public void setFather(Item father) throws NonValidItemTypeException{
 

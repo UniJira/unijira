@@ -1,5 +1,6 @@
-package it.unical.unijira.data.dto.user;
+package it.unical.unijira.data.dto;
 
+import it.unical.unijira.data.dto.items.ItemDTO;
 import lombok.*;
 
 @Getter

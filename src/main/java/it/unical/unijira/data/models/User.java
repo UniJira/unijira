@@ -1,5 +1,7 @@
 package it.unical.unijira.data.models;
 
+import it.unical.unijira.data.models.projects.Membership;
+import it.unical.unijira.data.models.projects.Project;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 

@@ -1,8 +1,8 @@
 package it.unical.unijira.services.common.impl;
 
-import it.unical.unijira.data.dao.ItemAssignmentRepository;
-import it.unical.unijira.data.models.Item;
-import it.unical.unijira.data.models.ItemAssignment;
+import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
+import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.ItemAssignmentService;
 import org.springframework.data.domain.PageRequest;

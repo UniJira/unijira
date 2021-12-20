@@ -1,6 +1,6 @@
 package it.unical.unijira.services.common;
 
-import it.unical.unijira.data.models.Note;
+import it.unical.unijira.data.models.items.Note;
 
 import java.util.Optional;
 

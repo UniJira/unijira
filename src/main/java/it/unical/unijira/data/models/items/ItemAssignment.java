@@ -1,5 +1,7 @@
-package it.unical.unijira.data.models;
+package it.unical.unijira.data.models.items;
 
+import it.unical.unijira.data.models.AbstractBaseEntity;
+import it.unical.unijira.data.models.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

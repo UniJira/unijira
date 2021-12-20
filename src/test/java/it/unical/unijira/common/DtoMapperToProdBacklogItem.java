@@ -2,10 +2,10 @@ package it.unical.unijira.common;
 
 import it.unical.unijira.UniJiraApplication;
 import it.unical.unijira.UniJiraTest;
-import it.unical.unijira.data.dto.user.ItemAssignmentDTO;
-import it.unical.unijira.data.dto.user.ItemDTO;
+import it.unical.unijira.data.dto.items.ItemAssignmentDTO;
+import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
-import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.impl.UserServiceImpl;
 import it.unical.unijira.utils.ItemType;

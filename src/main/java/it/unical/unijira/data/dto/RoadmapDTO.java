@@ -1,4 +1,4 @@
-package it.unical.unijira.data.dto.user;
+package it.unical.unijira.data.dto;
 
 import lombok.*;
 

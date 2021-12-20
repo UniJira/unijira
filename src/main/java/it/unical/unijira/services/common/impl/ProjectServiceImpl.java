@@ -1,9 +1,12 @@
 package it.unical.unijira.services.common.impl;
 
-import it.unical.unijira.data.dao.MembershipRepository;
-import it.unical.unijira.data.dao.ProjectRepository;
+import it.unical.unijira.data.dao.projects.MembershipRepository;
+import it.unical.unijira.data.dao.projects.ProjectRepository;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.projects.Membership;
+import it.unical.unijira.data.models.projects.MembershipKey;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.NotifyService;
 import it.unical.unijira.services.common.ProjectService;

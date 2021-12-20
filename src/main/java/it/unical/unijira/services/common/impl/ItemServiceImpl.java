@@ -1,9 +1,9 @@
 package it.unical.unijira.services.common.impl;
 
-import it.unical.unijira.data.dao.ItemRepository;
+import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.ItemService;
 import org.springframework.data.domain.PageRequest;

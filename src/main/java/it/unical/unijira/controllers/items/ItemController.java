@@ -1,8 +1,8 @@
 package it.unical.unijira.controllers.items;
 
 import it.unical.unijira.controllers.common.CrudController;
-import it.unical.unijira.data.dto.user.ItemDTO;
-import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.dto.items.ItemDTO;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.NoteService;
 import it.unical.unijira.utils.ItemType;

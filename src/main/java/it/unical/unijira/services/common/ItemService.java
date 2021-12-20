@@ -1,6 +1,6 @@
 package it.unical.unijira.services.common;
 
-import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.items.Item;
 
 import java.util.List;
 import java.util.Optional;

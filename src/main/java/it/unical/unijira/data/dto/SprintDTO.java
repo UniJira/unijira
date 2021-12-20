@@ -1,17 +1,18 @@
-package it.unical.unijira.data.dto.user;
+package it.unical.unijira.data.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoadmapInsertionDTO {
+public class SprintDTO {
 
     private Long id;
 
@@ -21,10 +22,9 @@ public class RoadmapInsertionDTO {
 
     @JsonFormat(pattern="yyyy-MM-dd")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-
     private LocalDate endingDate;
 
-    private ItemDTO item;
+    private List<SprintInsertionDTO> insertions;
 
-    private Long roadmapId;
+    private Long backlogId;
 }

@@ -1,6 +1,6 @@
 package it.unical.unijira.data.dto;
 
-import it.unical.unijira.data.models.Membership;
+import it.unical.unijira.data.models.projects.Membership;
 import lombok.*;
 
 @Builder
