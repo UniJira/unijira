@@ -1,6 +1,9 @@
 package it.unical.unijira.services.common;
 
+import it.unical.unijira.data.models.Membership;
+import it.unical.unijira.data.models.MembershipKey;
 import it.unical.unijira.data.models.Project;
+import it.unical.unijira.data.models.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,5 +17,7 @@ public interface ProjectService {
     void delete(Project project);
     List<Project> findAllByOwnerId(Long userId, int page, int size);
     List<Project> findAllByMemberId(Long userId, int page, int size);
-
+    List<Membership> sendInvitations(Project project, List<User> users);
+    Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status);
+    boolean activate(MembershipKey key);
 }

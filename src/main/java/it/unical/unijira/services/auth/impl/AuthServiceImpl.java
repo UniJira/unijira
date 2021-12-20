@@ -79,14 +79,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public DecodedJWT verifyToken(String token, TokenType type, String... requiredClaims) throws JWTVerificationException {
 
-        var verifier = JWT.require(config.getJWTAlgorithm())
-                .withIssuer(config.getJWTIssuer())
-                .withClaim("type", type.name());
+            var verifier = JWT.require(config.getJWTAlgorithm())
+                    .withIssuer(config.getJWTIssuer())
+                    .withClaim("type", type.name());
 
-        for(var claim : requiredClaims)
-            verifier = verifier.withClaimPresence(claim);
+            for (var claim : requiredClaims)
+                verifier = verifier.withClaimPresence(claim);
 
-        return verifier.build().verify(token);
+            return verifier.build().verify(token);
 
     }
 

@@ -1,12 +1,14 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
+import it.unical.unijira.data.models.Project;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -81,6 +83,34 @@ public class ProjectControllerTest extends UniJiraTest {
         mockMvc.perform(delete("/projects/3")
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                         .andExpect(status().isNoContent());
+
+    }
+
+    @Test
+    void sendInvitationsSuccessful() throws Exception {
+
+        var projectId = projectRepository.findAll()
+                        .stream()
+                        .filter(i ->  i.getOwner().getId().equals(1L))
+                        .findAny()
+                        .stream()
+                        .mapToLong(Project::getId)
+                        .findAny()
+                        .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
+
+        mockMvc.perform(post("/projects/invitations")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                .contentType("application/json")
+                .content("""
+                        {
+                            "projectId": "%d",
+                            "emails" : ["%s"]
+                        }
+                        """.formatted(projectId, UniJiraTest.USERNAME))
+        )
+        .andExpect(status().isOk())
+        .andExpect(content().string(not(containsString("[]"))))
+        .andDo(print());
 
     }
 

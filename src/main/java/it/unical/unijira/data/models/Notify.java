@@ -23,15 +23,18 @@ public class Notify extends AbstractBaseEntity {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Lob
+    @Column(length = 4096)
     @Basic(optional = false)
     private String title;
 
-    @Column
+    @Lob
+    @Column(length = 4096)
     @Basic(optional = false)
     private String message;
 
-    @Column
+    @Lob
+    @Column(length = 4096)
     private URL target;
 
     @Column
