@@ -26,11 +26,25 @@ public class ControllerUtilities {
                 && backlog.getId().equals(sprint.getBacklog().getId());
     }
 
-    public static boolean checkItemCoherenceInSprint(Project projectObj, ProductBacklog backlogObj, Sprint sprintObj,
-                                                     SprintInsertion sprintInsertionObj) {
+    public static boolean checkItemCoherenceInSprint(Project project, ProductBacklog backlog, Sprint sprint,
+                                                     SprintInsertion sprintInsertion) {
 
-        return checkSprintCoherence(projectObj,backlogObj,sprintObj) && sprintInsertionObj!= null &&
-                sprintInsertionObj.getSprint() != null && sprintInsertionObj.getSprint().getId() != null &&
-                sprintInsertionObj.getSprint().getId().equals(sprintObj.getId());
+        return checkSprintCoherence(project,backlog,sprint) && sprintInsertion!= null &&
+                sprintInsertion.getSprint() != null && sprintInsertion.getSprint().getId() != null &&
+                sprintInsertion.getSprint().getId().equals(sprint.getId());
+    }
+
+    public static boolean checkRoadmapCoherence(Project project, ProductBacklog backlog, Roadmap roadmap) {
+
+        return checkProjectCoherence(project, backlog) && roadmap!= null
+                && backlog.getId().equals(roadmap.getBacklog().getId());
+    }
+
+    public static boolean checkItemCoherenceInRoadmap(Project project, ProductBacklog backlog, Roadmap roadmap,
+                                                      RoadmapInsertion roadmapInsertion) {
+
+        return checkRoadmapCoherence(project,backlog,roadmap) && roadmapInsertion!= null &&
+                roadmapInsertion.getRoadmap() != null && roadmapInsertion.getRoadmap().getId() != null &&
+                roadmapInsertion.getRoadmap().getId().equals(roadmap.getId());
     }
 }

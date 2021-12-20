@@ -1,5 +1,6 @@
 package it.unical.unijira.data.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,14 +29,16 @@ public class Sprint  extends  AbstractBaseEntity{
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime startingDate = LocalDateTime.now();
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate startingDate;
 
     @Column
     @Basic
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime endingDate;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate endingDate;
 
 
     @OneToMany(mappedBy = "sprint")

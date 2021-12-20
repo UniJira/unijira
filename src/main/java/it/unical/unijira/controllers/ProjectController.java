@@ -3,10 +3,7 @@ package it.unical.unijira.controllers;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.MembershipDTO;
 import it.unical.unijira.data.dto.ProjectDTO;
-import it.unical.unijira.data.dto.user.ProductBacklogDTO;
-import it.unical.unijira.data.dto.user.ProductBacklogInsertionDTO;
-import it.unical.unijira.data.dto.user.SprintDTO;
-import it.unical.unijira.data.dto.user.SprintInsertionDTO;
+import it.unical.unijira.data.dto.user.*;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.utils.ControllerUtilities;
@@ -375,9 +372,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.notFound().build();
         }
 
-        dto.setBacklog(modelMapper.map(backlogObj, ProductBacklogDTO.class));
+        Sprint toSave = modelMapper.map(dto,Sprint.class);
 
-        return sprintService.save(modelMapper.map(dto, Sprint.class))
+        toSave.setBacklog(backlogObj);
+
+        return sprintService.save(toSave)
                 .map(createdDTO -> ResponseEntity
                         .created(URI.create("projects/%d/backlogs/%d/sprints/%d".formatted(project,backlog,createdDTO.getId())))
                         .body(modelMapper.map(createdDTO, SprintDTO.class)))
@@ -393,6 +392,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+
         ProductBacklog backlogObj = backlogOpt.orElse(null);
 
         if (!ControllerUtilities.checkProjectCoherence(projectObj,backlogObj)) {
@@ -606,6 +606,259 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/{project}/backlogs/{backlog}/roadmaps")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RoadmapDTO> addRoadmap(ModelMapper modelMapper,
+                                                 @PathVariable Long project,
+                                                 @PathVariable Long backlog,
+                                                 @RequestBody RoadmapDTO dto){
+
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+
+        if (!ControllerUtilities.checkProjectCoherence(projectObj,backlogObj)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Roadmap toSave = modelMapper.map(dto,Roadmap.class);
+
+        toSave.setBacklog(backlogObj);
+
+        return roadmapService.save(toSave)
+                .map(createdDTO -> ResponseEntity
+                        .created(URI.create("projects/%d/backlogs/%d/roadmaps/%d".formatted(project,backlog,createdDTO.getId())))
+                        .body(modelMapper.map(createdDTO, RoadmapDTO.class)))
+                .orElse(ResponseEntity.badRequest().build());
+    }
+
+    @GetMapping("/{project}/backlogs/{backlog}/roadmaps")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<RoadmapDTO>> getRoadmaps(ModelMapper modelMapper,
+                                                        @PathVariable Long project,
+                                                        @PathVariable Long backlog){
+
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+
+        if (!ControllerUtilities.checkProjectCoherence(projectObj,backlogObj)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(roadmapService.findByBacklog(backlogObj).stream()
+                .map(item -> modelMapper.map(item, RoadmapDTO.class))
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RoadmapDTO> getRoadmapById(ModelMapper modelMapper,
+                                                     @PathVariable Long project,
+                                                     @PathVariable Long backlog,
+                                                     @PathVariable Long roadmap){
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Optional<Roadmap> optional = roadmapService.findById(roadmap);
+        Roadmap roadmapObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkRoadmapCoherence(projectObj,backlogObj,roadmapObj))
+            return ResponseEntity.notFound().build();
+
+
+        return optional
+                .stream()
+                .map(found -> modelMapper.map(found, RoadmapDTO.class))
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RoadmapDTO> editRoadmap(ModelMapper modelMapper,
+                                                  @PathVariable Long project,
+                                                  @PathVariable Long backlog,
+                                                  @PathVariable Long roadmap,
+                                                  @RequestBody RoadmapDTO roadmapDTO){
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Optional<Roadmap> optional = roadmapService.findById(roadmap);
+        Roadmap roadmapObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkRoadmapCoherence(projectObj,backlogObj,roadmapObj))
+            return ResponseEntity.notFound().build();
+
+
+        return roadmapService.update(roadmap, modelMapper.map(roadmapDTO, Roadmap.class))
+                .map(newDto -> modelMapper.map(newDto, RoadmapDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> deleteRoadmap(@PathVariable Long project, @PathVariable Long backlog,
+                                                 @PathVariable Long roadmap){
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Optional<Roadmap> optional = roadmapService.findById(roadmap);
+        Roadmap roadmapObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkRoadmapCoherence(projectObj,backlogObj,roadmapObj))
+            return ResponseEntity.notFound().build();
+
+
+        return optional
+                .stream()
+                .peek(roadmapService::delete)
+                .findFirst()
+                .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    @PostMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RoadmapInsertionDTO> addItemToRoadmap(ModelMapper modelMapper,
+                                                                @PathVariable Long project,
+                                                                @PathVariable Long backlog,
+                                                                @PathVariable Long roadmap,
+                                                                @RequestBody RoadmapInsertionDTO dto){
+
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Optional<Roadmap> optional = roadmapService.findById(roadmap);
+        Roadmap roadmapObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkRoadmapCoherence(projectObj,backlogObj,roadmapObj))
+            return ResponseEntity.notFound().build();
+
+
+        dto.setRoadmap(modelMapper.map(roadmapObj, RoadmapDTO.class));
+
+        return roadmapInsertionService.save(modelMapper.map(dto, RoadmapInsertion.class))
+                .map(createdDTO -> ResponseEntity
+                        .created(URI.create("projects/%d/backlogs/%d/roadmaps/%d/items/%d"
+                                .formatted(project,backlog,roadmap,createdDTO.getId())))
+                        .body(modelMapper.map(createdDTO, RoadmapInsertionDTO.class)))
+                .orElse(ResponseEntity.badRequest().build());
+    }
+
+    @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<RoadmapInsertionDTO>> itemsOfARoadmap(ModelMapper modelMapper,
+                                                                     @PathVariable Long project,
+                                                                     @PathVariable Long backlog,
+                                                                     @PathVariable Long roadmap){
+
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Optional<Roadmap> optional = roadmapService.findById(roadmap);
+        Roadmap roadmapObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkRoadmapCoherence(projectObj,backlogObj,roadmapObj))
+            return ResponseEntity.notFound().build();
+
+
+        return ResponseEntity.ok(roadmapInsertionService.findAllByRoadmap(roadmapObj).stream()
+                .map(item -> modelMapper.map(item, RoadmapInsertionDTO.class))
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items/{item}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RoadmapInsertionDTO> itemOfARoadmap(ModelMapper modelMapper,
+                                                              @PathVariable Long project,
+                                                              @PathVariable Long backlog,
+                                                              @PathVariable Long roadmap,
+                                                              @PathVariable Long item){
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Roadmap roadmapObj =  roadmapService.findById(roadmap).orElse(null);
+        Optional<RoadmapInsertion> optional = roadmapInsertionService.findById(item);
+        RoadmapInsertion roadmapInsertionObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkItemCoherenceInRoadmap(projectObj,backlogObj,roadmapObj,roadmapInsertionObj))
+            return ResponseEntity.notFound().build();
+
+        return optional
+                .stream()
+                .map(found -> modelMapper.map(found, RoadmapInsertionDTO.class))
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    @PutMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items/{item}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RoadmapInsertionDTO> editRoadmapsItem(ModelMapper modelMapper,
+                                                                @PathVariable Long project,
+                                                                @PathVariable Long backlog,
+                                                                @PathVariable Long roadmap,
+                                                                @PathVariable Long item,
+                                                                @RequestBody RoadmapInsertionDTO roadmapDTO){
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Roadmap roadmapObj =  roadmapService.findById(roadmap).orElse(null);
+        Optional<RoadmapInsertion> optional = roadmapInsertionService.findById(item);
+        RoadmapInsertion roadmapInsertionObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkItemCoherenceInRoadmap(projectObj,backlogObj,roadmapObj,roadmapInsertionObj))
+            return ResponseEntity.notFound().build();
+
+        return roadmapInsertionService.update(item, modelMapper.map(roadmapDTO, RoadmapInsertion.class))
+                .map(newDto -> modelMapper.map(newDto, RoadmapInsertionDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items/{item}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> deleteRoadmapsItem(@PathVariable Long project,
+                                                      @PathVariable Long backlog,
+                                                      @PathVariable Long roadmap,
+                                                      @PathVariable Long item){
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Roadmap roadmapObj =  roadmapService.findById(roadmap).orElse(null);
+        Optional<RoadmapInsertion> optional = roadmapInsertionService.findById(item);
+        RoadmapInsertion roadmapInsertionObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkItemCoherenceInRoadmap(projectObj,backlogObj,roadmapObj,roadmapInsertionObj))
+            return ResponseEntity.notFound().build();
+
+
+        return optional
+                .stream()
+                .peek(roadmapInsertionService::delete)
+                .findFirst()
+                .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
 }
 
 

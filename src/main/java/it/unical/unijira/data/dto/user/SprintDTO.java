@@ -17,13 +17,15 @@ public class SprintDTO {
 
     private Long id;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDateTime startingDate;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate startingDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDateTime endingDate;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate endingDate;
 
     private List<SprintInsertionDTO> insertions;
 
-    private ProductBacklogDTO backlog;
+    private Long backlogId;
 }
