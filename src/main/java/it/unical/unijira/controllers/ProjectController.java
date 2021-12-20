@@ -128,10 +128,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MembershipDTO>> inviteMembers(ModelMapper modelMapper, @RequestBody InviteMembersDTO inviteMembersDTO) {
 
-        final var project = projectService.findById(inviteMembersDTO.getProjectId())
-                .stream()
-                .findAny()
-                .orElse(null);
+        final var project = projectService.findById(inviteMembersDTO.getProjectId()).orElse(null);
 
         if(project == null ) {
             return ResponseEntity.notFound().build();
