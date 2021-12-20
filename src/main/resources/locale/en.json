@@ -1,4 +1,6 @@
 {
   "MAIL_ACCOUNT_CONFIRM_SUBJECT": "Registration",
-  "MAIL_ACCOUNT_CONFIRM_BODY": "Welcome on UniJira!<br>Click on <a href=\"%s/auth/active?q=%s\">activate my account</a> to confirm your email."
+  "MAIL_ACCOUNT_CONFIRM_BODY": "Welcome on UniJira!<br>Click on <a href=\"%s/auth/active?q=%s\">activate my account</a> to confirm your email.",
+  "NOTIFY_PROJECT_CONFIRM_SUBJECT": "You have been invited to join in a project!",
+  "NOTIFY_PROJECT_CONFIRM_BODY": "You have been invited to join in a project!<br>Click on <a href=\"%s/projects/%d/invite?q=%s\">Join project</a> to become a team member."
 }

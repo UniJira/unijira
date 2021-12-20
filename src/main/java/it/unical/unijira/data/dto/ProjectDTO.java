@@ -3,6 +3,7 @@ package it.unical.unijira.data.dto;
 import lombok.*;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 
 @Builder
 @Getter @Setter @ToString
@@ -14,5 +15,7 @@ public class ProjectDTO {
     private String key;
     private URL icon;
     private Long ownerId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

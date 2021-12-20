@@ -33,7 +33,7 @@ public class Project extends AbstractBaseEntity {
     @JoinColumn
     private User owner;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "key.project", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<Membership> memberships = new ArrayList<>();
 

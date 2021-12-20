@@ -24,7 +24,6 @@ public class AbstractBaseEntityTest extends UniJiraTest {
         Assertions.assertTrue(user.isActivated());
         Assertions.assertNotNull(user.getCreatedAt());
         Assertions.assertNotNull(user.getUpdatedAt());
-        Assertions.assertNotEquals(user.getCreatedAt(), user.getUpdatedAt());
 
     }
 

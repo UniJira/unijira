@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/notifies")
+@RequestMapping("/notifications")
 public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     private final NotifyService notifyService;
@@ -60,7 +61,7 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
 
         return notifyService.create(modelMapper.map(dto, Notify.class))
                 .map(notify -> ResponseEntity
-                        .created(URI.create("/notifies/%d".formatted(notify.getId())))
+                        .created(URI.create("/notifications/%d".formatted(notify.getId())))
                         .body(modelMapper.map(notify, NotifyDTO.class)))
                 .orElse(ResponseEntity.badRequest().build());
 
@@ -80,4 +81,20 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
     public ResponseEntity<Boolean> delete(Long id) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
     }
+
+
+    @PutMapping("/mark")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> markAllAsRead() {
+
+        return notifyService.findAllByUserId(getAuthenticatedUser().getId())
+                .stream()
+                .peek(notify -> notify.setRead(true))
+                .map(notify -> notifyService.update(notify.getId(), notify))
+                .map(notify -> ResponseEntity.ok(true))
+                .reduce((a, b) -> ResponseEntity.ok(true))
+                .orElse(ResponseEntity.notFound().build());
+
+    }
+
 }

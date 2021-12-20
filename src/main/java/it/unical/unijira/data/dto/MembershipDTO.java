@@ -8,9 +8,8 @@ import lombok.*;
 @NoArgsConstructor @AllArgsConstructor
 public class MembershipDTO {
 
-    private Long id;
-    private Long userId;
-    private Long projectId;
+    private Long keyUserId;
+    private Long keyProjectId;
     private Membership.Role role;
     private Membership.Status status;
 

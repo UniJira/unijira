@@ -5,4 +5,5 @@ public enum TokenType {
     AUTHORIZATION,
     ACCOUNT_CONFIRM,
     ACCOUNT_RESET_PASSWORD,
+    PROJECT_INVITE,
 }

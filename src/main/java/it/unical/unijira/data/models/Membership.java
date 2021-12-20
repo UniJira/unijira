@@ -23,17 +23,8 @@ public class Membership extends AbstractBaseEntity {
         DISABLED
     }
 
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn
-    private User user;
-
-    @ManyToOne
-    @JoinColumn
-    private Project project;
+    @EmbeddedId
+    private MembershipKey key;
 
     @Column
     @Basic(optional = false)

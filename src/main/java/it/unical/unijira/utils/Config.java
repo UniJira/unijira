@@ -15,15 +15,17 @@ import java.util.List;
 public class Config {
 
     private final String baseURL;
+    private final String environment;
     private final String locale;
     private final String tokenSecret;
     private final Integer tokenExpiration;
     private final Integer tokenLeeway;
-    private final List<String> publicUrls;
+    private final String[] publicUrls;
 
     @Autowired
     public Config(
             @Value("${config.baseURL}") String baseURL,
+            @Value("${config.environment}") String environment,
             @Value("${config.locale}") String locale,
             @Value("${config.jwt.secret}") String tokenSecret,
             @Value("${config.jwt.expiration}") Integer tokenExpiration,
@@ -32,11 +34,12 @@ public class Config {
     ) {
 
         this.baseURL = baseURL;
+        this.environment = environment;
         this.locale = locale;
         this.tokenSecret = tokenSecret;
         this.tokenExpiration = tokenExpiration;
         this.tokenLeeway = tokenLeeway;
-        this.publicUrls = List.of(publicUrls.split(";"));
+        this.publicUrls = publicUrls.split(";");
 
     }
 

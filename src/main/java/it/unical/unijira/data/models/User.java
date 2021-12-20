@@ -35,13 +35,13 @@ public class User extends AbstractBaseEntity {
 
     @OneToMany
     @ToString.Exclude
-    private List<Notify> notifies;
+    private List<Notify> notifications;
 
     @OneToMany
     @ToString.Exclude
     private List<Project> ownedProjects;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "key.user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<Membership> memberships = new ArrayList<>();
 

@@ -1,24 +1,14 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
-import it.unical.unijira.data.dto.user.RoadmapDTO;
-import it.unical.unijira.data.models.*;
-import it.unical.unijira.services.common.*;
-import it.unical.unijira.utils.ItemType;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Order;
+import it.unical.unijira.data.models.Project;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-
-import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -122,7 +112,7 @@ public class ProjectControllerTest extends UniJiraTest {
         List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
         long lastId = projectList.get(projectList.size()-1).getId();
 
-        mockMvc.perform(delete("/projects/"+lastId)
+        mockMvc.perform(delete("/projects/3")
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                         .andExpect(status().isNoContent());
 
@@ -163,6 +153,17 @@ public class ProjectControllerTest extends UniJiraTest {
                 .andExpect(status().isCreated());
 
     }
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
     @Order(7)
@@ -965,4 +966,39 @@ public class ProjectControllerTest extends UniJiraTest {
         System.out.println(roadmapInsertionService.findAllByRoadmap(roadmap,0,10000).size());
 
     }
+
+
+
+    @Test
+    void sendInvitationsSuccessful() throws Exception {
+
+        var projectId = projectRepository.findAll()
+                        .stream()
+                        .filter(i ->  i.getOwner().getId().equals(1L))
+                        .findAny()
+                        .stream()
+                        .mapToLong(Project::getId)
+                        .findAny()
+                        .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
+
+        mockMvc.perform(post("/projects/invitations")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                .contentType("application/json")
+                .content("""
+                        {
+                            "projectId": "%d",
+                            "emails" : ["%s"]
+                        }
+                        """.formatted(projectId, UniJiraTest.USERNAME))
+        )
+        .andExpect(status().isOk())
+        .andExpect(content().string(not(containsString("[]"))))
+        .andDo(print());
+
+    }
+
+
+
+
+
 }

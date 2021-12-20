@@ -45,6 +45,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username);
     }
 
+    @Override
+    public Optional<User> findById(Long id) { return userRepository.findById(id); }
 
     @Override
     public Optional<User> save(User user) {
@@ -72,7 +74,7 @@ public class UserServiceImpl implements UserService {
                     locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
                     locale.get("MAIL_ACCOUNT_CONFIRM_BODY",
                             config.getBaseURL(),
-                            authService.generateToken(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId().toString())))
+                            authService.generateToken(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId())))
             )) {
                 throw new RuntimeException("Error sending email to %s".formatted(username));
             }

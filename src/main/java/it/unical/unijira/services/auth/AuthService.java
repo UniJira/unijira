@@ -10,5 +10,5 @@ public interface AuthService {
     String authenticate(String username, String password);
     String refresh(String token) throws JWTVerificationException;
     DecodedJWT verifyToken(String token, TokenType type, String... requiredClaims) throws JWTVerificationException;
-    String generateToken(TokenType type, Map<String, String> claims);
+    String generateToken(TokenType type, Map<String, ?> claims);
 }

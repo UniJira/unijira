@@ -20,11 +20,14 @@ logging:
     org.springframework.web: ERROR
     org.springframework.security: ERROR
 
+server:
+  port: 7080
+
 config:
+  environment: @environment@
   locale: "it"
   routes:
     public: "/auth/authenticate;/auth/register;/auth/active;/auth/refresh"
 
-server:
-  port: 7080
+
 
