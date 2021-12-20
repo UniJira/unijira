@@ -2,7 +2,7 @@ package it.unical.unijira.data.models;
 
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.utils.Errors;
-import it.unical.unijira.utils.ProductBacklogItemType;
+import it.unical.unijira.utils.ItemType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,11 +17,11 @@ import java.util.List;
 @Table
 @ToString
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class ProductBacklogItem extends AbstractBaseEntity {
+public class Item extends AbstractBaseEntity {
 
     // SIMPLE FIELDS
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Getter
     @Setter
     private Long id;
@@ -67,7 +67,7 @@ public class ProductBacklogItem extends AbstractBaseEntity {
     private String type;
 
     public void setType(String type) throws NonValidItemTypeException {
-        if (ProductBacklogItemType.getInstance().isCoherentType(type)) {
+        if (ItemType.getInstance().isCoherentType(type)) {
             this.type = type;
         } else {
             throw new NonValidItemTypeException(String.format(Errors.INVALID_BACKLOG_ITEM_TYPE,type));
@@ -107,22 +107,22 @@ public class ProductBacklogItem extends AbstractBaseEntity {
     @ManyToOne
     @JoinColumn
     @Getter
-    private ProductBacklogItem father;
+    private Item father;
 
     @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @ToString.Exclude
-    private List<ProductBacklogItem> sons;
+    private List<Item> sons;
 
-    public void setFather(ProductBacklogItem father) throws NonValidItemTypeException{
+    public void setFather(Item father) throws NonValidItemTypeException{
 
         if (father == null) return;
 
-        if (!ProductBacklogItemType.getInstance().isValidAssignment(father.getType(), this.type))
+        if (!ItemType.getInstance().isValidAssignment(father.getType(), this.type))
             throw new NonValidItemTypeException(String.format(Errors.INVALID_FATHER_ITEM_TYPE,
                     father.getType(), this.getType()));
-        this.father  = ProductBacklogItemType.getInstance().isValidAssignment(father.getType(), this.type)
+        this.father  = ItemType.getInstance().isValidAssignment(father.getType(), this.type)
                 ? father : null;
 
     }

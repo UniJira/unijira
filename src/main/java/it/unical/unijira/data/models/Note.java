@@ -36,7 +36,7 @@ public class Note extends AbstractBaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private ProductBacklogItem refersTo;
+    private Item refersTo;
 
 
     @ManyToOne

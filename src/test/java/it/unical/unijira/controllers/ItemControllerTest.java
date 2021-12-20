@@ -2,8 +2,8 @@ package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import it.unical.unijira.data.models.ProductBacklogItem;
-import it.unical.unijira.utils.ProductBacklogItemType;
+import it.unical.unijira.data.models.Item;
+import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,36 +14,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class ItemControllerTest extends UniJiraTest {
 
+
+    private Long chooseMyId;
+
     @BeforeEach
     void insertDummyObject(){
-        ProductBacklogItem father = new ProductBacklogItem();
+        Item father = new Item();
         father.setDescription("this is an useless epic");
         father.setEvaluation(77);
         father.setMeasureUnit("metri");
         father.setSummary("useless epic");
         try {
-            father.setType(ProductBacklogItemType.getInstance().EPIC);
+            father.setType(ItemType.getInstance().EPIC);
             father.setFather(null);
-        } catch (NonValidItemTypeException e) {}
+        } catch (NonValidItemTypeException ignored) {}
 
-        father.setOwner(userRepository.findAll().stream().findFirst().get());
+        father.setOwner(userRepository.findAll().stream().findFirst().orElseThrow(RuntimeException::new));
         father.setTags("#backend#");
 
 
-        father = pbiRepository.saveAndFlush(father);
+        pbiRepository.saveAndFlush(father);
+
+
+        this.chooseMyId = pbiRepository.findAll().get(0).getId();
     }
 
 
     @Test
     void retrieveAllItems() throws Exception {
-        mockMvc.perform(get("/backlog/items").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+        mockMvc.perform(get("/items").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("\"id\":")));
     }
 
     @Test
     void newItem() throws Exception {
-        mockMvc.perform(post("/backlog/items")
+        mockMvc.perform(post("/items")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                 .contentType("application/json")
                 .content("""
@@ -62,7 +68,7 @@ public class ItemControllerTest extends UniJiraTest {
 
     @Test
     void retrieveById() throws Exception {
-        mockMvc.perform(get("/backlog/items/1")
+        mockMvc.perform(get("/items/"+this.chooseMyId)
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("\"id\":")));
@@ -70,7 +76,7 @@ public class ItemControllerTest extends UniJiraTest {
 
     @Test
     void deleteItem() throws Exception {
-        mockMvc.perform(delete("/backlog/items/1")
+        mockMvc.perform(delete("/items/"+this.chooseMyId)
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isNoContent());
     }
@@ -78,7 +84,7 @@ public class ItemControllerTest extends UniJiraTest {
     @Test
     void updateProjectSuccessful() throws Exception {
 
-        mockMvc.perform(put("/backlog/items/1")
+        mockMvc.perform(put("/items/"+this.chooseMyId)
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                         .contentType("application/json")
                         .content("""

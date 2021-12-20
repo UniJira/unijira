@@ -10,6 +10,6 @@ import lombok.*;
 public class ItemAssignmentDTO {
 
     private Long id;
-    private ProductBacklogItemDTO item;
+    private ItemDTO item;
     private UserInfoDTO assignee;
 }

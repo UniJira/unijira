@@ -8,21 +8,26 @@ import javax.persistence.*;
 
 @Entity
 @Table
-@Getter
-@Setter
 @ToString
-public class ItemAssignment extends AbstractBaseEntity {
+public class SprintInsertion extends AbstractBaseEntity{
 
     @Id
     @GeneratedValue
+    @Getter
+    @Setter
     private Long id;
 
+
     @ManyToOne
     @JoinColumn
+    @Getter
+    @Setter
+    private Sprint sprint;
+
+
+    @ManyToOne
+    @JoinColumn
+    @Getter
+    @Setter
     private Item item;
-
-    @ManyToOne
-    @JoinColumn
-    private User assignee;
-
 }

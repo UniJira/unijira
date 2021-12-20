@@ -3,12 +3,12 @@ package it.unical.unijira.common;
 import it.unical.unijira.UniJiraApplication;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dto.user.ItemAssignmentDTO;
-import it.unical.unijira.data.dto.user.ProductBacklogItemDTO;
+import it.unical.unijira.data.dto.user.ItemDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
-import it.unical.unijira.data.models.ProductBacklogItem;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.impl.UserServiceImpl;
-import it.unical.unijira.utils.ProductBacklogItemType;
+import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,12 +54,12 @@ public class DtoMapperToProdBacklogItem extends UniJiraTest {
         List<User> users = userRepository.findAll();
 
 
-        var item = new ProductBacklogItemDTO() {{
+        var item = new ItemDTO() {{
             setId(1L);
             setSummary("item inutile");
             setDescription("questo item non serve assolutamente a nulla");
             setEvaluation(8);
-            setType(ProductBacklogItemType.getInstance().EPIC);
+            setType(ItemType.getInstance().EPIC);
             setMeasureUnit("metri");
 
         }};
@@ -95,7 +95,7 @@ public class DtoMapperToProdBacklogItem extends UniJiraTest {
         item.setAssignees(assignments);
 
 
-        ProductBacklogItem itemAssignment = modelMapper.map(item, ProductBacklogItem.class);
+        Item itemAssignment = modelMapper.map(item, Item.class);
 
         Assertions.assertNotNull(itemAssignment.getId());
         Assertions.assertNotNull(itemAssignment.getType());

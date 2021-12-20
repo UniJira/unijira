@@ -46,7 +46,7 @@ public abstract class UniJiraTest {
     protected UserProjectRepository userProjectRepository;
 
     @Autowired
-    protected ProductBacklogItemRepository pbiRepository;
+    protected ItemRepository pbiRepository;
 
     @Autowired
     protected ItemAssignmentRepository itemAssignmentRepository;

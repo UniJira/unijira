@@ -1,10 +1,11 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ItemAssignmentRepository;
+import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.ItemAssignment;
-import it.unical.unijira.data.models.ProductBacklogItem;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.ItemAssignmentService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,12 +52,12 @@ public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentR
     }
 
     @Override
-    public List<ItemAssignment> findAllByAssignee(User assignee) {
-        return itemAssignmentRepo.findAllByAssignee(assignee);
+    public List<ItemAssignment> findAllByAssignee(User assignee, int page, int size) {
+        return itemAssignmentRepo.findAllByAssignee(assignee, PageRequest.of(page, size));
     }
 
     @Override
-    public List<ItemAssignment> findAllByItem(ProductBacklogItem pbi) {
-        return itemAssignmentRepo.findAllByItem(pbi);
+    public List<ItemAssignment> findAllByItem(Item pbi, int page, int size) {
+        return itemAssignmentRepo.findAllByItem(pbi,PageRequest.of(page, size));
     }
 }

@@ -4,7 +4,6 @@ import it.unical.unijira.data.models.Notify;
 import lombok.*;
 
 import java.net.URL;
-import java.time.LocalDateTime;
 
 
 @Builder

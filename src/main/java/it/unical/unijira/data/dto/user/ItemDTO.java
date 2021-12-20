@@ -10,7 +10,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductBacklogItemDTO {
+public class ItemDTO {
 
     private Long id;
     private String summary;
@@ -22,6 +22,6 @@ public class ProductBacklogItemDTO {
     private List<NoteDTO> notes = new ArrayList<>();
     private UserInfoDTO owner;
     private List<ItemAssignmentDTO> assignees = new ArrayList<>();
-    private ProductBacklogItemDTO father;
+    private ItemDTO father;
 
 }
