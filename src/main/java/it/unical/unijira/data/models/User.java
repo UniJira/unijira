@@ -17,6 +17,8 @@ import java.util.List;
 @NoArgsConstructor @AllArgsConstructor
 public class User extends AbstractBaseEntity {
 
+    public static final Long CURRENT_USER_ID = 0L;
+
     @Id
     @GeneratedValue
     private Long id;

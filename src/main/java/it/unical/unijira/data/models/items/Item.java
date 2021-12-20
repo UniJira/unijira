@@ -5,9 +5,7 @@ import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.utils.Errors;
 import it.unical.unijira.utils.ItemType;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,6 +14,9 @@ import java.util.List;
 @Entity
 @Table
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Item extends AbstractBaseEntity {
 
@@ -90,7 +91,7 @@ public class Item extends AbstractBaseEntity {
     // Every ProductBacklog refers to a Project
 
 
-    @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL)
     @Getter
     @Setter
     @ToString.Exclude
@@ -105,7 +106,7 @@ public class Item extends AbstractBaseEntity {
     private User owner;
 
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     @Getter
     @Setter
     @ToString.Exclude
@@ -116,7 +117,7 @@ public class Item extends AbstractBaseEntity {
     @Getter
     private Item father;
 
-    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE)
     @Getter
     @ToString.Exclude
     private List<Item> sons;

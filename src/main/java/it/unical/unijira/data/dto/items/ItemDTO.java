@@ -1,6 +1,8 @@
 package it.unical.unijira.data.dto.items;
 
+import it.unical.unijira.data.dto.AbstractBaseDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
+import it.unical.unijira.data.models.items.ItemStatus;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDTO {
+public class ItemDTO extends AbstractBaseDTO {
 
     private Long id;
     private String summary;
@@ -20,9 +22,10 @@ public class ItemDTO {
     private Integer evaluation;
     private String tags;
     private String type;
-    private List<NoteDTO> notes = new ArrayList<>();
+    private ItemStatus status;
     private UserInfoDTO owner;
-    private List<ItemAssignmentDTO> assignees = new ArrayList<>();
     private ItemDTO father;
+    private List<NoteDTO> notes = new ArrayList<>();
+    private List<ItemAssignmentDTO> assignees = new ArrayList<>();
 
 }

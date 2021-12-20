@@ -10,10 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
@@ -95,7 +92,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @GetMapping("by-user/{user}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsByUser(ModelMapper modelMapper, @PathVariable Long user, Integer page, Integer size) {
+    public ResponseEntity<List<ItemDTO>> itemsByUser(ModelMapper modelMapper, @PathVariable Long user, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
         return ResponseEntity.ok(pbiService.findAllByUser(user, page, size).stream()
                 .map(item -> modelMapper.map(item, ItemDTO.class))
                 .collect(Collectors.toList()));
@@ -104,7 +101,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @GetMapping("by-father/{father}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsByFather(ModelMapper modelMapper, @PathVariable Long father, Integer page, Integer size){
+    public ResponseEntity<List<ItemDTO>> itemsByFather(ModelMapper modelMapper, @PathVariable Long father, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
         return ResponseEntity.ok(pbiService.findAllByFather(father, page, size).stream()
                 .map(item -> modelMapper.map(item, ItemDTO.class))
                 .collect(Collectors.toList()));
