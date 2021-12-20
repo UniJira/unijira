@@ -11,7 +11,7 @@ spring:
     url: jdbc:hsqldb:file:/tmp/db/unijira
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     properties:
       dialect: org.hibernate.dialect.HSQLDialect
       show_sql: true

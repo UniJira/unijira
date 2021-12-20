@@ -93,7 +93,7 @@ public class ProjectControllerTest extends UniJiraTest {
                 .contentType("application/json")
                 .content("""
                         {
-                            "projectId": "4",
+                            "projectId": "5",
                             "emails" : ["%s"]
                         }
                         """.formatted(UniJiraTest.USERNAME))

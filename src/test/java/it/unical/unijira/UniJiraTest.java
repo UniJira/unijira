@@ -2,10 +2,7 @@ package it.unical.unijira;
 
 
 import it.unical.unijira.data.dao.*;
-import it.unical.unijira.data.models.Membership;
-import it.unical.unijira.data.models.Notify;
-import it.unical.unijira.data.models.Project;
-import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.*;
 import it.unical.unijira.utils.Config;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
@@ -102,8 +99,7 @@ public abstract class UniJiraTest {
             Membership membership = Membership.builder()
                     .status(Membership.Status.ENABLED)
                     .role(Membership.Role.SCRUM_MASTER)
-                    .user(user)
-                    .project(project)
+                    .key(new MembershipKey(user, project))
                     .build();
 
             userProjectRepository.saveAndFlush(membership);
