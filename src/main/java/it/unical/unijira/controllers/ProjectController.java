@@ -8,7 +8,6 @@ import it.unical.unijira.data.dto.ProjectDTO;
 import it.unical.unijira.data.models.MembershipKey;
 import it.unical.unijira.data.models.Project;
 import it.unical.unijira.data.models.TokenType;
-import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.ProjectService;
 import it.unical.unijira.services.common.UserService;
@@ -20,11 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @RestController

@@ -104,19 +104,4 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
 
-    @Test
-    void acceptInvitationsSuccessful() throws Exception {
-
-        mockMvc.perform(get("/projects/accept")
-                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
-                        .param(
-                            "token",
-                                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoLXNlcnZpY2UtdW5pamlyYSIsImV4cCI6MTYzOTk1NjM0NywidHlwZSI6IlBST0pFQ1RfSU5WSVRFIiwiaWF0IjoxNjM5OTUyNzQ3LCJwcm9qZWN0SWQiOiIyIiwidXNlcklkIjoiMSJ9.GvVDtbG5shn8AtXze3Yl0zt7fi7Rn3A3437pNy_FQmk"
-                        )
-                )
-                .andExpect(status().isOk())
-                .andDo(print());
-
-    }
-
 }
