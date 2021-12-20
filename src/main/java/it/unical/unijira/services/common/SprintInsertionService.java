@@ -1,6 +1,7 @@
 package it.unical.unijira.services.common;
 
-import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.Sprint;
+import it.unical.unijira.data.models.SprintInsertion;
 
 import java.util.List;
 import java.util.Optional;

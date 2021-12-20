@@ -1,10 +1,9 @@
 package it.unical.unijira.services.common;
 
-import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Project;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 

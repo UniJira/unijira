@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class SprintInsertion extends AbstractBaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Getter
     @Setter
     private Long id;

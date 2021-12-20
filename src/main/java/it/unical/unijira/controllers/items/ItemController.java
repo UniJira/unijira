@@ -3,8 +3,8 @@ package it.unical.unijira.controllers.items;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.user.ItemDTO;
 import it.unical.unijira.data.models.Item;
-import it.unical.unijira.services.common.NoteService;
 import it.unical.unijira.services.common.ItemService;
+import it.unical.unijira.services.common.NoteService;
 import it.unical.unijira.utils.ItemType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +66,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
         return pbiService.save(modelMapper.map(itemDto, Item.class))
                 .map(createdDTO -> ResponseEntity
-                        .created(URI.create("/backlog/items/%d".formatted(createdDTO.getId())))
+                        .created(URI.create("/items/%d".formatted(createdDTO.getId())))
                         .body(modelMapper.map(createdDTO, ItemDTO.class)))
                 .orElse(ResponseEntity.badRequest().build());
     }

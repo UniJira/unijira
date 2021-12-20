@@ -1,6 +1,5 @@
 package it.unical.unijira.data.dao;
 
-import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.SprintInsertion;
 import org.springframework.data.domain.Pageable;

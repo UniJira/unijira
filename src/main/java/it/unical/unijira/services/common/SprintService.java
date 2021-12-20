@@ -1,7 +1,6 @@
 package it.unical.unijira.services.common;
 
 import it.unical.unijira.data.models.ProductBacklog;
-import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.Sprint;
 
 import java.util.List;

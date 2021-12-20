@@ -2,8 +2,12 @@ package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.Project;
+import it.unical.unijira.services.common.*;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -40,7 +44,6 @@ public class ProjectControllerTest extends UniJiraTest {
     private RoadmapInsertionService roadmapInsertionService;
 
     @Test
-    @Order(2)
     void readAllProjectSuccessful() throws Exception {
 
         mockMvc.perform(get("/projects").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
@@ -50,7 +53,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(3)
     void readSingleProjectSuccessful() throws Exception {
 
         mockMvc.perform(get("/projects/3").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
@@ -59,7 +61,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(1)
     void createProjectSuccessful() throws Exception {
 
         mockMvc.perform(post("/projects")
@@ -77,7 +78,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(4)
     void readAllRolesSuccessful() throws Exception {
 
         mockMvc.perform(get("/projects/3/memberships").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
@@ -87,7 +87,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(5)
     void updateProjectSuccessful() throws Exception {
 
         mockMvc.perform(put("/projects/3")
@@ -106,7 +105,6 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
     @Test
-    @Order(34)
     void deleteProjectSuccessful() throws Exception {
         this.createProjectSuccessful();
         List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
@@ -118,8 +116,9 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
 
+    /*
+
     @Test
-    @Order(6)
     void addBacklogToAProject() throws Exception {
         mockMvc.perform(post("/projects")
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
@@ -154,19 +153,7 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
     @Test
-    @Order(7)
     void addBacklogToAProjectImplicit() throws Exception {
         mockMvc.perform(post("/projects")
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
@@ -199,7 +186,7 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(8)
+
     void readAllBacklogsOfAProject() throws Exception {
         mockMvc.perform(post("/projects")
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
@@ -226,7 +213,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(9)
     void readOneBacklog() throws Exception {
 
         mockMvc.perform(post("/projects")
@@ -288,7 +274,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(10)
     void addItemToOneBacklog() throws Exception {
 
         Item i = new Item();
@@ -332,7 +317,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(11)
     void readBacklogContent() throws Exception {
 
         this.addItemToOneBacklog();
@@ -357,7 +341,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(12)
     void readOneBacklogContent() throws Exception {
         this.addItemToOneBacklog();
         Project pj = projectService.findById(3L).orElse(null);
@@ -380,7 +363,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(30)
     void deleteItemFromBacklog() throws Exception {
         this.addItemToOneBacklog();
         Project pj = projectService.findById(3L).orElse(null);
@@ -402,7 +384,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(14)
     void updateOneFromOneBacklog() throws Exception {
         this.addItemToOneBacklog();
         Project pj = projectService.findById(3L).orElse(null);
@@ -434,7 +415,7 @@ public class ProjectControllerTest extends UniJiraTest {
 
 
     @Test
-    @Order(15)
+
     void addSprintToABacklog() throws Exception{
         this.addBacklogToAProjectImplicit();
 
@@ -465,7 +446,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(16)
     void sprintsOfABacklogTest() throws Exception {
         this.addSprintToABacklog();
 
@@ -488,7 +468,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(17)
     void sprintById() throws Exception {
         this.addSprintToABacklog();
 
@@ -512,7 +491,6 @@ public class ProjectControllerTest extends UniJiraTest {
 
 
     @Test
-    @Order(18)
     void updateSprint() throws Exception {
         this.addSprintToABacklog();
 
@@ -547,7 +525,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(32)
     void deleteSprint() throws Exception {
         this.addSprintToABacklog();
         List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
@@ -569,7 +546,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(19)
     void addItemToSprint() throws Exception {
         Item i = new Item();
         i.setId(99L);
@@ -616,7 +592,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(20)
     void readItemsFromSprint() throws Exception {
 
         this.addItemToSprint();
@@ -642,7 +617,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(21)
     void readOneItemFromOneSprint() throws Exception {
 
         this.addItemToSprint();
@@ -674,7 +648,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(31)
     void deleteItemOfASprint() throws Exception {
         this.addItemToSprint();
 
@@ -704,7 +677,6 @@ public class ProjectControllerTest extends UniJiraTest {
 
 
     @Test
-    @Order(22)
     void addRoadmap() throws Exception {
         this.addBacklogToAProjectImplicit();
 
@@ -732,7 +704,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(23)
     void readRoadmapsFromBacklog() throws Exception {
         this.addRoadmap();
 
@@ -751,7 +722,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(24)
     void readOneRoadmapFromBacklog() throws Exception {
         this.addRoadmap();
 
@@ -774,7 +744,6 @@ public class ProjectControllerTest extends UniJiraTest {
 
 
     @Test
-    @Order(32)
     void deleteRoadmap() throws Exception {
         this.addRoadmap();
 
@@ -798,7 +767,6 @@ public class ProjectControllerTest extends UniJiraTest {
 
 
     @Test
-    @Order(25)
     void addItemToRoadmap() throws Exception {
         Item i = new Item();
         i.setId(99L);
@@ -843,7 +811,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(26)
     void readItemsFromRoadmap() throws Exception {
         this.addItemToRoadmap();
         List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
@@ -866,7 +833,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(27)
     void readOneItemFromRoadmap() throws Exception {
         this.addItemToRoadmap();
         List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
@@ -893,7 +859,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(28)
     void updateItemsOfARoadmap() throws Exception {
         this.addItemToRoadmap();
 
@@ -940,7 +905,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    @Order(29)
     void deleteItemOfARoadmap() throws Exception {
         this.addItemToRoadmap();
         List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
@@ -967,7 +931,7 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
 
-
+*/
 
     @Test
     void sendInvitationsSuccessful() throws Exception {

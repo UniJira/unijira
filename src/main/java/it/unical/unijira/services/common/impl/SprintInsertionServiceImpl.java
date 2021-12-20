@@ -1,7 +1,8 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.SprintInsertionRepository;
-import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.Sprint;
+import it.unical.unijira.data.models.SprintInsertion;
 import it.unical.unijira.services.common.SprintInsertionService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

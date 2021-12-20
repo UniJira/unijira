@@ -14,7 +14,7 @@ import java.util.List;
 public class ProductBacklog extends AbstractBaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Getter
     @Setter
     private Long id;

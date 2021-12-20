@@ -1,7 +1,7 @@
 package it.unical.unijira.data.dao;
 
-import it.unical.unijira.data.models.ItemAssignment;
 import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.ItemAssignment;
 import it.unical.unijira.data.models.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

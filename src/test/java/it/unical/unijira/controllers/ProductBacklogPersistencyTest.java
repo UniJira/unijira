@@ -3,12 +3,12 @@ package it.unical.unijira.controllers;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import it.unical.unijira.data.models.ItemAssignment;
 import it.unical.unijira.data.models.Item;
+import it.unical.unijira.data.models.ItemAssignment;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.impl.ItemAssignmentServiceImpl;
-import it.unical.unijira.services.common.impl.NoteServiceImpl;
 import it.unical.unijira.services.common.impl.ItemServiceImpl;
+import it.unical.unijira.services.common.impl.NoteServiceImpl;
 import it.unical.unijira.services.common.impl.UserServiceImpl;
 import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.Assertions;
@@ -131,7 +131,7 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
         pbiService.delete(retrieved);
 
         Assertions.assertFalse(pbiService.findById(firstId).isPresent());
-       // Assertions.assertFalse(pbiService.findById(secondId).isPresent());
+        Assertions.assertFalse(pbiService.findById(secondId).isPresent());
 
 
 

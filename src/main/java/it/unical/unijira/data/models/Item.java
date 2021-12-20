@@ -21,7 +21,7 @@ public class Item extends AbstractBaseEntity {
 
     // SIMPLE FIELDS
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Getter
     @Setter
     private Long id;

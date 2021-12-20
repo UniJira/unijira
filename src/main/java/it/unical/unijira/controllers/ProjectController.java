@@ -7,14 +7,9 @@ import it.unical.unijira.data.dto.MembershipDTO;
 import it.unical.unijira.data.dto.ProjectDTO;
 import it.unical.unijira.data.dto.user.*;
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.utils.ControllerUtilities;
-import it.unical.unijira.data.models.MembershipKey;
-import it.unical.unijira.data.models.Project;
-import it.unical.unijira.data.models.TokenType;
-import it.unical.unijira.services.auth.AuthService;
-import it.unical.unijira.services.common.ProjectService;
-import it.unical.unijira.services.common.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,7 +38,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final AuthService authService;
 
     @Autowired
-    public ProjectController(ProjectService projectService,
+    public ProjectController(UserService userService,
+                             ProjectService projectService,
+                             AuthService authService,
                              ProductBacklogService backlogService,
                              ProductBacklogInsertionService insertionService,
                              ItemService pbiService,
@@ -51,7 +48,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              SprintInsertionService sprintInsertionService,
                              RoadmapService roadmapService,
                              RoadmapInsertionService roadmapInsertionService) {
-    public ProjectController(UserService userService, ProjectService projectService, AuthService authService) {
         this.userService = userService;
         this.projectService = projectService;
         this.backlogService = backlogService;
