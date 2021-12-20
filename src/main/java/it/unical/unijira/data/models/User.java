@@ -35,7 +35,7 @@ public class User extends AbstractBaseEntity {
 
     @OneToMany
     @ToString.Exclude
-    private List<Notify> notifies;
+    private List<Notify> notifications;
 
     @OneToMany
     @ToString.Exclude

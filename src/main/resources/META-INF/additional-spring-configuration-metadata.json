@@ -29,6 +29,11 @@
       "name": "config.jwt.leeway",
       "type": "java.lang.String",
       "description": "Description for config.jwt.leeway."
+    },
+    {
+      "name": "config.environment",
+      "type": "java.lang.String",
+      "description": "Description for config.environment."
     }
   ]
 }

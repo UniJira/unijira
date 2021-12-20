@@ -2,7 +2,10 @@ package it.unical.unijira;
 
 
 import it.unical.unijira.data.dao.*;
-import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.Membership;
+import it.unical.unijira.data.models.Notify;
+import it.unical.unijira.data.models.Project;
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.utils.Config;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
@@ -24,8 +27,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class UniJiraTest {
 
-    protected final static String USERNAME = "perfidiomatteo7@gmail.com";
-    protected final static String PASSWORD = "Unijira20";
+    protected final static String USERNAME = "unijira20@gmail.com";
+    protected final static String PASSWORD = "Unijira.20";
 
     @Autowired
     protected Config config;
@@ -70,6 +73,7 @@ public abstract class UniJiraTest {
                     .username(USERNAME)
                     .password(passwordEncoder.encode(PASSWORD))
                     .activated(true)
+                    .ownedProjects(Collections.emptyList())
                     .memberships(Collections.emptyList())
                     .build();
 
@@ -98,19 +102,11 @@ public abstract class UniJiraTest {
             Membership membership = Membership.builder()
                     .status(Membership.Status.ENABLED)
                     .role(Membership.Role.SCRUM_MASTER)
-                    .key(new MembershipKey(user, project))
+                    .user(user)
+                    .project(project)
                     .build();
 
             userProjectRepository.saveAndFlush(membership);
-
-            Project projectInvite = Project.builder()
-                    .owner(user)
-                    .name("Project Invite")
-                    .key("PTI")
-                    .memberships(Collections.emptyList())
-                    .build();
-
-            projectRepository.saveAndFlush(projectInvite);
 
         }
 
