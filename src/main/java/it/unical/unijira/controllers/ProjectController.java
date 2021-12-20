@@ -133,12 +133,24 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .findAny()
                 .orElse(null);
 
+        if(project == null ) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if(getAuthenticatedUser().equals(project.getOwner())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         final var users = inviteMembersDTO.getEmails()
                 .stream()
                 .map(userService::findByUsername)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+
+        if(users.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
         return ResponseEntity.ok( projectService.sendInvitations(project, users)
                 .stream()

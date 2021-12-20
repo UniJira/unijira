@@ -1,6 +1,7 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
+import it.unical.unijira.data.models.Project;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -88,15 +89,24 @@ public class ProjectControllerTest extends UniJiraTest {
     @Test
     void sendInvitationsSuccessful() throws Exception {
 
+        var projectId = projectRepository.findAll()
+                        .stream()
+                        .filter(i ->  i.getOwner().getId().equals(1L))
+                        .findAny()
+                        .stream()
+                        .mapToLong(Project::getId)
+                        .findAny()
+                        .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
+
         mockMvc.perform(post("/projects/invitations")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                 .contentType("application/json")
                 .content("""
                         {
-                            "projectId": "5",
+                            "projectId": "%d",
                             "emails" : ["%s"]
                         }
-                        """.formatted(UniJiraTest.USERNAME))
+                        """.formatted(projectId, UniJiraTest.USERNAME))
         )
         .andExpect(status().isOk())
         .andExpect(content().string(not(containsString("[]"))))
