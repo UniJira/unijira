@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,21 +25,21 @@ public class RoadmapInsertion extends AbstractBaseEntity{
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime startingDate;
+    private LocalDate startingDate;
 
 
     @Column
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime endingDate;
+    private LocalDate endingDate;
 
 
     @ManyToOne
     @JoinColumn
     @Getter
     @Setter
-    private Item pbi;
+    private Item item;
 
 
     @ManyToOne

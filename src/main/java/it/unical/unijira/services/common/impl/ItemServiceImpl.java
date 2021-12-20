@@ -80,7 +80,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
     public List<Item> findAllByUser(Long userId, int page, int size) {
         Optional<User> assignee = userRepository.findById(userId);
         if (assignee.get() != null)
-            return pbiRepository.findAllByAssignee(assignee.get());
+            return pbiRepository.findAllByAssignee(assignee.get(),PageRequest.of(page, size));
         return Collections.emptyList();
     }
 

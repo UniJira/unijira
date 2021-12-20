@@ -4,6 +4,7 @@ import it.unical.unijira.data.dao.SprintRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.services.common.SprintService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public record SprintServiceImpl(SprintRepository sprintRepository)
     }
 
     @Override
-    public List<Sprint> findSprintsByBacklog(ProductBacklog backlog) {
-        return sprintRepository.sprintsOfABacklog(backlog);
+    public List<Sprint> findSprintsByBacklog(ProductBacklog backlog, int page, int size) {
+        return sprintRepository.sprintsOfABacklog(backlog, PageRequest.of(page, size));
     }
 }

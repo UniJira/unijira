@@ -4,6 +4,7 @@ import it.unical.unijira.data.dao.RoadmapRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.services.common.RoadmapService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public record RoadmapServiceImpl(RoadmapRepository roadmapRepository)
 
 
     @Override
-    public List<Roadmap> findByBacklog(ProductBacklog backlog) {
-       return roadmapRepository.findByBacklog(backlog);
+    public List<Roadmap> findByBacklog(ProductBacklog backlog, int page, int size) {
+       return roadmapRepository.findByBacklog(backlog, PageRequest.of(page, size));
     }
 }

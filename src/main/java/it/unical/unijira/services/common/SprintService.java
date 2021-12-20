@@ -14,5 +14,5 @@ public interface SprintService {
     void delete (Sprint sprint);
     Optional<Sprint> findById(Long id);
     List<Sprint> findAll();
-    List<Sprint> findSprintsByBacklog(ProductBacklog backlog);
+    List<Sprint> findSprintsByBacklog(ProductBacklog backlog, int page, int size);
 }

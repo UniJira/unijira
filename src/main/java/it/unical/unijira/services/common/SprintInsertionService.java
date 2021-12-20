@@ -12,5 +12,5 @@ public interface SprintInsertionService {
     void delete (SprintInsertion sprintInsertion);
     Optional<SprintInsertion> findById(Long id);
     List<SprintInsertion> findAll();
-    List<Item> findItemsBySprint(Sprint s);
+    List<SprintInsertion> findItemsBySprint(Sprint s, int page, int size);
 }

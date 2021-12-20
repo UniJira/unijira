@@ -14,5 +14,5 @@ public interface RoadmapService {
     Optional<Roadmap> findById(Long id);
     List<Roadmap> findAll();
 
-    List<Roadmap> findByBacklog(ProductBacklog backlog);
+    List<Roadmap> findByBacklog(ProductBacklog backlog, int page, int size);
 }

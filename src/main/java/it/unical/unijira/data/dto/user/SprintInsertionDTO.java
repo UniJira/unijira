@@ -9,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 public class SprintInsertionDTO {
     private Long id;
-    private SprintDTO sprint;
+    private Long sprintId;
     private ItemDTO item;
 }

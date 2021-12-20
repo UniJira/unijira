@@ -4,6 +4,7 @@ import it.unical.unijira.data.dao.RoadmapInsertionRepository;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.RoadmapInsertion;
 import it.unical.unijira.services.common.RoadmapInsertionService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
                     updatedItem.setStartingDate(roadmapInsertion.getStartingDate());
                     updatedItem.setEndingDate((roadmapInsertion.getEndingDate()));
                     updatedItem.setRoadmap(roadmapInsertion.getRoadmap());
-                    updatedItem.setPbi(roadmapInsertion.getPbi());
+                    updatedItem.setItem(roadmapInsertion.getItem());
                 })
                 .findFirst()
                 .map(roadmapInsertionRepository::saveAndFlush);
@@ -47,7 +48,7 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
     }
 
     @Override
-    public List<RoadmapInsertion> findAllByRoadmap(Roadmap roadmap) {
-        return roadmapInsertionRepository.findAllByRoadmap(roadmap);
+    public List<RoadmapInsertion> findAllByRoadmap(Roadmap roadmap, int page, int size) {
+        return roadmapInsertionRepository.findAllByRoadmap(roadmap, PageRequest.of(page, size));
     }
 }

@@ -15,5 +15,5 @@ public interface RoadmapInsertionService {
     void delete (RoadmapInsertion roadmapInsertion);
     Optional<RoadmapInsertion> findById(Long id);
     List<RoadmapInsertion> findAll();
-    List<RoadmapInsertion> findAllByRoadmap(Roadmap roadmap);
+    List<RoadmapInsertion> findAllByRoadmap(Roadmap roadmap, int page, int size);
 }

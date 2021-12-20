@@ -18,5 +18,5 @@ public interface ItemRepository extends JpaRepository<Item, Long>,
     List<Item> findAllByFather(Item father, Pageable pageable);
 
     @Query(value = "SELECT ia.item FROM ItemAssignment ia where ia.assignee = :assignee")
-    List<Item> findAllByAssignee(User assignee);
+    List<Item> findAllByAssignee(User assignee, Pageable pageable);
 }

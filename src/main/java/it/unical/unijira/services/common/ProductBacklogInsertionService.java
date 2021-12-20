@@ -13,5 +13,5 @@ public interface ProductBacklogInsertionService {
     void delete (ProductBacklogInsertion backlog);
     Optional<ProductBacklogInsertion> findById(Long id);
     List<ProductBacklogInsertion> findAll();
-    List<ProductBacklogInsertion> findAllByBacklog(ProductBacklog backlog);
+    List<ProductBacklogInsertion> findAllByBacklog(ProductBacklog backlog, int page, int size);
 }

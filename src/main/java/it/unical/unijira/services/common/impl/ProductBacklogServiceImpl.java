@@ -5,6 +5,7 @@ import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.Project;
 import it.unical.unijira.services.common.ProductBacklogService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,12 +50,12 @@ public record ProductBacklogServiceImpl(ProductBacklogRepository productBacklogR
     }
 
     @Override
-    public List<Item> findItems(ProductBacklog backlog) {
-        return productBacklogRepository.findItems(backlog);
+    public List<Item> findItems(ProductBacklog backlog, int page, int size) {
+        return productBacklogRepository.findItems(backlog, PageRequest.of(page, size));
     }
 
     @Override
-    public List<ProductBacklog> findAllByProject(Project project) {
-        return productBacklogRepository.findAllByProject(project);
+    public List<ProductBacklog> findAllByProject(Project project, int page, int size) {
+        return productBacklogRepository.findAllByProject(project,PageRequest.of(page, size));
     }
 }

@@ -13,6 +13,6 @@ public class RoadmapDTO {
 
 
     private Long id;
-    private ProductBacklogDTO backlog;
+    private Long backlogId;
     private List<RoadmapInsertionDTO> insertions;
 }

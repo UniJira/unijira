@@ -1,7 +1,10 @@
 package it.unical.unijira.data.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,8 +15,17 @@ import java.time.LocalDateTime;
 public class RoadmapInsertionDTO {
 
     private Long id;
-    private LocalDateTime startingDate;
-    private LocalDateTime endingDate;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate startingDate;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+
+    private LocalDate endingDate;
+
     private ItemDTO item;
-    private RoadmapDTO roadmap;
+
+    private Long roadmapId;
 }

@@ -26,7 +26,7 @@ public interface ProductBacklogService {
     void delete (ProductBacklog backlog);
     Optional<ProductBacklog> findById(Long id);
     List<ProductBacklog> findAll();
-    List<Item> findItems(ProductBacklog backlog);
+    List<Item> findItems(ProductBacklog backlog, int page, int size);
 
-    List<ProductBacklog> findAllByProject(Project project);
+    List<ProductBacklog> findAllByProject(Project project, int page, int size);
 }

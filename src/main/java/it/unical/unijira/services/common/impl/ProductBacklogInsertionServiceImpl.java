@@ -4,6 +4,7 @@ import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.services.common.ProductBacklogInsertionService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public record ProductBacklogInsertionServiceImpl (ProductBacklogInsertionReposit
     }
 
     @Override
-    public List<ProductBacklogInsertion> findAllByBacklog(ProductBacklog backlog) {
-        return backlogInsertionRepository.findAllByBacklog(backlog);
+    public List<ProductBacklogInsertion> findAllByBacklog(ProductBacklog backlog, int page, int size) {
+        return backlogInsertionRepository.findAllByBacklog(backlog, PageRequest.of(page, size));
     }
 }
