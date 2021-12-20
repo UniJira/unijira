@@ -1,7 +1,7 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
-import it.unical.unijira.data.models.Project;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,7 +2,14 @@ package it.unical.unijira;
 
 
 import it.unical.unijira.data.dao.*;
+import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
+import it.unical.unijira.data.dao.items.ItemRepository;
+import it.unical.unijira.data.dao.items.NoteRepository;
+import it.unical.unijira.data.dao.projects.ProjectRepository;
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.projects.Membership;
+import it.unical.unijira.data.models.projects.MembershipKey;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.utils.Config;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;

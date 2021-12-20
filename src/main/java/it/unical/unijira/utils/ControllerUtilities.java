@@ -1,6 +1,8 @@
 package it.unical.unijira.utils;
 
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.projects.Project;
 
 public class ControllerUtilities {
 

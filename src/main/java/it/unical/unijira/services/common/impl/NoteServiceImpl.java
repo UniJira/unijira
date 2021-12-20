@@ -1,7 +1,7 @@
 package it.unical.unijira.services.common.impl;
 
-import it.unical.unijira.data.dao.NoteRepository;
-import it.unical.unijira.data.models.Note;
+import it.unical.unijira.data.dao.items.NoteRepository;
+import it.unical.unijira.data.models.items.Note;
 import it.unical.unijira.services.common.NoteService;
 import org.springframework.stereotype.Service;
 

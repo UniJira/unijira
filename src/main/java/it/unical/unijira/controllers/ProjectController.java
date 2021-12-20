@@ -2,11 +2,10 @@ package it.unical.unijira.controllers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
-import it.unical.unijira.data.dto.InviteMembersDTO;
-import it.unical.unijira.data.dto.MembershipDTO;
-import it.unical.unijira.data.dto.ProjectDTO;
-import it.unical.unijira.data.dto.user.*;
+import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.projects.MembershipKey;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.utils.ControllerUtilities;
@@ -250,9 +249,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PostMapping("/{project}/backlogs/{backlog}/items")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProductBacklogInsertionDTO> addItemToBacklog(ModelMapper modelMapper,
-                                                                            @PathVariable Long project,
-                                                                            @PathVariable Long backlog,
-                                                                            @RequestBody ProductBacklogInsertionDTO dto){
+                                                                       @PathVariable Long project,
+                                                                       @PathVariable Long backlog,
+                                                                       @RequestBody ProductBacklogInsertionDTO dto){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);

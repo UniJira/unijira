@@ -1,8 +1,8 @@
 package it.unical.unijira.services.common;
 
-import it.unical.unijira.data.models.Item;
-import it.unical.unijira.data.models.ItemAssignment;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.items.ItemAssignment;
 
 import java.util.List;
 import java.util.Optional;

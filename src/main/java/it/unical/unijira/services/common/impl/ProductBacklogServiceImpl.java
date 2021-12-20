@@ -1,9 +1,9 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogRepository;
-import it.unical.unijira.data.models.Item;
 import it.unical.unijira.data.models.ProductBacklog;
-import it.unical.unijira.data.models.Project;
+import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ProductBacklogService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

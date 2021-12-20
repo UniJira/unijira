@@ -1,5 +1,6 @@
-package it.unical.unijira.data.models;
+package it.unical.unijira.data.models.projects;
 
+import it.unical.unijira.data.models.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

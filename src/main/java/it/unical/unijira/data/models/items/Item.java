@@ -1,13 +1,11 @@
-package it.unical.unijira.data.models;
+package it.unical.unijira.data.models.items;
 
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
+import it.unical.unijira.data.models.AbstractBaseEntity;
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.utils.Errors;
 import it.unical.unijira.utils.ItemType;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,6 +14,9 @@ import java.util.List;
 @Entity
 @Table
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Item extends AbstractBaseEntity {
 
@@ -53,6 +54,15 @@ public class Item extends AbstractBaseEntity {
     private Integer evaluation;
 
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    @Getter
+    @Setter
+    private ItemStatus status;
+
+
+
+
     // Important to assert for the tags structure
     //Tags are separated by ; and surrounded by ##
     @Column
@@ -82,7 +92,6 @@ public class Item extends AbstractBaseEntity {
 
 
     @OneToMany(mappedBy = "refersTo", cascade = CascadeType.ALL)
-    @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @Setter
     @ToString.Exclude
@@ -98,7 +107,6 @@ public class Item extends AbstractBaseEntity {
 
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
-    @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @Setter
     @ToString.Exclude
@@ -110,10 +118,11 @@ public class Item extends AbstractBaseEntity {
     private Item father;
 
     @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE)
-    @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @ToString.Exclude
     private List<Item> sons;
+
+
 
     public void setFather(Item father) throws NonValidItemTypeException{
 

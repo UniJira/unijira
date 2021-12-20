@@ -1,7 +1,6 @@
-package it.unical.unijira.data.dto.user;
+package it.unical.unijira.data.dto;
 
 
-import it.unical.unijira.data.dto.ProjectDTO;
 import lombok.*;
 
 import java.util.List;

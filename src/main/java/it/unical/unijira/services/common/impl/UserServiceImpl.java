@@ -10,9 +10,11 @@ import it.unical.unijira.utils.Config;
 import it.unical.unijira.utils.Locale;
 import it.unical.unijira.utils.RegexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,8 +39,15 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
 
-
+    @Override
+    public List<User> findAll(Integer page, Integer size) {
+        return userRepository.findAll(PageRequest.of(page, size)).getContent();
+    }
 
     @Override
     public Optional<User> findByUsername(String username) {
