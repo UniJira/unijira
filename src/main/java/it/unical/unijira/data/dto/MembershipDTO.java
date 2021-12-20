@@ -1,6 +1,7 @@
 package it.unical.unijira.data.dto;
 
 import it.unical.unijira.data.models.Membership;
+import it.unical.unijira.data.models.MembershipKey;
 import lombok.*;
 
 @Builder
@@ -8,9 +9,8 @@ import lombok.*;
 @NoArgsConstructor @AllArgsConstructor
 public class MembershipDTO {
 
-    private Long id;
-    private Long userId;
-    private Long projectId;
+    private Long keyUserId;
+    private Long keyProjectId;
     private Membership.Role role;
     private Membership.Status status;
 

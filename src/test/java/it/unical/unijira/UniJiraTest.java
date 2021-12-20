@@ -2,10 +2,7 @@ package it.unical.unijira;
 
 
 import it.unical.unijira.data.dao.*;
-import it.unical.unijira.data.models.Membership;
-import it.unical.unijira.data.models.Notify;
-import it.unical.unijira.data.models.Project;
-import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.*;
 import it.unical.unijira.utils.Config;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
@@ -27,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class UniJiraTest {
 
-    protected final static String USERNAME = "unijira20@gmail.com";
+    protected final static String USERNAME = "perfidiomatteo7@gmail.com";
     protected final static String PASSWORD = "Unijira20";
 
     @Autowired
@@ -101,11 +98,19 @@ public abstract class UniJiraTest {
             Membership membership = Membership.builder()
                     .status(Membership.Status.ENABLED)
                     .role(Membership.Role.SCRUM_MASTER)
-                    .user(user)
-                    .project(project)
+                    .key(new MembershipKey(user, project))
                     .build();
 
             userProjectRepository.saveAndFlush(membership);
+
+            Project projectInvite = Project.builder()
+                    .owner(user)
+                    .name("Project Invite")
+                    .key("PTI")
+                    .memberships(Collections.emptyList())
+                    .build();
+
+            projectRepository.saveAndFlush(projectInvite);
 
         }
 
