@@ -135,7 +135,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("{id}/memberships")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<MembershipDTO>> readRoles(ModelMapper modelMapper, @PathVariable Long id, Integer page, Integer size) {
+    public ResponseEntity<List<MembershipDTO>> readRoles(ModelMapper modelMapper, @PathVariable Long id, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         return ResponseEntity.ok(projectService
                 .findById(id)
@@ -147,8 +147,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProductBacklogDTO>> readAllBacklogs(ModelMapper modelMapper, @PathVariable Long project,
-                                                                   Integer page, Integer size) {
+    public ResponseEntity<List<ProductBacklogDTO>> readAllBacklogs(ModelMapper modelMapper, @PathVariable Long project, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         Project projectObj = projectService.findById(project).orElse(null);
 
@@ -164,8 +163,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogDTO> readBacklog(ModelMapper modelMapper, @PathVariable Long project,
-                                                         @PathVariable Long backlog) {
+    public ResponseEntity<ProductBacklogDTO> readBacklog(ModelMapper modelMapper, @PathVariable Long project, @PathVariable Long backlog) {
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -185,8 +183,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{project}/backlogs")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogDTO> createBacklog(ModelMapper modelMapper,  @PathVariable Long project,
-                                                           @RequestBody ProductBacklogDTO dto) {
+    public ResponseEntity<ProductBacklogDTO> createBacklog(ModelMapper modelMapper,  @PathVariable Long project, @RequestBody ProductBacklogDTO dto) {
 
         Project projectObj = projectService.findById(project).orElse(null);
 
@@ -276,7 +273,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     public ResponseEntity<List<ProductBacklogInsertionDTO>> allFromBacklog(ModelMapper modelMapper,
                                                                            @PathVariable Long project,
                                                                            @PathVariable Long backlog,
-                                                                           Integer page, Integer size){
+                                                                           @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -399,8 +396,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     public ResponseEntity<List<SprintDTO>> getSprints(ModelMapper modelMapper,
                                                       @PathVariable Long project,
                                                       @PathVariable Long backlog,
-                                                      Integer page,
-                                                      Integer size){
+                                                      @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -530,8 +526,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                                                                    @PathVariable Long project,
                                                                    @PathVariable Long backlog,
                                                                    @PathVariable Long sprint,
-                                                                   Integer page,
-                                                                   Integer size){
+                                                                   @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -633,8 +628,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     public ResponseEntity<List<RoadmapDTO>> getRoadmaps(ModelMapper modelMapper,
                                                         @PathVariable Long project,
                                                         @PathVariable Long backlog,
-                                                        Integer page,
-                                                        Integer size){
+                                                        @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -735,8 +729,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                                                                      @PathVariable Long project,
                                                                      @PathVariable Long backlog,
                                                                      @PathVariable Long roadmap,
-                                                                     Integer page,
-                                                                     Integer size){
+                                                                     @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
