@@ -140,7 +140,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         return ResponseEntity.ok(projectService
                 .findById(id)
                 .stream()
-                .map(p -> modelMapper.map(p.getMemberships(), MembershipDTO.class))
+                .flatMap(p -> p.getMemberships().stream())
+                .map(p -> modelMapper.map(p, MembershipDTO.class))
                 .collect(Collectors.toList()));
 
     }
