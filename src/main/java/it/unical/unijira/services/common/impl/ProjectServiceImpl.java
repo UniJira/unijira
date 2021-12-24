@@ -19,8 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyService notifyService, AuthService authService,
@@ -87,47 +89,45 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
     @Override
     public List<Membership> sendInvitations(Project project, List<User> users) {
 
-        List<Membership> memberships = new ArrayList<>();
+        return users.stream().map(user -> {
 
-        users.forEach(user -> {
-
-            memberships.add(this.createMembership(project, user, Membership.Role.MEMBER, Membership.Status.PENDING)
+            var membership = this.createMembership(project, user, Membership.Role.MEMBER, Membership.Status.PENDING)
                     .stream()
                     .findFirst()
-                    .orElseThrow(RuntimeException::new)
-            );
+                    .orElseThrow(RuntimeException::new);
 
 
-            var member = membershipRepository.findById(
-                    new MembershipKey(user, project))
-                    .stream()
+            membershipRepository.findById(new MembershipKey(user, project)).stream()
                     .findAny()
-                    .orElse(null);
+                    .map(member ->
+                        authService.generateToken(TokenType.PROJECT_INVITE, Map.of(
+                                "userId",    member.getKey().getUser().getId(),
+                                "projectId", member.getKey().getProject().getId()
+                        ))
+                    ).stream().peek(token -> {
 
-            var token = authService.generateToken(TokenType.PROJECT_INVITE,
-                    Map.of("userId",    member.getKey().getUser().getId(),
-                           "projectId", member.getKey().getProject().getId()));
+                        try {
 
+                            notifyService.send(user,
+                                    locale.get("NOTIFY_PROJECT_CONFIRM_SUBJECT"),
+                                    locale.get("NOTIFY_PROJECT_CONFIRM_BODY",
+                                            config.getBaseURL(), project.getId(), token
+                                    ),
+                                    URI.create("%s/projects/%d/invite?q=%s".formatted(config.getBaseURL(), project.getId(), token)).toURL(),
+                                    Notify.Priority.HIGH,
+                                    Notify.Mask.PROJECT_INVITE_RECEIVED
+                            );
 
-            URL url = null;
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
 
-            try {
-                url = URI.create("%s/projects/%d/invite?q=%s".formatted(config.getBaseURL(), project.getId(), token)).toURL();
-            } catch (MalformedURLException ignored) {}
+                    }).findFirst().orElseThrow(RuntimeException::new);
 
-            notifyService.send(user,
-                    locale.get("NOTIFY_PROJECT_CONFIRM_SUBJECT"),
-                    locale.get("NOTIFY_PROJECT_CONFIRM_BODY",
-                            config.getBaseURL(),
-                            project.getId(),
-                            token),
-                    url,
-                    Notify.Priority.HIGH
-            );
+            return membership;
 
-        });
+        }).toList();
 
-        return memberships;
 
     }
 

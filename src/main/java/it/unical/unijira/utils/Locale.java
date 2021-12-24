@@ -1,6 +1,7 @@
 package it.unical.unijira.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class Locale {
 
     }
 
-    public String get(String key, Object... args) {
+    public String get(@Language("JSONPath") String key, Object... args) {
         return dictionary.get(key).formatted(args);
     }
 

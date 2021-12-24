@@ -34,8 +34,8 @@ public class ItemController implements CrudController<ItemDTO, Long> {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ItemDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
         return ResponseEntity.ok(pbiService.findAll().stream()
-                        .map(item -> modelMapper.map(item, ItemDTO.class))
-                                .collect(Collectors.toList()));
+                .map(item -> modelMapper.map(item, ItemDTO.class))
+                .collect(Collectors.toList()));
     }
 
     @Override

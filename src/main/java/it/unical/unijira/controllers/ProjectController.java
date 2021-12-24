@@ -141,8 +141,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .findById(id)
                 .stream()
                 .flatMap(p -> p.getMemberships().stream())
+                .skip(page)
+                .limit(size)
                 .map(p -> modelMapper.map(p, MembershipDTO.class))
-                .collect(Collectors.toList()));
+                .toList());
 
     }
 

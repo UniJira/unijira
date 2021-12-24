@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table
@@ -36,6 +37,13 @@ public class User extends AbstractBaseEntity {
 
     @Column
     private boolean disabled = false;
+
+
+    @ElementCollection(targetClass = Notify.Mask.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable
+    @ToString.Exclude
+    private Set<Notify.Mask> notificationMask;
 
     @OneToMany
     @ToString.Exclude

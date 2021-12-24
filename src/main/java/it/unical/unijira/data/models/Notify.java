@@ -19,22 +19,44 @@ public class Notify extends AbstractBaseEntity {
         HIGH
     }
 
+    public enum Mask {
+
+        ACCOUNT_CREATED,
+        ACCOUNT_UPDATED_CREDENTIALS,
+        ACCOUNT_UPDATED_PROFILE,
+        ACCOUNT_UPDATED_STATUS,
+
+        PROJECT_CREATED,
+        PROJECT_INVITE_RECEIVED,
+        PROJECT_INVITE_ACCEPTED,
+        PROJECT_ON_JOINED_NEW_MEMBER,
+        PROJECT_ON_CREATED_NEW_TICKET,
+        PROJECT_ON_CREATED_NEW_RELEASE,
+        PROJECT_ON_CREATED_NEW_SPRINT,
+        PROJECT_ON_UPDATED_TICKET,
+        PROJECT_ON_UPDATED_RELEASE,
+        PROJECT_ON_UPDATED_SPRINT,
+
+        REPORT_SENT,
+        REPORT_RECEIVED,
+        REPORT_UPDATED,
+        REPORT_CLOSED,
+
+    }
+
     @Id
     @GeneratedValue
     private Long id;
 
-    @Lob
-    @Column(length = 4096)
+    @Column(length = 256)
     @Basic(optional = false)
     private String title;
 
-    @Lob
     @Column(length = 4096)
     @Basic(optional = false)
     private String message;
 
-    @Lob
-    @Column(length = 4096)
+    @Column(length = 1024)
     private URL target;
 
     @Column

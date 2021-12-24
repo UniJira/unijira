@@ -1,33 +1,52 @@
 package it.unical.unijira.services.common.impl;
 
+import io.micrometer.core.lang.Nullable;
 import it.unical.unijira.data.dao.NotifyRepository;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.EmailService;
 import it.unical.unijira.services.common.NotifyService;
+import it.unical.unijira.utils.Locale;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public record NotifyServiceImpl(NotifyRepository notifyRepository, EmailService emailService) implements NotifyService {
+public record NotifyServiceImpl(NotifyRepository notifyRepository, EmailService emailService, Locale locale) implements NotifyService {
 
     @Override
-    public void send(User user, String title, String message, URL target, Notify.Priority priority) {
+    public void send(User user, String title, String message, @Nullable URL target, Notify.Priority priority, @Nullable Notify.Mask mask) {
 
-        var n = new Notify();
-        n.setTitle(title);
-        n.setMessage(message);
-        n.setPriority(priority);
-        n.setUser(user);
-        n.setTarget(target);
+        Objects.requireNonNull(user);
+        Objects.requireNonNull(title);
+        Objects.requireNonNull(message);
+        Objects.requireNonNull(priority);
 
-        this.create(n);
+        if(!user.getNotificationMask().contains(mask)) {
+
+            var n = new Notify();
+            n.setTitle(title);
+            n.setMessage(message);
+            n.setPriority(priority);
+            n.setUser(user);
+            n.setTarget(target);
+
+            this.create(n);
+
+        }
+
+        emailService.send (
+                user.getUsername(),
+                locale.get("NOTIFICATION_TITLE", title),
+                locale.get("NOTIFICATION_MESSAGE", message)
+        );
 
     }
+
 
     @Override
     public Optional<Notify> create(Notify notify) {
@@ -38,13 +57,6 @@ public record NotifyServiceImpl(NotifyRepository notifyRepository, EmailService 
         n.setPriority(notify.getPriority());
         n.setUser(notify.getUser());
         n.setTarget(notify.getTarget());
-
-
-        emailService.send (
-                notify.getUser().getUsername(),
-                notify.getTitle(),
-                notify.getMessage()
-        );
 
         return Optional.of(notifyRepository.saveAndFlush(n));
 

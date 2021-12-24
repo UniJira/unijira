@@ -1,4 +1,6 @@
 {
+  "NOTIFICATION_TITLE": "Notification: %s",
+  "NOTIFICATION_MESSAGE": "You have a new notification<br><br><code>%s</code>",
   "MAIL_ACCOUNT_CONFIRM_SUBJECT": "Registration",
   "MAIL_ACCOUNT_CONFIRM_BODY": "Welcome on UniJira!<br>Click on <a href=\"%s/auth/active?q=%s\">activate my account</a> to confirm your email.",
   "NOTIFY_PROJECT_CONFIRM_SUBJECT": "You have been invited to join in a project!",

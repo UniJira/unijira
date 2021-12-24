@@ -12,6 +12,7 @@ import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.utils.Config;
 import lombok.Getter;
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +120,6 @@ public abstract class UniJiraTest {
     public String performLogin(String username, String password) throws Exception {
 
         return mockMvc.perform(post("/auth/authenticate")
-                .with(csrf())
                 .contentType("application/json")
                 .content("""
                         {

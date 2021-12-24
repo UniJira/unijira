@@ -1,5 +1,6 @@
 package it.unical.unijira.services.common;
 
+import io.micrometer.core.lang.Nullable;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 public interface NotifyService {
 
-    void send(User user, String title, String message, URL target, Notify.Priority priority);
+    void send(User user, String title, String message, @Nullable URL target, Notify.Priority priority, @Nullable Notify.Mask mask);
 
     Optional<Notify> create(Notify notify);
     Optional<Notify> update(Long id, Notify notify);

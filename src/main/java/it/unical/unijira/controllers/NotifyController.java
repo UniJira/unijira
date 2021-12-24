@@ -3,18 +3,22 @@ package it.unical.unijira.controllers;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.NotifyDTO;
 import it.unical.unijira.data.models.Notify;
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.NotifyService;
+import it.unical.unijira.services.common.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -23,10 +27,12 @@ import java.util.stream.Collectors;
 public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     private final NotifyService notifyService;
+    private final UserService userService;
 
     @Autowired
-    public NotifyController(NotifyService notifyService) {
+    public NotifyController(NotifyService notifyService, UserService userService) {
         this.notifyService = notifyService;
+        this.userService = userService;
     }
 
 
@@ -93,6 +99,33 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
                 .map(notify -> notifyService.update(notify.getId(), notify))
                 .map(notify -> ResponseEntity.ok(true))
                 .reduce((a, b) -> ResponseEntity.ok(true))
+                .orElse(ResponseEntity.notFound().build());
+
+    }
+
+    @GetMapping("/mask")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<Notify.Mask, Boolean>> readMask() {
+
+        return userService.findById(getAuthenticatedUser().getId())
+                .map(user -> Arrays.stream(Notify.Mask.values())
+                .collect(Collectors.toMap(Function.identity(), user.getNotificationMask()::contains)))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+
+    }
+
+    @PutMapping("/mask")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Set<Notify.Mask>> updateMask(@RequestBody Map<Notify.Mask, Boolean> mask) {
+
+        return userService.updateNotificationMask(getAuthenticatedUser().getId(), mask.entrySet()
+                .stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet()))
+                .map(User::getNotificationMask)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
 
     }

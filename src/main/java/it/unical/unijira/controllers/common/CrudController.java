@@ -34,9 +34,8 @@ public interface CrudController<T, S> {
     ResponseEntity<Boolean> delete(@PathVariable S id);
 
 
-
-    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
     default void handleAuthenticationCredentialsNotFoundException() {
         LoggerFactory.getLogger(CrudController.class).error("Error during CRUD Request: Authentication not found");
     }

@@ -4,6 +4,8 @@ import it.unical.unijira.data.models.User;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Objects;
+
 @Getter
 @ToString
 public class AuthUserDetails extends org.springframework.security.core.userdetails.User {
@@ -22,7 +24,7 @@ public class AuthUserDetails extends org.springframework.security.core.userdetai
                 userDetails.getAuthorities()
         );
 
-        this.model = model;
+        this.model = Objects.requireNonNull(model);
 
     }
 

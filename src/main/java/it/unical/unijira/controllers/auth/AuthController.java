@@ -135,10 +135,10 @@ public class AuthController {
     public ResponseEntity<UserInfoDTO> me(Authentication authentication) {
 
         if(authentication == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         if(!(authentication.getPrincipal() instanceof AuthUserDetails))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         return ResponseEntity.ok(modelMapper.map(((AuthUserDetails) authentication.getPrincipal()).getModel(), UserInfoDTO.class));
 

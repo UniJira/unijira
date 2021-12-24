@@ -1,6 +1,7 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.auth.AuthService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -91,6 +93,16 @@ public class UserServiceImpl implements UserService {
             return owner;
 
         });
+
+    }
+
+    @Override
+    public Optional<User> updateNotificationMask(Long id, Set<Notify.Mask> mask) {
+
+        return userRepository.findById(id).stream()
+                .peek(user -> user.setNotificationMask(mask))
+                .findFirst()
+                .map(userRepository::saveAndFlush);
 
     }
 
