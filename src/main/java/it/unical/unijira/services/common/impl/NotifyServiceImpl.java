@@ -1,12 +1,12 @@
 package it.unical.unijira.services.common.impl;
 
-import io.micrometer.core.lang.Nullable;
 import it.unical.unijira.data.dao.NotifyRepository;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.common.EmailService;
 import it.unical.unijira.services.common.NotifyService;
 import it.unical.unijira.utils.Locale;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 

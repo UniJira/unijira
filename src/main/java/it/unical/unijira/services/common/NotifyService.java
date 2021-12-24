@@ -1,8 +1,8 @@
 package it.unical.unijira.services.common;
 
-import io.micrometer.core.lang.Nullable;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 import java.util.List;
