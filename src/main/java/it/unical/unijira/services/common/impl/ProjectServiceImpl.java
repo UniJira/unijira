@@ -63,6 +63,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
                     p.setName(project.getName());
                     p.setKey(project.getKey());
                     p.setOwner(project.getOwner());
+                    p.setIcon(project.getIcon());
                     p.setMemberships(project.getMemberships());
                 })
                 .findFirst()
