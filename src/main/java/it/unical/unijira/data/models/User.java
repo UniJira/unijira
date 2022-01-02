@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,9 @@ public class User extends AbstractBaseEntity {
 
     @Column
     private boolean disabled = false;
+
+    @Column
+    private URL avatar;
 
     @OneToMany
     @ToString.Exclude
