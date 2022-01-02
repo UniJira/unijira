@@ -2,6 +2,7 @@ package it.unical.unijira.data.dto.user;
 
 import lombok.*;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 
 @Builder
@@ -13,6 +14,7 @@ public class UserInfoDTO {
     private String username;
     private boolean activated;
     private boolean disabled;
+    private URL avatar;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

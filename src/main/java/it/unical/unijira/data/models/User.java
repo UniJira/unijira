@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,13 +38,15 @@ public class User extends AbstractBaseEntity {
 
     @Column
     private boolean disabled = false;
-
-
+  
     @ElementCollection(targetClass = Notify.Mask.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable
     @ToString.Exclude
     private Set<Notify.Mask> notificationMask;
+
+    @Column
+    private URL avatar;
 
     @OneToMany
     @ToString.Exclude
