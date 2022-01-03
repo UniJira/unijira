@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +37,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final RoadmapService roadmapService;
     private final RoadmapInsertionService roadmapInsertionService;
     private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public ProjectController(UserService userService,
@@ -46,7 +49,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              SprintService sprintService,
                              SprintInsertionService sprintInsertionService,
                              RoadmapService roadmapService,
-                             RoadmapInsertionService roadmapInsertionService) {
+                             RoadmapInsertionService roadmapInsertionService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.projectService = projectService;
         this.backlogService = backlogService;
@@ -57,6 +60,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.roadmapService = roadmapService;
         this.roadmapInsertionService = roadmapInsertionService;
         this.authService = authService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -843,6 +847,20 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             if(getAuthenticatedUser().equals(project.getOwner())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
+
+            inviteMembersDTO.getEmails().forEach(mail -> {
+
+                var user = User.builder()
+                        .username(mail)
+                        .password(passwordEncoder.encode(mail))
+                        .activated(true)
+                        .ownedProjects(Collections.emptyList())
+                        .memberships(Collections.emptyList())
+                        .build();
+
+                userService.save(user);
+
+            });
 
             final var users = inviteMembersDTO.getEmails()
                     .stream()

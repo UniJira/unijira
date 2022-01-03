@@ -953,7 +953,7 @@ public class ProjectControllerTest extends UniJiraTest {
                             "projectId": "%d",
                             "emails" : ["%s"]
                         }
-                        """.formatted(projectId, UniJiraTest.USERNAME))
+                        """.formatted(projectId, "test@user.com"))
         )
         .andExpect(status().isOk())
         .andExpect(content().string(not(containsString("[]"))))
