@@ -1,11 +1,17 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
+import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
+import it.unical.unijira.utils.ItemType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 
@@ -107,8 +113,6 @@ public class ProjectControllerTest extends UniJiraTest {
     @Test
     void deleteProjectSuccessful() throws Exception {
         this.createProjectSuccessful();
-        List<Project> projectList = projectService.findAllByOwnerId(1L,0,10000);
-        long lastId = projectList.get(projectList.size()-1).getId();
 
         mockMvc.perform(delete("/projects/3")
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
@@ -116,7 +120,7 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
 
-    /*
+
 
     @Test
     void addBacklogToAProject() throws Exception {
@@ -376,8 +380,6 @@ public class ProjectControllerTest extends UniJiraTest {
         ResultActions call = mockMvc.perform(delete("/projects/" + firstId + "/backlogs/"+backlogsOfThisProject.get(0).getId()+"/items/1")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
-
-        MvcResult returnValue = call.andReturn();
 
         call.andExpect(status().isNoContent());
 
@@ -796,7 +798,7 @@ public class ProjectControllerTest extends UniJiraTest {
                 .content("""
                                     {
                                         "startingDate" : "2020-12-20",
-                         	            "endingDate" : "2020-12-31",
+                                        "endingDate" : "2020-12-31",
                                         "item" : {
                                             "id" : "1",
                                             "summary" : "questo schifo di item",
@@ -884,7 +886,7 @@ public class ProjectControllerTest extends UniJiraTest {
                 .content("""
                                     {
                                         "startingDate" : "2020-12-30",
-                         	            "endingDate" : "2020-12-31",
+                                        "endingDate" : "2020-12-31",
                                         "item" : {
                                             "id" : "1",
                                             "summary" : "questo schifo di item",
@@ -931,7 +933,7 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
 
-*/
+
 
     @Test
     void sendInvitationsSuccessful() throws Exception {
