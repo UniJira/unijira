@@ -8,10 +8,11 @@ spring:
     username: sa
     password:
     driver-class-name: org.hsqldb.jdbcDriver
-    url: jdbc:hsqldb:file:/tmp/db/unijira
+    url: jdbc:hsqldb:file:/tmp/db/unijira;hsqldb.lock_file=false
+
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       dialect: org.hibernate.dialect.HSQLDialect
       show_sql: true
