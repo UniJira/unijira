@@ -24,7 +24,7 @@ public class ItemDTO extends AbstractBaseDTO {
     private String type;
     private ItemStatus status;
     private UserInfoDTO owner;
-    private ItemDTO father;
+    private List<ItemDTO> sons;
     private List<NoteDTO> notes = new ArrayList<>();
     private List<ItemAssignmentDTO> assignees = new ArrayList<>();
 
