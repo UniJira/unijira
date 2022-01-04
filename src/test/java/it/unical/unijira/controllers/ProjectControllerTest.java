@@ -2,6 +2,7 @@ package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.projects.Project;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -15,6 +16,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 public class ProjectControllerTest extends UniJiraTest {
+
+    private Project dummyProject;
+    @BeforeEach
+    void initProject() {
+        Project p = new Project();
+        p.setName("DUMMY PROJECT");
+        p.setKey("KEY");
+        this.dummyProject = projectRepository.saveAndFlush(p);
+        p.setOwner(userRepository.findByUsername(UniJiraTest.USERNAME).orElse(null));
+    }
 
     @Test
     void readAllProjectSuccessful() throws Exception {
@@ -79,9 +90,7 @@ public class ProjectControllerTest extends UniJiraTest {
     }
     @Test
     void deleteProjectSuccessful() throws Exception {
-        this.createProjectSuccessful();
-
-        mockMvc.perform(delete("/projects/3")
+        mockMvc.perform(delete("/projects/"+this.dummyProject.getId())
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                         .andExpect(status().isNoContent());
 

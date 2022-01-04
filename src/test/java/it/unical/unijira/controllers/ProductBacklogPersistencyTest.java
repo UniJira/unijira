@@ -102,8 +102,6 @@ public class ProductBacklogPersistencyTest extends UniJiraTest {
             Assertions.assertNotNull(item.getCreatedAt());
             Assertions.assertNotNull(item.getSummary());
             Assertions.assertNotNull(item.getDescription());
-            Assertions.assertNotNull(item.getEvaluation());
-            Assertions.assertNotNull(item.getMeasureUnit());
             Assertions.assertNotNull(item.getTags());
             Assertions.assertTrue(item.getTags().startsWith("#") && item.getTags().endsWith("#"));
             Assertions.assertNotNull(item.getType());
