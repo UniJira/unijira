@@ -31,7 +31,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final ProjectService projectService;
     private final ProductBacklogService backlogService;
     private final ProductBacklogInsertionService insertionService;
-    private final ItemService pbiService;
     private final SprintService sprintService;
     private final SprintInsertionService sprintInsertionService;
     private final RoadmapService roadmapService;
@@ -45,7 +44,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              AuthService authService,
                              ProductBacklogService backlogService,
                              ProductBacklogInsertionService insertionService,
-                             ItemService pbiService,
                              SprintService sprintService,
                              SprintInsertionService sprintInsertionService,
                              RoadmapService roadmapService,
@@ -54,7 +52,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.projectService = projectService;
         this.backlogService = backlogService;
         this.insertionService = insertionService;
-        this.pbiService = pbiService;
         this.sprintService = sprintService;
         this.sprintInsertionService = sprintInsertionService;
         this.roadmapService = roadmapService;
@@ -509,6 +506,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if (!ControllerUtilities.checkSprintCoherence(projectObj,backlogObj,sprintObj))
             return ResponseEntity.notFound().build();
 
+        if (sprintObj == null) {
+            return ResponseEntity.notFound().build();
+        }
+
 
         dto.setSprintId(sprintObj.getId());
 
@@ -718,6 +719,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.notFound().build();
 
 
+        if (roadmapObj == null ) {
+            return ResponseEntity.notFound().build();
+        }
+
         dto.setRoadmapId(roadmapObj.getId());
 
         return roadmapInsertionService.save(modelMapper.map(dto, RoadmapInsertion.class))
@@ -794,6 +799,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         Roadmap roadmapObj =  roadmapService.findById(roadmap).orElse(null);
         Optional<RoadmapInsertion> optional = roadmapInsertionService.findById(item);
         RoadmapInsertion roadmapInsertionObj = optional.orElse(null);
+
+        if (roadmapInsertionObj == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         roadmapInsertionDTO.setId(roadmapInsertionObj.getId());
         roadmapInsertionDTO.setRoadmapId(roadmap);
