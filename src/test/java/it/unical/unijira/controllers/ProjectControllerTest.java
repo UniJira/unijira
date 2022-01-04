@@ -23,8 +23,9 @@ public class ProjectControllerTest extends UniJiraTest {
         Project p = new Project();
         p.setName("DUMMY PROJECT");
         p.setKey("KEY");
-        this.dummyProject = projectRepository.saveAndFlush(p);
         p.setOwner(userRepository.findByUsername(UniJiraTest.USERNAME).orElse(null));
+        this.dummyProject = projectRepository.saveAndFlush(p);
+
     }
 
     @Test
