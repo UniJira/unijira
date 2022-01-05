@@ -4,6 +4,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.auth.AuthService;
@@ -136,7 +137,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("{id}/memberships")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<MembershipDTO>> readRoles(ModelMapper modelMapper, @PathVariable Long id, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<MembershipDTO>> readMembership(ModelMapper modelMapper, @PathVariable Long id, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         return ResponseEntity.ok(projectService
                 .findById(id)
@@ -144,6 +145,97 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .flatMap(p -> p.getMemberships().stream())
                 .map(p -> modelMapper.map(p, MembershipDTO.class))
                 .collect(Collectors.toList()));
+
+    }
+
+    @PutMapping("{projectId}/memberships/{userId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MembershipDTO> updateMembership(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long userId, @RequestBody MembershipDTO membership) {
+
+        var m = modelMapper.map(membership, Membership.class);
+
+        return projectService.updateMembership(projectId, userId, modelMapper.map(membership, Membership.class))
+                .map(p -> modelMapper.map(p, MembershipDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+
+    }
+
+
+    @PostMapping("invitations")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<MembershipDTO>> inviteMembers(ModelMapper modelMapper, @RequestBody InviteMembersDTO inviteMembersDTO) {
+
+        final var project = projectService.findById(inviteMembersDTO.getProjectId()).orElse(null);
+
+        if(project == null ) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if(getAuthenticatedUser().equals(project.getOwner())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        inviteMembersDTO.getEmails().forEach(mail -> {
+
+            var user = User.builder()
+                    .username(mail)
+                    .password(passwordEncoder.encode(mail))
+                    .activated(true)
+                    .ownedProjects(Collections.emptyList())
+                    .memberships(Collections.emptyList())
+                    .build();
+
+            userService.save(user);
+
+        });
+
+        final var users = inviteMembersDTO.getEmails()
+                .stream()
+                .map(userService::findByUsername)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        if(users.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok( projectService.sendInvitations(project, users)
+                .stream()
+                .map(membership -> modelMapper.map(membership, MembershipDTO.class))
+                .collect(Collectors.toList()));
+
+    }
+
+    @GetMapping("accept")
+    public ResponseEntity<Boolean> accept(@RequestParam String token) {
+
+        if(token.isBlank())
+            return ResponseEntity.badRequest().build();
+
+        try {
+
+            var decoded = authService.verifyToken(token, TokenType.PROJECT_INVITE, "userId", "projectId");
+
+            return Optional.of(new MembershipKey(
+                            userService.findById(decoded.getClaim("userId").asLong())
+                                    .stream()
+                                    .findAny()
+                                    .orElse(null),
+                            projectService.findById(decoded.getClaim("projectId").asLong())
+                                    .stream()
+                                    .findAny()
+                                    .orElse(null)))
+                    .map(projectService::activate)
+                    .map(v -> ResponseEntity.ok(true))
+                    .orElse(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(HttpStatus.GONE).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
     }
 
@@ -841,85 +933,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
-
-
-        @PostMapping("invitations")
-        @PreAuthorize("isAuthenticated()")
-        public ResponseEntity<List<MembershipDTO>> inviteMembers(ModelMapper modelMapper, @RequestBody InviteMembersDTO inviteMembersDTO) {
-
-            final var project = projectService.findById(inviteMembersDTO.getProjectId()).orElse(null);
-
-            if(project == null ) {
-                return ResponseEntity.notFound().build();
-            }
-
-            if(getAuthenticatedUser().equals(project.getOwner())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-
-            inviteMembersDTO.getEmails().forEach(mail -> {
-
-                var user = User.builder()
-                        .username(mail)
-                        .password(passwordEncoder.encode(mail))
-                        .activated(true)
-                        .ownedProjects(Collections.emptyList())
-                        .memberships(Collections.emptyList())
-                        .build();
-
-                userService.save(user);
-
-            });
-
-            final var users = inviteMembersDTO.getEmails()
-                    .stream()
-                    .map(userService::findByUsername)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-
-            if(users.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            return ResponseEntity.ok( projectService.sendInvitations(project, users)
-                    .stream()
-                    .map(membership -> modelMapper.map(membership, MembershipDTO.class))
-                    .collect(Collectors.toList()));
-
-        }
-
-        @GetMapping("accept")
-        public ResponseEntity<Boolean> accept(@RequestParam String token) {
-
-            if(token.isBlank())
-                return ResponseEntity.badRequest().build();
-
-            try {
-
-                var decoded = authService.verifyToken(token, TokenType.PROJECT_INVITE, "userId", "projectId");
-
-                return Optional.of(new MembershipKey(
-                                userService.findById(decoded.getClaim("userId").asLong())
-                                        .stream()
-                                        .findAny()
-                                        .orElse(null),
-                                projectService.findById(decoded.getClaim("projectId").asLong())
-                                        .stream()
-                                        .findAny()
-                                        .orElse(null)))
-                        .map(projectService::activate)
-                        .map(v -> ResponseEntity.ok(true))
-                        .orElse(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-
-            } catch (TokenExpiredException e) {
-                return ResponseEntity.status(HttpStatus.GONE).build();
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-
-        }
-
 
 }
 
