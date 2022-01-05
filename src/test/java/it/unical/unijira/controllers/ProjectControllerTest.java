@@ -63,15 +63,6 @@ public class ProjectControllerTest extends UniJiraTest {
     }
 
     @Test
-    void readAllRolesSuccessful() throws Exception {
-
-        mockMvc.perform(get("/projects/3/memberships").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
-                .andExpect(status().isOk())
-                .andExpect(content().string(not(containsString("[]"))));
-
-    }
-
-    @Test
     void updateProjectSuccessful() throws Exception {
 
         mockMvc.perform(put("/projects/3")
@@ -89,6 +80,7 @@ public class ProjectControllerTest extends UniJiraTest {
                .andExpect(status().isOk());
 
     }
+
     @Test
     void deleteProjectSuccessful() throws Exception {
         mockMvc.perform(delete("/projects/"+this.dummyProject.getId())
@@ -96,7 +88,6 @@ public class ProjectControllerTest extends UniJiraTest {
                         .andExpect(status().isNoContent());
 
     }
-
 
 
     @Test
@@ -122,13 +113,49 @@ public class ProjectControllerTest extends UniJiraTest {
                         """.formatted(projectId, "test@user.com"))
         )
         .andExpect(status().isOk())
-        .andExpect(content().string(not(containsString("[]"))))
         .andDo(print());
 
     }
 
+    @Test
+    void readMembershipsSuccessful() throws Exception {
 
+        mockMvc.perform(get("/projects/3/memberships").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString("[]"))))
+                .andDo(print());
 
+    }
+
+    @Test
+    void updateMembership() throws Exception {
+
+        var projectId = projectRepository.findAll()
+                .stream()
+                .filter(i ->  i.getOwner().getId().equals(1L))
+                .findAny()
+                .stream()
+                .mapToLong(Project::getId)
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
+
+        mockMvc.perform(put("/projects/" + projectId + "/memberships/1")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "keyUserId": "%d",
+                            "keyProjectId": "%d",
+                            "role": "MEMBER",
+                            "status": "PENDING",
+                            "permissions": ["%s"]
+                        }
+                        """.formatted(1, projectId, "DETAILS"))
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+
+    }
 
 
 }
