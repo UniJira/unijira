@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,5 +58,22 @@ public class User extends AbstractBaseEntity {
     public List<GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
     }
+
+    /* Campi per riempire la sezione profilo utente */
+
+    @Column
+    private LocalDate birthDate;
+
+    @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
+    @Column
+    private String role;
+
+    @Column
+    private String description;
 
 }
