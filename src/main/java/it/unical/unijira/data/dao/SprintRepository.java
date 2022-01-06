@@ -14,4 +14,8 @@ public interface SprintRepository extends JpaRepository<Sprint, Long> {
 
     @Query(value = "FROM Sprint sprint where sprint.backlog = :backlog")
     List<Sprint> sprintsOfABacklog(ProductBacklog backlog, Pageable pageable);
+
+    @Query(value = "FROM Sprint sprint where sprint.backlog.project.id = :id " +
+            "and sprint.startingDate <= CURRENT_DATE and sprint.endingDate >= CURRENT_DATE ")
+    Sprint activeSprint(Long id);
 }
