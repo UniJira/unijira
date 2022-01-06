@@ -76,4 +76,13 @@ public class User extends AbstractBaseEntity {
     @Column
     private String description;
 
+    @Column
+    private String github;
+
+    @Column
+    private String linkedin;
+
+    @Column
+    private String phoneNumber;
+
 }
