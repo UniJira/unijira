@@ -17,7 +17,9 @@ public class Membership extends AbstractBaseEntity {
     public enum Role {
         SCRUM_MASTER,
         PRODUCT_OWNER,
-        MEMBER
+        MEMBER,
+        STAKEHOLDER,
+        MANAGER
     }
 
     public enum Status {
