@@ -20,7 +20,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -107,6 +110,8 @@ public abstract class UniJiraTest {
                     .status(Membership.Status.ENABLED)
                     .role(Membership.Role.SCRUM_MASTER)
                     .key(new MembershipKey(user, project))
+                    .permissions(new HashSet<>(Arrays.asList(Membership.Permission.ADMIN, Membership.Permission.DETAILS,
+                            Membership.Permission.INVITATIONS, Membership.Permission.ROLES)))
                     .build();
 
             userProjectRepository.saveAndFlush(membership);

@@ -48,7 +48,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
 
         p = projectRepository.saveAndFlush(p);
 
-        this.createMembership(p, userRepository.getById(p.getOwner().getId()), Membership.Role.MEMBER, Membership.Status.ENABLED);
+        this.createMembership(p, userRepository.getById(p.getOwner().getId()), Membership.Role.MEMBER, Membership.Status.ENABLED, true);
 
         return Optional.of(p);
 
@@ -92,7 +92,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
 
         users.forEach(user -> {
 
-            memberships.add(this.createMembership(project, user, Membership.Role.MEMBER, Membership.Status.PENDING)
+            memberships.add(this.createMembership(project, user, Membership.Role.MEMBER, Membership.Status.PENDING, false)
                     .stream()
                     .findFirst()
                     .orElseThrow(RuntimeException::new)
@@ -133,12 +133,33 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
     }
 
     @Override
-    public Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status) {
+    public Optional<Membership> updateMembership(Long projectId, Long userId, Membership membership) {
+
+        return membershipRepository.findById(new MembershipKey(userRepository.getById(userId), projectRepository.getById(projectId)))
+                .stream()
+                .peek(m -> {
+                    m.setRole(membership.getRole());
+                    m.setPermissions(membership.getPermissions());
+                })
+                .findFirst()
+                .map(membershipRepository::saveAndFlush);
+
+    }
+
+    @Override
+    public Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status, Boolean owner) {
 
         var m = new Membership();
         m.setKey(new MembershipKey(user, project));
         m.setRole(role);
         m.setStatus(status);
+
+        if(owner) {
+            m.setPermissions(new HashSet<>(Arrays.asList(Membership.Permission.ADMIN, Membership.Permission.DETAILS,
+                    Membership.Permission.INVITATIONS, Membership.Permission.ROLES)));
+        } else {
+            m.setPermissions(Collections.emptySet());
+        }
 
         return Optional.of(membershipRepository.saveAndFlush(m));
 
