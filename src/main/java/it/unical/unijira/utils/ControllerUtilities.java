@@ -22,6 +22,11 @@ public class ControllerUtilities {
                 && item.getId().equals(insertion.getItem().getId());
     }
 
+    public static boolean checkSprintValidity(Project project, Sprint sprint) {
+
+        return checkProjectValidity(project) && sprint != null;
+    }
+
 
     public static boolean checkSprintCoherence(Project project, ProductBacklog backlog, Sprint sprint) {
         return checkProjectCoherence(project, backlog) && sprint!= null
@@ -49,4 +54,5 @@ public class ControllerUtilities {
                 roadmapInsertion.getRoadmap() != null && roadmapInsertion.getRoadmap().getId() != null &&
                 roadmapInsertion.getRoadmap().getId().equals(roadmap.getId());
     }
+
 }
