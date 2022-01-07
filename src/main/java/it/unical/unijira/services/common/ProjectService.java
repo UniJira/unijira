@@ -18,6 +18,7 @@ public interface ProjectService {
     List<Project> findAllByOwnerId(Long userId, int page, int size);
     List<Project> findAllByMemberId(Long userId, int page, int size);
     List<Membership> sendInvitations(Project project, List<User> users);
-    Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status);
+    Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status, Boolean owner);
+    Optional<Membership> updateMembership(Long projectId, Long userId, Membership membership);
     boolean activate(MembershipKey key);
 }
