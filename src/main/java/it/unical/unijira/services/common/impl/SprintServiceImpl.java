@@ -55,6 +55,6 @@ public record SprintServiceImpl(SprintRepository sprintRepository)
 
     @Override
     public Optional<Sprint> findActiveSprint(Project project) {
-        return Optional.of(sprintRepository.activeSprint(project));
+        return Optional.ofNullable(sprintRepository.activeSprint(project));
     }
 }
