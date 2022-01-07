@@ -7,6 +7,7 @@ import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ public class BacklogControllerTest extends UniJiraTest {
     private String itemJsonOnRoadmapForTestsUpdated;
 
     private Sprint sprintForTests;
+    private Sprint activeSprint;
+
 
     private String sprintJson;
     private String sprintJsonUpdated;
@@ -227,6 +230,16 @@ public class BacklogControllerTest extends UniJiraTest {
                     "                         \t}\n" +
                     "                         }";
         }
+    }
+
+    private void setupActiveSprint() {
+        Sprint s = new Sprint();
+        s.setBacklog(backlogForTests);
+        s.setStartingDate(LocalDate.now());
+        s.setEndingDate(LocalDate.of(2023,1,31));
+        s.setStatus(SprintStatus.ACTIVE);
+
+        this.activeSprint = sprintService.save(s).orElse(null);
     }
 
     private void setupSprintInsertion() {
@@ -647,6 +660,20 @@ public class BacklogControllerTest extends UniJiraTest {
 
     }
 
+
+    @Test
+    void activeSprint() throws Exception {
+        this.setupActiveSprint();
+
+        ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId()
+                + "/sprint")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
+
+        MvcResult returnValue = call.andReturn();
+        System.out.println(returnValue.getResponse().getContentAsString());
+        call.andExpect(status().isOk());
+
+    }
 
 
 
