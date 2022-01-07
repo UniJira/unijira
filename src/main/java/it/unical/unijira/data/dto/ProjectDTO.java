@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter @Setter @ToString
@@ -17,5 +18,6 @@ public class ProjectDTO {
     private Long ownerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<ProductBacklogDTO> backlogs;
 
 }

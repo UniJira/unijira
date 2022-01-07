@@ -13,7 +13,7 @@ import java.util.List;
 public class ProductBacklogDTO {
 
     private Long id;
-    private ProjectDTO project;
+    private Long projectId;
     private List<SprintDTO> sprints;
     private List<ProductBacklogInsertionDTO> insertions;
 }
