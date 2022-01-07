@@ -1,6 +1,7 @@
 package it.unical.unijira.data.models.projects;
 
 import it.unical.unijira.data.models.AbstractBaseEntity;
+import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.User;
 import lombok.*;
 
@@ -38,6 +39,10 @@ public class Project extends AbstractBaseEntity {
     @OneToMany(mappedBy = "key.project", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<Membership> memberships = new ArrayList<>();
+
+    @OneToMany(mappedBy = "project")
+    @ToString.Exclude
+    private List<ProductBacklog> backlogs = new ArrayList<>();
 
 
 }

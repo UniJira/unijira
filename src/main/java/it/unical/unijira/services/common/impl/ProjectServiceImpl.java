@@ -1,11 +1,11 @@
 package it.unical.unijira.services.common.impl;
 
+import it.unical.unijira.data.dao.ProductBacklogRepository;
+import it.unical.unijira.data.dao.RoadmapRepository;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.projects.MembershipRepository;
 import it.unical.unijira.data.dao.projects.ProjectRepository;
-import it.unical.unijira.data.models.Notify;
-import it.unical.unijira.data.models.TokenType;
-import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -25,6 +25,7 @@ import java.util.*;
 @Service
 public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyService notifyService, AuthService authService,
                                  MembershipRepository membershipRepository, UserRepository userRepository,
+                                 ProductBacklogRepository backlogRepository, RoadmapRepository roadmapRepository,
                                  Locale locale, Config config) implements ProjectService {
 
     @Override
@@ -34,7 +35,18 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
 
     @Override
     public Optional<Project> save(Project project) {
-        return Optional.of(projectRepository.saveAndFlush(project));
+        Project created = projectRepository.saveAndFlush(project);
+
+        ProductBacklog backlog = new ProductBacklog();
+        backlog.setProject(created);
+        backlogRepository.saveAndFlush(backlog);
+
+        Roadmap roadmap = new Roadmap();
+        roadmap.setBacklog(backlog);
+
+        roadmapRepository.saveAndFlush(roadmap);
+
+        return Optional.of(project);
     }
 
     @Override
