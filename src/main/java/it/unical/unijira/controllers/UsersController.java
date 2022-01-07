@@ -84,6 +84,18 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
     }
 
+    @GetMapping("/{id}/collaborators")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<UserInfoDTO>> getCollaborators(ModelMapper modelMapper, @PathVariable Long id) {
+
+        User me = userService.findById(id).orElse(null);
+
+        return ResponseEntity.ok(userService.getCollaborators(me)
+                .stream()
+                .map(user -> modelMapper.map(user, UserInfoDTO.class))
+                .collect(Collectors.toList()));
+    }
+
 
 
 }

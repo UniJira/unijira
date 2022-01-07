@@ -17,4 +17,7 @@ public interface UserService {
 
     boolean activate(Long id);
 
+
+    List<User> getCollaborators(User user);
+
 }
