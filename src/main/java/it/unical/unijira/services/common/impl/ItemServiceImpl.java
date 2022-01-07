@@ -3,8 +3,12 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
+import it.unical.unijira.data.models.ProductBacklog;
+import it.unical.unijira.data.models.Roadmap;
+import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -81,6 +85,38 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
         Optional<User> assignee = userRepository.findById(userId);
         if (assignee.get() != null)
             return pbiRepository.findAllByAssignee(assignee.get(),PageRequest.of(page, size));
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Item> findAllByProjectNoFather(Project project, int page, int size) {
+        if(project != null) {
+            return pbiRepository.findAllByProjectNoFather(project, PageRequest.of(page,size));
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Item> findAllByBacklogNoFather(ProductBacklog backlog, int page, int size) {
+        if(backlog != null) {
+            return pbiRepository.findAllByBacklogNoFather(backlog, PageRequest.of(page,size));
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Item> findAllBySprintNoFather(Sprint sprint, int page, int size) {
+        if (sprint != null) {
+          return pbiRepository.findAllBySprintNoFather(sprint, PageRequest.of(page,size));
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Item> finAllByRoadmapNoFather(Roadmap roadmap, int page, int size) {
+        if (roadmap != null) {
+            return pbiRepository.findAllByRoadmapNoFather(roadmap, PageRequest.of(page,size));
+        }
         return Collections.emptyList();
     }
 

@@ -30,6 +30,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
     }
 
 
+
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ItemDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {

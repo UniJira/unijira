@@ -54,6 +54,12 @@ public class Sprint  extends  AbstractBaseEntity{
     @Setter
     private ProductBacklog backlog;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    @Getter
+    @Setter
+    private SprintStatus status;
+
 
 
 }

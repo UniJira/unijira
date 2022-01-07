@@ -7,6 +7,7 @@ import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ public class BacklogControllerTest extends UniJiraTest {
     private String itemJsonOnRoadmapForTestsUpdated;
 
     private Sprint sprintForTests;
+    private Sprint activeSprint;
+
 
     private String sprintJson;
     private String sprintJsonUpdated;
@@ -229,6 +232,16 @@ public class BacklogControllerTest extends UniJiraTest {
         }
     }
 
+    private void setupActiveSprint() {
+        Sprint s = new Sprint();
+        s.setBacklog(backlogForTests);
+        s.setStartingDate(LocalDate.now());
+        s.setEndingDate(LocalDate.of(2023,1,31));
+        s.setStatus(SprintStatus.ACTIVE);
+
+        this.activeSprint = sprintService.save(s).orElse(null);
+    }
+
     private void setupSprintInsertion() {
         SprintInsertion insertion = new SprintInsertion();
         insertion.setSprint(this.sprintForTests);
@@ -325,7 +338,7 @@ public class BacklogControllerTest extends UniJiraTest {
     @Test
     void addItemToOneBacklog() throws Exception {
 
-        mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"+backlogForTests.getId()+"/items")
+        mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"+backlogForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                 .contentType("application/json")
                 .content(this.itemJsonForTests)
@@ -337,7 +350,7 @@ public class BacklogControllerTest extends UniJiraTest {
     void readBacklogContent() throws Exception {
 
         ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId() + "/backlogs/"+
-                backlogForTests.getId()+"/items")
+                backlogForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
 
@@ -352,7 +365,7 @@ public class BacklogControllerTest extends UniJiraTest {
     void readOneItemFromBacklog() throws Exception {
 
         ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId() +
-                "/backlogs/"+backlogForTests.getId()+"/items/"+backlogInsertionForTests.getId())
+                "/backlogs/"+backlogForTests.getId()+"/insertions/"+backlogInsertionForTests.getId())
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
 
@@ -366,7 +379,7 @@ public class BacklogControllerTest extends UniJiraTest {
     @Test
     void deleteItemFromBacklog() throws Exception {
         ResultActions call = mockMvc.perform(delete("/projects/" + projectForTests.getId()
-                + "/backlogs/"+backlogForTests.getId()+"/items/"+backlogInsertionForTests.getId())
+                + "/backlogs/"+backlogForTests.getId()+"/insertions/"+backlogInsertionForTests.getId())
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
 
@@ -378,7 +391,7 @@ public class BacklogControllerTest extends UniJiraTest {
     void updateOneFromOneBacklog() throws Exception {
 
         mockMvc.perform(put("/projects/" + projectForTests.getId()
-                + "/backlogs/"+backlogForTests.getId()+"/items/"+backlogInsertionForTests.getId())
+                + "/backlogs/"+backlogForTests.getId()+"/insertions/"+backlogInsertionForTests.getId())
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                 .contentType("application/json")
                 .content(updatedItemJsonForTests)
@@ -461,7 +474,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/items")
+                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                 .contentType("application/json")
                 .content(this.itemJsonForTestsInSprint)
@@ -474,7 +487,7 @@ public class BacklogControllerTest extends UniJiraTest {
     void readItemsFromSprint() throws Exception {
 
         ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/items")
+                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
         MvcResult returnValue = call.andReturn();
@@ -488,7 +501,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
 
         ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/items/"+sprintInsertionForTest.getId())
+                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/insertions/"+sprintInsertionForTest.getId())
                 .header("Authorization",
                         "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
@@ -506,7 +519,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
 
         ResultActions call = mockMvc.perform(delete("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/items/"+sprintInsertionForTest.getId())
+                +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/insertions/"+sprintInsertionForTest.getId())
                 .header("Authorization",
                         "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
@@ -585,7 +598,7 @@ public class BacklogControllerTest extends UniJiraTest {
     void addItemToRoadmap() throws Exception {
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/items")
+                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                 .contentType("application/json")
                 .content(itemJsonOnRoadmapForTests)
@@ -597,7 +610,7 @@ public class BacklogControllerTest extends UniJiraTest {
     void readItemsFromRoadmap() throws Exception {
 
         ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/items")
+                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
 
@@ -611,7 +624,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
 
         ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/items/"+roadmapInsertionForTests.getId())
+                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/insertions/"+roadmapInsertionForTests.getId())
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
 
@@ -625,7 +638,7 @@ public class BacklogControllerTest extends UniJiraTest {
     void updateItemsOfARoadmap() throws Exception {
 
         mockMvc.perform(put("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/items/"+roadmapInsertionForTests.getId())
+                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/insertions/"+roadmapInsertionForTests.getId())
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
                 .contentType("application/json")
                 .content(itemJsonOnRoadmapForTestsUpdated)
@@ -637,7 +650,7 @@ public class BacklogControllerTest extends UniJiraTest {
     @Test
     void deleteItemOfARoadmap() throws Exception {
         ResultActions call = mockMvc.perform(delete("/projects/" + projectForTests.getId() + "/backlogs/"
-                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/items/"+roadmapInsertionForTests.getId())
+                +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/insertions/"+roadmapInsertionForTests.getId())
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
 
 
@@ -647,6 +660,20 @@ public class BacklogControllerTest extends UniJiraTest {
 
     }
 
+
+    @Test
+    void activeSprint() throws Exception {
+        this.setupActiveSprint();
+
+        ResultActions call = mockMvc.perform(get("/projects/" + projectForTests.getId()
+                + "/sprint")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
+
+        MvcResult returnValue = call.andReturn();
+        System.out.println(returnValue.getResponse().getContentAsString());
+        call.andExpect(status().isOk());
+
+    }
 
 
 
