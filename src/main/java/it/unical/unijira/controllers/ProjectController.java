@@ -1010,5 +1010,25 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .collect(Collectors.toList()));
     }
 
+    @GetMapping("/{project}/sprint")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<SprintDTO> getActiveSprint(ModelMapper modelMapper, @PathVariable Long project) {
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<Sprint> optional = sprintService.findActiveSprint(projectObj);
+        Sprint sprintObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkSprintValidity(projectObj, sprintObj))
+            return ResponseEntity.notFound().build();
+
+
+        return optional
+                .stream()
+                .map(found -> modelMapper.map(found, SprintDTO.class))
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }
 
