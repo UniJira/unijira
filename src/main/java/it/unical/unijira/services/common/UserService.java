@@ -1,5 +1,6 @@
 package it.unical.unijira.services.common;
 
+import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.projects.Project;
 
@@ -23,4 +24,6 @@ public interface UserService {
     List<User> getCollaborators(User user);
 
     List<Project> getProjects(User user);
+
+    Optional<User> update(Long id, User user);
 }

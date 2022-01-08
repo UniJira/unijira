@@ -36,16 +36,6 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
     @Override
     public Optional<Project> save(Project project) {
         Project created = projectRepository.saveAndFlush(project);
-
-        ProductBacklog backlog = new ProductBacklog();
-        backlog.setProject(created);
-        backlogRepository.saveAndFlush(backlog);
-
-        Roadmap roadmap = new Roadmap();
-        roadmap.setBacklog(backlog);
-
-        roadmapRepository.saveAndFlush(roadmap);
-
         return Optional.of(project);
     }
 
@@ -59,6 +49,15 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
         p.setMemberships(Collections.emptyList());
 
         p = projectRepository.saveAndFlush(p);
+
+        ProductBacklog backlog = new ProductBacklog();
+        backlog.setProject(p);
+        backlogRepository.saveAndFlush(backlog);
+
+        Roadmap roadmap = new Roadmap();
+        roadmap.setBacklog(backlog);
+
+        roadmapRepository.saveAndFlush(roadmap);
 
         this.createMembership(p, userRepository.getById(p.getOwner().getId()), Membership.Role.MEMBER, Membership.Status.ENABLED, true);
 

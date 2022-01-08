@@ -1,6 +1,7 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.projects.Project;
@@ -15,6 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +123,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Project> getProjects(User user) {
        return this.userRepository.findAllMyProjects(user);
+    }
+
+    @Override
+    public Optional<User> update(Long id, User user) {
+        return userRepository.findById(id)
+                .stream()
+                .peek(updatedUser -> {
+                    updatedUser.setUsername(user.getUsername());
+                    updatedUser.setAvatar(user.getAvatar());
+                    updatedUser.setBirthDate(user.getBirthDate());
+                    updatedUser.setFirstName(user.getFirstName());
+                    updatedUser.setLastName(user.getLastName());
+                    updatedUser.setRole(user.getRole());
+                    updatedUser.setDescription(user.getDescription());
+                    updatedUser.setLinkedin(user.getLinkedin());
+                    updatedUser.setGithub(user.getGithub());
+                    updatedUser.setPhoneNumber(user.getPhoneNumber());
+                })
+                .findFirst()
+                .map(userRepository::saveAndFlush);
     }
 
 }

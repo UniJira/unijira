@@ -5,6 +5,7 @@ import it.unical.unijira.data.dto.ProjectDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemStatus;
 import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.UserService;
@@ -62,7 +63,16 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
     @Override
     public ResponseEntity<UserInfoDTO> update(ModelMapper modelMapper, Long id, UserInfoDTO dto) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+
+        System.err.println(dto.getAvatar() !=null ? dto.getAvatar().toString() : "NULL");
+
+        if(User.CURRENT_USER_ID.equals(id))
+            id = getAuthenticatedUser().getId();
+
+        return userService.update(id, modelMapper.map(dto, User.class))
+                .map(newDto -> modelMapper.map(newDto, UserInfoDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
