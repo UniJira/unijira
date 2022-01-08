@@ -89,9 +89,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 
                     } catch (AuthenticationException e) {
-                        LOGGER.error("Invalid credentials with token {} from {} <{}>, {}", authorization, request.getRemoteAddr(), decoded.getClaim("username").asString(), e);
+                        LOGGER.trace("Invalid credentials with token {} from {} <{}>, {}", authorization, request.getRemoteAddr(), decoded.getClaim("username").asString(), e.getMessage());
                     } catch (Exception e) {
-                        LOGGER.error("Unexpected error with token {} from {}: {}", authorization, request.getRemoteAddr(), e);
+                        LOGGER.error("Unexpected error with token {} from {}: {}", authorization, request.getRemoteAddr(), e.getMessage());
                     }
 
 

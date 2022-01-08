@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userRepository)
@@ -71,14 +69,13 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
 
     @Override
     public List<Item> findAll() {
-        return StreamSupport.stream(pbiRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
+        return pbiRepository.findAll();
     }
 
     @Override
     public List<Item> findAllByFather(Long fatherId, int page, int size) {
         Optional<Item> father = pbiRepository.findById(fatherId);
-        if (father.get() != null )
+        if (father.isPresent())
             return pbiRepository.findAllByFather(father.get(), PageRequest.of(page, size));
         return Collections.emptyList();
      }
@@ -86,7 +83,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
     @Override
     public List<Item> findAllByUser(Long userId, int page, int size) {
         Optional<User> assignee = userRepository.findById(userId);
-        if (assignee.get() != null)
+        if (assignee.isPresent())
             return pbiRepository.findAllByAssignee(assignee.get(),PageRequest.of(page, size));
         return Collections.emptyList();
     }
