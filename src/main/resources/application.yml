@@ -27,7 +27,7 @@ config:
   environment: @environment@
   locale: "it"
   routes:
-    public: "/auth/authenticate;/auth/register;/auth/active;/auth/refresh"
+    public: "/auth/authenticate;/auth/register;/auth/active;/auth/refresh;/auth/available"
 
 
 
