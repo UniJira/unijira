@@ -6,9 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -32,9 +30,8 @@ public class ProjectControllerTest extends UniJiraTest {
     void readAllProjectSuccessful() throws Exception {
 
         mockMvc.perform(get("/projects").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
-                .andExpect(status().isOk());
-        // TOLTO QUESTO PERCHE ORA PROJECT CONTIENE UNA LISTA E SE E' VUOTA QUESTO EXPECT FALLISCE (?)
-               // .andExpect(content().string(not(containsString("[]"))));
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(equalTo("[]"))));
 
     }
 
