@@ -123,6 +123,13 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
         return Collections.emptyList();
     }
 
+    @Override
+    public List<Item> findAllByType(String type) {
+      return pbiRepository.findAllByType(type);
+    }
+
+  
+
 
 }
 
