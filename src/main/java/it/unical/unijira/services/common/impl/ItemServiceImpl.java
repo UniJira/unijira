@@ -47,6 +47,9 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
                     } catch (NonValidItemTypeException e) {
                         throw new RuntimeException(e.getErrorMessage());
                     }
+                    
+                    updatedItem.setStatus(pbi.getStatus());
+                    
                     pbi.setMeasureUnit(pbi.getMeasureUnit());
                 })
                 .findFirst()
