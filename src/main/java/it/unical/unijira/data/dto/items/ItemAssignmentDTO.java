@@ -1,5 +1,5 @@
 package it.unical.unijira.data.dto.items;
-import it.unical.unijira.data.dto.user.UserInfoDTO;
+
 import lombok.*;
 
 
