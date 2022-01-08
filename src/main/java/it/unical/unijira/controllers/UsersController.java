@@ -1,6 +1,7 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.controllers.common.CrudController;
+import it.unical.unijira.data.dto.ProjectDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.User;
@@ -93,6 +94,19 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
         return ResponseEntity.ok(userService.getCollaborators(me)
                 .stream()
                 .map(user -> modelMapper.map(user, UserInfoDTO.class))
+                .collect(Collectors.toList()));
+    }
+
+
+    @GetMapping("/{id}/projects")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ProjectDTO>> getProjects(ModelMapper modelMapper, @PathVariable Long id) {
+
+        User me = userService.findById(id).orElse(null);
+
+        return ResponseEntity.ok(userService.getProjects(me)
+                .stream()
+                .map(user -> modelMapper.map(user, ProjectDTO.class))
                 .collect(Collectors.toList()));
     }
 

@@ -3,6 +3,7 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.EmailService;
 import it.unical.unijira.services.common.UserService;
@@ -113,6 +114,11 @@ public class UserServiceImpl implements UserService {
             return this.userRepository.findCollaborators(user);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<Project> getProjects(User user) {
+       return this.userRepository.findAllMyProjects(user);
     }
 
 }

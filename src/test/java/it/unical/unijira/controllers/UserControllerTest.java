@@ -106,4 +106,19 @@ public class UserControllerTest extends UniJiraTest {
 
     }
 
+    @Test
+    public void testProjects() throws Exception {
+        ResultActions call = mockMvc.perform(get("/users/"+userId+"/projects")
+                .header("Authorization", "Bearer "
+                        + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)));
+        MvcResult returnValue = call.andReturn();
+        String result = returnValue.getResponse().getContentAsString();
+        System.out.println(result);
+        call.andExpect(status().isOk());
+
+        Assertions.assertTrue(result.contains("\"key\": \"zzP\"") && result.contains("\"key\": \"zzD\","));
+
+
+    }
+
 }

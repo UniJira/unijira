@@ -1,6 +1,7 @@
 package it.unical.unijira.data.dao;
 
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 "where m.key.project = p and m.key.user = :currentUser)")
     List<User> findCollaborators(User currentUser);
 
+    @Query(value= "SELECT distinct p FROM User u, Membership m, Project p where m.key.project = p and m.key.user = :currentUser")
+    List<Project> findAllMyProjects(User currentUser);
 }
