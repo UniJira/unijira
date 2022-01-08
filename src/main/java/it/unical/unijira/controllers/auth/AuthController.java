@@ -237,7 +237,10 @@ public class AuthController {
         if(!(authentication.getPrincipal() instanceof AuthUserDetails))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        return ResponseEntity.ok(modelMapper.map(((AuthUserDetails) authentication.getPrincipal()).getModel(), UserInfoDTO.class));
+        return userService.findById(((AuthUserDetails) authentication.getPrincipal()).getModel().getId())
+                .map(user -> modelMapper.map(user, UserInfoDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
 
     }
 
