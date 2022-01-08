@@ -3,6 +3,7 @@ package it.unical.unijira.data.models.projects;
 import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.releases.Release;
 import lombok.*;
 
 import javax.persistence.*;
@@ -43,6 +44,10 @@ public class Project extends AbstractBaseEntity {
     @OneToMany(mappedBy = "project")
     @ToString.Exclude
     private List<ProductBacklog> backlogs = new ArrayList<>();
+
+    @OneToMany
+    @ToString.Exclude
+    private List<Release> releases = new ArrayList<>();
 
 
 }
