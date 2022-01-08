@@ -1,10 +1,12 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.EmailService;
+import it.unical.unijira.services.common.NotifyService;
 import it.unical.unijira.services.common.UserService;
 import it.unical.unijira.utils.Config;
 import it.unical.unijira.utils.Locale;
@@ -24,17 +26,19 @@ public class UserServiceImpl implements UserService {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final Locale locale;
     private final EmailService emailService;
+    private final NotifyService notifyService;
+    private final Locale locale;
     private final Config config;
 
     @Autowired
-    public UserServiceImpl(AuthService authService, UserRepository userRepository, PasswordEncoder passwordEncoder, Config config, Locale locale, EmailService emailService) {
+    public UserServiceImpl(AuthService authService, UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService, NotifyService notifyService, Config config, Locale locale) {
         this.authService = authService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.locale = locale;
         this.emailService = emailService;
+        this.notifyService = notifyService;
+        this.locale = locale;
         this.config = config;
     }
 
@@ -91,6 +95,19 @@ public class UserServiceImpl implements UserService {
             return owner;
 
         });
+
+    }
+
+    @Override
+    public Optional<User> resetPassword(Long id, String password) {
+
+        return userRepository.findById(id).stream()
+                .peek(user -> user.setPassword(passwordEncoder.encode(password)))
+                .map(userRepository::saveAndFlush)
+                .peek(user -> notifyService.send(user,
+                        locale.get("NOTIFY_PASSWORD_RESET_SUCCESSFUL_SUBJECT"),
+                        locale.get("NOTIFY_PASSWORD_RESET_SUCCESSFUL_BODY"), null, Notify.Priority.HIGH)
+                ).findFirst();
 
     }
 
