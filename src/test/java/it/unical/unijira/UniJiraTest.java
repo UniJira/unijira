@@ -1,12 +1,15 @@
 package it.unical.unijira;
 
 
-import it.unical.unijira.data.dao.*;
+import it.unical.unijira.data.dao.NotifyRepository;
+import it.unical.unijira.data.dao.UserProjectRepository;
+import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.dao.items.NoteRepository;
 import it.unical.unijira.data.dao.projects.ProjectRepository;
-import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.Notify;
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -20,7 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

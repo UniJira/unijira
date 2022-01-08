@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -96,10 +97,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProjectDTO> create(ModelMapper modelMapper, ProjectDTO project) {
 
-        if(project.getName().isBlank())
+        if(!StringUtils.hasText(project.getName()))
             return ResponseEntity.badRequest().build();
 
-        if(project.getKey().isBlank())
+        if(!StringUtils.hasText(project.getKey()))
             return ResponseEntity.badRequest().build();
 
         if(project.getOwnerId() != null)
@@ -216,7 +217,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @GetMapping("accept")
     public ResponseEntity<Boolean> accept(@RequestParam String token) {
 
-        if(token.isBlank())
+        if(!StringUtils.hasText(token))
             return ResponseEntity.badRequest().build();
 
         try {

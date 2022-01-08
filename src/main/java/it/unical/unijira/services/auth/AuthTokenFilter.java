@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -57,7 +58,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
                 final var authorization = request.getHeader("Authorization").substring(7);
 
-                if(authorization.isBlank())
+                if(!StringUtils.hasText(authorization))
                     throw new AuthTokenException(HttpStatus.FORBIDDEN, "Authorization token is empty");
 
 

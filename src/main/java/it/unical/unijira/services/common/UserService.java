@@ -18,6 +18,8 @@ public interface UserService {
     Optional<User> findById(Long id);
     Optional<User> save(User user);
 
+    Optional<User> resetPassword(Long id, String password);
+
     boolean activate(Long id);
 
 
