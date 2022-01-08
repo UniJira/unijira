@@ -8,6 +8,7 @@ import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
+import it.unical.unijira.services.common.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,10 +30,15 @@ public class UserControllerTest extends UniJiraTest {
     @Autowired
     private MembershipRepository membershipRepository;
 
+    @Autowired
+    private UserService userService;
+
     private Long userId;
+
 
     @BeforeEach
     public void initDataForTest() {
+
         User user = userRepository.findByUsername(UniJiraTest.USERNAME).orElse(null);
         this.userId = user.getId();
         Project p = new Project();
@@ -65,10 +71,14 @@ public class UserControllerTest extends UniJiraTest {
         membershipRepository.save(m);
 
         for (int i=0; i < 7; i++) {
-            User userTmp = new User();
-            userTmp.setUsername("Utente"+i+"@gmail.com");
-            userTmp.setPassword("123456");
-            userTmp = userRepository.saveAndFlush(userTmp);
+            String username= "Utente"+i+"@gmail.com";
+            User userTmp = userService.findByUsername(username).orElse(null);
+            if(userTmp==null) {
+                userTmp = new User();
+                userTmp.setUsername(username);
+                userTmp.setPassword("123456");
+                userTmp = userRepository.saveAndFlush(userTmp);
+            }
             mkey = new MembershipKey();
             mkey.setUser(userTmp);
             if (i%2 == 0) {
@@ -84,9 +94,14 @@ public class UserControllerTest extends UniJiraTest {
             membershipRepository.save(m);
         }
     }
-
     @Test
     public void testCollaborators() throws Exception {
+
+        String username = "Utente99@gmail.com";
+        User userTmp = new User();
+        userTmp.setUsername(username);
+        userTmp.setPassword("123456");
+        userTmp = userRepository.save(userTmp);
 
         ResultActions call = mockMvc.perform(get("/users/"+userId+"/collaborators")
                         .header("Authorization", "Bearer "
@@ -116,9 +131,11 @@ public class UserControllerTest extends UniJiraTest {
         System.out.println(result);
         call.andExpect(status().isOk());
 
-        Assertions.assertTrue(result.contains("\"key\": \"zzP\"") && result.contains("\"key\": \"zzD\","));
+        Assertions.assertTrue(result.contains("\"key\":\"zzP\"") && result.contains("\"key\":\"zzD\","));
 
 
     }
+
+
 
 }
