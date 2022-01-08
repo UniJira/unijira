@@ -12,5 +12,5 @@ public class ItemAssignmentDTO {
 
     private Long id;
     private Long itemId;
-    private Long assigneeId;
+    private UserInfoDTO assignee;
 }
