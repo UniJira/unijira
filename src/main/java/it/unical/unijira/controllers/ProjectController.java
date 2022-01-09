@@ -1066,6 +1066,18 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     }
 
+    @GetMapping("/{projectId}/releases/{releaseId}/items")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ItemDTO>> readTicketsOfReleaseById(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long releaseId) {
+
+        return ResponseEntity.ok(releaseService.findById(releaseId).stream()
+                .filter(found -> found.getProject().getId().equals(projectId))
+                .flatMap(found -> found.getItems().stream())
+                .map(found -> modelMapper.map(found, ItemDTO.class))
+                .toList());
+
+    }
+
 
     @PostMapping("/{projectId}/releases")
     @PreAuthorize("isAuthenticated()")

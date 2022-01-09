@@ -1,11 +1,14 @@
 package it.unical.unijira.data.models.projects.releases;
 
 import it.unical.unijira.data.models.AbstractBaseEntity;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.Project;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table
@@ -37,6 +40,10 @@ public class Release extends AbstractBaseEntity {
     @ManyToOne
     @JoinColumn
     private Project project;
+
+    @OneToMany
+    @JoinColumn
+    private List<Item> items = new ArrayList<>();
 
 
 }
