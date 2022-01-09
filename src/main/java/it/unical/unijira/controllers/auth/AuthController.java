@@ -110,6 +110,20 @@ public class AuthController {
     }
 
 
+    @GetMapping("available")
+    public ResponseEntity<Boolean> isUserAvailable(@RequestParam String username) {
+
+        if(!StringUtils.hasText(username))
+            return ResponseEntity.badRequest().build();
+
+        if(userService.findByUsername(username).isPresent())
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
+        return ResponseEntity.ok(true);
+
+    }
+
+
     @GetMapping("active")
     public ResponseEntity<Boolean> active(@RequestParam String token) {
 
