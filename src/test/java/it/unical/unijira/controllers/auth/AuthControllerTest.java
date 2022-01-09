@@ -225,13 +225,21 @@ public class AuthControllerTest extends UniJiraTest {
     void isUserAvailable() throws Exception {
 
         mockMvc.perform(get("/auth/available")
-                .param("username", "deek47731@gmail.com")
+                .param("username", "prova123@gmail.com")
         ).andExpect(status().isOk());
 
-        registerSuccessful();
+        mockMvc.perform(post("/auth/register")
+                .contentType("application/json")
+                .content("""
+                        {
+                            "username": "prova123@gmail.com",
+                            "password": "new-password123ABC"
+                        }
+                        """)
+        ).andExpect(status().isCreated());
 
         mockMvc.perform(get("/auth/available")
-                .param("username", "deek47731@gmail.com")
+                .param("username", "prova123@gmail.com")
         ).andExpect(status().isConflict());
 
     }
