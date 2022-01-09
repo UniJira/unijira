@@ -231,7 +231,6 @@ public class AuthControllerTest extends UniJiraTest {
         registerSuccessful();
 
         mockMvc.perform(get("/auth/available")
-                .with(csrf())
                 .param("username", "deek47731@gmail.com")
         ).andExpect(status().isConflict());
 

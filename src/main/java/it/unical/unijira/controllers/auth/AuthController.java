@@ -113,7 +113,7 @@ public class AuthController {
     @GetMapping("available")
     public ResponseEntity<Boolean> isUserAvailable(@RequestParam String username) {
 
-        if(username.isBlank())
+        if(!StringUtils.hasText(username))
             return ResponseEntity.badRequest().build();
 
         if(userService.findByUsername(username).isPresent())
