@@ -3,6 +3,7 @@ package it.unical.unijira.data.models.items;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.utils.Errors;
 import it.unical.unijira.utils.ItemType;
 import lombok.*;
@@ -121,6 +122,12 @@ public class Item extends AbstractBaseEntity {
     @Getter
     @ToString.Exclude
     private List<Item> sons;
+
+
+    @ManyToOne
+    @JoinColumn
+    @Getter @Setter
+    private Release release;
 
 
 

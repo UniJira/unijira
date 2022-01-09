@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -54,12 +55,13 @@ public class ItemController implements CrudController<ItemDTO, Long> {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ItemDTO> create(ModelMapper modelMapper, ItemDTO itemDto) {
 
-        if(itemDto.getSummary().isBlank())
+        if(!StringUtils.hasText(itemDto.getSummary()))
             return ResponseEntity.badRequest().build();
-        if(itemDto.getDescription().isBlank())
+
+        if(!StringUtils.hasText(itemDto.getDescription()))
             return ResponseEntity.badRequest().build();
-        if(itemDto.getType().isBlank() ||
-               ! ItemType.getInstance().isCoherentType(itemDto.getType()))
+
+        if(!StringUtils.hasText(itemDto.getType()) || !ItemType.getInstance().isCoherentType(itemDto.getType()))
             return ResponseEntity.badRequest().build();
 
         return pbiService.save(modelMapper.map(itemDto, Item.class))

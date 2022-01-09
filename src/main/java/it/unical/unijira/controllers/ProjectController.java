@@ -4,12 +4,15 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.dto.items.ItemDTO;
+import it.unical.unijira.data.dto.projects.ReleaseDTO;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
+import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
+import it.unical.unijira.services.projects.ReleaseService;
 import it.unical.unijira.utils.ControllerUtilities;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -39,6 +43,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final RoadmapInsertionService roadmapInsertionService;
     private final ItemService itemService;
     private final AuthService authService;
+    private final ReleaseService releaseService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -52,7 +57,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              RoadmapService roadmapService,
                              RoadmapInsertionService roadmapInsertionService,
                              ItemService itemService,
+                             ReleaseService releaseService,
                              PasswordEncoder passwordEncoder) {
+
         this.userService = userService;
         this.projectService = projectService;
         this.backlogService = backlogService;
@@ -63,7 +70,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.roadmapInsertionService = roadmapInsertionService;
         this.authService = authService;
         this.itemService = itemService;
+        this.releaseService = releaseService;
         this.passwordEncoder = passwordEncoder;
+
     }
 
     @Override
@@ -96,10 +105,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProjectDTO> create(ModelMapper modelMapper, ProjectDTO project) {
 
-        if(project.getName().isBlank())
+        if(!StringUtils.hasText(project.getName()))
             return ResponseEntity.badRequest().build();
 
-        if(project.getKey().isBlank())
+        if(!StringUtils.hasText(project.getKey()))
             return ResponseEntity.badRequest().build();
 
         if(project.getOwnerId() != null)
@@ -144,6 +153,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MembershipDTO>> readMembership(ModelMapper modelMapper, @PathVariable Long id, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
+        // FIXME: Implementaere paginazione per memberships
+
         return ResponseEntity.ok(projectService
                 .findById(id)
                 .stream()
@@ -156,8 +167,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PutMapping("{projectId}/memberships/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MembershipDTO> updateMembership(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long userId, @RequestBody MembershipDTO membership) {
-
-        var m = modelMapper.map(membership, Membership.class);
 
         return projectService.updateMembership(projectId, userId, modelMapper.map(membership, Membership.class))
                 .map(p -> modelMapper.map(p, MembershipDTO.class))
@@ -216,7 +225,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @GetMapping("accept")
     public ResponseEntity<Boolean> accept(@RequestParam String token) {
 
-        if(token.isBlank())
+        if(!StringUtils.hasText(token))
             return ResponseEntity.badRequest().build();
 
         try {
@@ -1029,6 +1038,108 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
+
+    @GetMapping("/{projectId}/releases")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ReleaseDTO>> readAllReleases(ModelMapper modelMapper, @PathVariable Long projectId) {
+
+        return ResponseEntity.ok(releaseService.findAllByProjectId(projectId).stream()
+                .map(found -> modelMapper.map(found, ReleaseDTO.class))
+                .toList());
+
+
+    }
+
+
+    @GetMapping("/{projectId}/releases/{releaseId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ReleaseDTO> readReleaseById(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long releaseId) {
+
+        return releaseService.findById(releaseId).stream()
+                .filter(found -> found.getProject().getId().equals(projectId))
+                .map(found -> modelMapper.map(found, ReleaseDTO.class))
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+
+    @GetMapping("/{projectId}/releases/{releaseId}/items")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ItemDTO>> readTicketsOfReleaseById(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long releaseId) {
+
+        return ResponseEntity.ok(releaseService.findById(releaseId).stream()
+                .filter(found -> found.getProject().getId().equals(projectId))
+                .flatMap(found -> found.getItems().stream())
+                .map(found -> modelMapper.map(found, ItemDTO.class))
+                .toList());
+
+    }
+
+
+    @PostMapping("/{projectId}/releases")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ReleaseDTO> createRelease(ModelMapper modelMapper, @PathVariable Long projectId, @RequestBody ReleaseDTO releaseDTO) {
+
+        if(releaseDTO.getId() != null)
+            return ResponseEntity.badRequest().build();
+
+        if(!StringUtils.hasText(releaseDTO.getVersion()))
+            return ResponseEntity.badRequest().build();
+
+        if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
+            return ResponseEntity.badRequest().build();
+
+        if(releaseDTO.getStartDate().isAfter(releaseDTO.getEndDate()))
+            return ResponseEntity.badRequest().build();
+
+        if(releaseDTO.getStatus() == null)
+            return ResponseEntity.badRequest().build();
+
+
+        return releaseService.create(modelMapper.map(releaseDTO, Release.class))
+                .map(found -> modelMapper.map(found, ReleaseDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+
+    }
+
+
+    @PutMapping("/{projectId}/releases/{releaseId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ReleaseDTO> createRelease(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long releaseId, @RequestBody ReleaseDTO releaseDTO) {
+
+        if(releaseDTO.getId() == null)
+            return ResponseEntity.badRequest().build();
+
+        if(!StringUtils.hasText(releaseDTO.getVersion()))
+            return ResponseEntity.badRequest().build();
+
+        if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
+            return ResponseEntity.badRequest().build();
+
+        if(releaseDTO.getStartDate().isAfter(releaseDTO.getEndDate()))
+            return ResponseEntity.badRequest().build();
+
+        if(releaseDTO.getStatus() == null)
+            return ResponseEntity.badRequest().build();
+
+        if(releaseDTO.getProjectId() == null)
+            return ResponseEntity.badRequest().build();
+
+        if(!releaseDTO.getProjectId().equals(projectId))
+            return ResponseEntity.badRequest().build();
+
+
+        return releaseService.update(releaseId, modelMapper.map(releaseDTO, Release.class))
+                .map(found -> modelMapper.map(found, ReleaseDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+
+    }
+
 
 }
 

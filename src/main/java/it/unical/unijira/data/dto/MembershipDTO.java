@@ -3,9 +3,6 @@ package it.unical.unijira.data.dto;
 import it.unical.unijira.data.models.projects.Membership;
 import lombok.*;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import java.util.List;
 import java.util.Set;
 
 @Builder

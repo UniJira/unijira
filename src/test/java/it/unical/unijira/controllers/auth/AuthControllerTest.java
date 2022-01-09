@@ -1,4 +1,4 @@
-package it.unical.unijira.controllers;
+package it.unical.unijira.controllers.auth;
 
 
 import com.auth0.jwt.JWT;
@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.Instant;
 import java.util.Date;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -100,7 +99,6 @@ public class AuthControllerTest extends UniJiraTest {
     void registerSuccessful() throws Exception {
 
         mockMvc.perform(post("/auth/register")
-                .with(csrf())
                 .contentType("application/json")
                 .content("""
                         {
@@ -116,7 +114,6 @@ public class AuthControllerTest extends UniJiraTest {
     void registerWrongPassword() throws Exception {
 
         mockMvc.perform(post("/auth/register")
-                .with(csrf())
                 .contentType("application/json")
                 .content("""
                         {
@@ -130,10 +127,104 @@ public class AuthControllerTest extends UniJiraTest {
 
 
     @Test
+    void resetPasswordAuthenticatedSuccessful() throws Exception {
+
+        mockMvc.perform(post("/auth/password-reset")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                .contentType("application/json")
+                .content("""
+                        {
+                            "password": "%s"
+                        }
+                        """.formatted(UniJiraTest.PASSWORD))
+        ).andExpect(status().isOk());
+
+    }
+
+    @Test
+    void resetPasswordAuthenticatedWrongPassword() throws Exception {
+
+        mockMvc.perform(post("/auth/password-reset")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                .contentType("application/json")
+                .content("""
+                        {
+                            "password": "%s"
+                        }
+                        """.formatted("nonsecurepassword"))
+        ).andExpect(status().isBadRequest());
+
+    }
+
+
+    @Test
+    void resetPasswordWithTokenSuccessful() throws Exception {
+
+        var token = JWT.create()
+                .withIssuer(config.getJWTIssuer())
+                .withIssuedAt(Date.from(Instant.now()))
+                .withExpiresAt(Date.from(Instant.now().plusSeconds(config.getTokenExpiration())))
+                .withClaim("type", TokenType.ACCOUNT_RESET_PASSWORD.name())
+                .withClaim("userId", 1L)
+                .sign(config.getJWTAlgorithm());
+
+
+        mockMvc.perform(post("/auth/password-reset-with-token")
+                .contentType("application/json")
+                .content("""
+                        {
+                            "password": "%s",
+                            "token": "%s"
+                        }
+                        """.formatted(UniJiraTest.PASSWORD, token))
+        ).andExpect(status().isOk());
+
+    }
+
+    @Test
+    void resetPasswordWithTokenUndefined() throws Exception {
+
+        mockMvc.perform(post("/auth/password-reset-with-token")
+                .contentType("application/json")
+                .content("""
+                        {
+                            "password": "%s",
+                        }
+                        """.formatted(UniJiraTest.PASSWORD))
+        ).andExpect(status().isBadRequest());
+
+    }
+
+
+    @Test
+    void resetPasswordWithTokenExpired() throws Exception {
+
+        var expiredToken = JWT.create()
+                .withIssuer(config.getJWTIssuer())
+                .withIssuedAt(Date.from(Instant.now().minusSeconds(config.getTokenExpiration() + 1)))
+                .withExpiresAt(Date.from(Instant.now().minusSeconds(config.getTokenExpiration() + 1)))
+                .withClaim("type", TokenType.ACCOUNT_RESET_PASSWORD.name())
+                .withClaim("userId", 1L)
+                .sign(config.getJWTAlgorithm());
+
+
+        mockMvc.perform(post("/auth/password-reset-with-token")
+                .contentType("application/json")
+                .content("""
+                        {
+                            "password": "%s",
+                            "token": "%s"
+                        }
+                        """.formatted(UniJiraTest.PASSWORD, expiredToken))
+        ).andExpect(status().isGone());
+
+    }
+
+
+    @Test
     void isUserAvailable() throws Exception {
 
         mockMvc.perform(get("/auth/available")
-                .with(csrf())
                 .param("username", "deek47731@gmail.com")
         ).andExpect(status().isOk());
 
