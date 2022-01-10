@@ -93,7 +93,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
         return projectService.findById(id)
                 .stream()
-                .filter(project -> project.getOwner().getId().equals(getAuthenticatedUser().getId()))
                 .map(project -> modelMapper.map(project, ProjectDTO.class))
                 .findFirst()
                 .map(ResponseEntity::ok)
@@ -151,9 +150,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("{id}/memberships")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<MembershipDTO>> readMembership(ModelMapper modelMapper, @PathVariable Long id, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
-
-        // FIXME: Implementaere paginazione per memberships
+    public ResponseEntity<List<MembershipDTO>> readMembership(ModelMapper modelMapper, @PathVariable Long id) {
 
         return ResponseEntity.ok(projectService
                 .findById(id)
@@ -192,15 +189,19 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
         inviteMembersDTO.getEmails().forEach(mail -> {
 
-            var user = User.builder()
-                    .username(mail)
-                    .password(passwordEncoder.encode(mail))
-                    .activated(true)
-                    .ownedProjects(Collections.emptyList())
-                    .memberships(Collections.emptyList())
-                    .build();
+            if(this.userService.findByUsername(mail).isEmpty()) {
 
-            userService.save(user);
+                var user = User.builder()
+                        .username(mail)
+                        .password(passwordEncoder.encode(mail))
+                        .status(User.Status.REQUIRE_PASSWORD)
+                        .ownedProjects(Collections.emptyList())
+                        .memberships(Collections.emptyList())
+                        .build();
+
+                userService.save(user);
+
+            }
 
         });
 

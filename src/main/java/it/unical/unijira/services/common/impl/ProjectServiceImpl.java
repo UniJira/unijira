@@ -115,17 +115,21 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
                     new MembershipKey(user, project))
                     .stream()
                     .findAny()
-                    .orElse(null);
+                    .orElseThrow(RuntimeException::new);
 
             var token = authService.generateToken(TokenType.PROJECT_INVITE,
                     Map.of("userId",    member.getKey().getUser().getId(),
-                           "projectId", member.getKey().getProject().getId()));
+                           "projectId", member.getKey().getProject().getId(),
+                           "reset",     User.Status.REQUIRE_PASSWORD.equals(user.getStatus())));
 
 
             URL url = null;
 
             try {
-                url = URI.create("%s/projects/%d/invite?q=%s".formatted(config.getBaseURL(), project.getId(), token)).toURL();
+
+                url = URI.create("%s/projects/%d/invite?q=%s&k=%d".formatted(config.getBaseURL(), project.getId(),
+                        token, User.Status.REQUIRE_PASSWORD.equals(user.getStatus()) ? 1 : 0)).toURL();
+
             } catch (MalformedURLException ignored) {}
 
             notifyService.send(user,
@@ -133,7 +137,8 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
                     locale.get("NOTIFY_PROJECT_CONFIRM_BODY",
                             config.getBaseURL(),
                             project.getId(),
-                            token),
+                            token,
+                            User.Status.REQUIRE_PASSWORD.equals(user.getStatus()) ? 1 : 0),
                     url,
                     Notify.Priority.HIGH
             );
