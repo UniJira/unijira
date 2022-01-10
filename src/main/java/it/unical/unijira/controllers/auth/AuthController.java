@@ -175,7 +175,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.GONE).build();
 
         } catch (JWTVerificationException e) {
-            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.ACCOUNT_RESET_PASSWORD", e);
+            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.ACCOUNT_RESET_PASSWORD: {}", e.getMessage());
         }
 
 
@@ -183,10 +183,10 @@ public class AuthController {
 
             if(userId == null) {
 
-                userId = authService
-                        .verifyToken(userPasswordResetDTO.getToken(), TokenType.PROJECT_INVITE, "userId")
-                        .getClaim("userId")
-                        .asLong();
+                var decoded = authService.verifyToken(userPasswordResetDTO.getToken(), TokenType.PROJECT_INVITE, "userId", "reset");
+
+                if(decoded.getClaim("reset").asBoolean())
+                    userId = decoded.getClaim("userId").asLong();
 
             }
 
@@ -194,7 +194,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.GONE).build();
 
         } catch (JWTVerificationException e) {
-            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.PROJECT_INVITE", e);
+            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.PROJECT_INVITE: {}", e.getMessage());
         }
 
 
