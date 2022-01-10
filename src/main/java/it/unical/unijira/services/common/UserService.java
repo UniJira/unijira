@@ -1,7 +1,10 @@
 package it.unical.unijira.services.common;
 
+import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.Project;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,4 +22,10 @@ public interface UserService {
 
     boolean activate(Long id);
 
+
+    List<User> getCollaborators(User user);
+
+    List<Project> getProjects(User user);
+
+    Optional<User> update(Long id, User user);
 }

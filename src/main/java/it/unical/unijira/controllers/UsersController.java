@@ -1,8 +1,10 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.controllers.common.CrudController;
+import it.unical.unijira.data.dto.ProjectDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.items.ItemStatus;
 import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.UserService;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/users")
@@ -59,7 +62,16 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
     @Override
     public ResponseEntity<UserInfoDTO> update(ModelMapper modelMapper, Long id, UserInfoDTO dto) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+
+        System.err.println(dto.getAvatar() !=null ? dto.getAvatar().toString() : "NULL");
+
+        if(User.CURRENT_USER_ID.equals(id))
+            id = getAuthenticatedUser().getId();
+
+        return userService.update(id, modelMapper.map(dto, User.class))
+                .map(newDto -> modelMapper.map(newDto, UserInfoDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
@@ -77,6 +89,31 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
                 .map(item -> modelMapper.map(item, ItemDTO.class))
                 .toList());
 
+    }
+
+    @GetMapping("/{id}/collaborators")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<UserInfoDTO>> getCollaborators(ModelMapper modelMapper, @PathVariable Long id) {
+
+        User me = userService.findById(id).orElse(null);
+
+        return ResponseEntity.ok(userService.getCollaborators(me)
+                .stream()
+                .map(user -> modelMapper.map(user, UserInfoDTO.class))
+                .collect(Collectors.toList()));
+    }
+
+
+    @GetMapping("/{id}/projects")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ProjectDTO>> getProjects(ModelMapper modelMapper, @PathVariable Long id) {
+
+        User me = userService.findById(id).orElse(null);
+
+        return ResponseEntity.ok(userService.getProjects(me)
+                .stream()
+                .map(user -> modelMapper.map(user, ProjectDTO.class))
+                .collect(Collectors.toList()));
     }
 
 

@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,12 @@ import java.util.List;
 @Getter @Setter @ToString
 @NoArgsConstructor @AllArgsConstructor
 public class User extends AbstractBaseEntity {
+
+    public enum Status {
+        ACTIVE,
+        REQUIRE_CONFIRM,
+        REQUIRE_PASSWORD
+    }
 
     public static final Long CURRENT_USER_ID = 0L;
 
@@ -32,8 +39,9 @@ public class User extends AbstractBaseEntity {
     @Basic(optional = false)
     private String password;
 
-    @Column
-    private boolean activated = false;
+    @Column(nullable = false)
+    @Basic(optional = false)
+    private Status status;
 
     @Column
     private boolean disabled = false;
@@ -57,5 +65,31 @@ public class User extends AbstractBaseEntity {
     public List<GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
     }
+
+    /* Campi per riempire la sezione profilo utente */
+
+    @Column
+    private LocalDate birthDate;
+
+    @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
+    @Column
+    private String role;
+
+    @Column
+    private String description;
+
+    @Column
+    private String github;
+
+    @Column
+    private String linkedin;
+
+    @Column
+    private String phoneNumber;
 
 }

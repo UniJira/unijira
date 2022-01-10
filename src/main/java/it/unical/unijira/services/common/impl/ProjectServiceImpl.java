@@ -36,16 +36,6 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
     @Override
     public Optional<Project> save(Project project) {
         Project created = projectRepository.saveAndFlush(project);
-
-        ProductBacklog backlog = new ProductBacklog();
-        backlog.setProject(created);
-        backlogRepository.saveAndFlush(backlog);
-
-        Roadmap roadmap = new Roadmap();
-        roadmap.setBacklog(backlog);
-
-        roadmapRepository.saveAndFlush(roadmap);
-
         return Optional.of(project);
     }
 
@@ -59,6 +49,15 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
         p.setMemberships(Collections.emptyList());
 
         p = projectRepository.saveAndFlush(p);
+
+        ProductBacklog backlog = new ProductBacklog();
+        backlog.setProject(p);
+        backlogRepository.saveAndFlush(backlog);
+
+        Roadmap roadmap = new Roadmap();
+        roadmap.setBacklog(backlog);
+
+        roadmapRepository.saveAndFlush(roadmap);
 
         this.createMembership(p, userRepository.getById(p.getOwner().getId()), Membership.Role.MEMBER, Membership.Status.ENABLED, true);
 
@@ -115,17 +114,21 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
                     new MembershipKey(user, project))
                     .stream()
                     .findAny()
-                    .orElse(null);
+                    .orElseThrow(RuntimeException::new);
 
             var token = authService.generateToken(TokenType.PROJECT_INVITE,
                     Map.of("userId",    member.getKey().getUser().getId(),
-                           "projectId", member.getKey().getProject().getId()));
+                           "projectId", member.getKey().getProject().getId(),
+                           "reset",     User.Status.REQUIRE_PASSWORD.equals(user.getStatus())));
 
 
             URL url = null;
 
             try {
-                url = URI.create("%s/projects/%d/invite?q=%s".formatted(config.getBaseURL(), project.getId(), token)).toURL();
+
+                url = URI.create("%s/projects/%d/invite?q=%s&k=%d".formatted(config.getBaseURL(), project.getId(),
+                        token, User.Status.REQUIRE_PASSWORD.equals(user.getStatus()) ? 1 : 0)).toURL();
+
             } catch (MalformedURLException ignored) {}
 
             notifyService.send(user,
@@ -133,7 +136,8 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
                     locale.get("NOTIFY_PROJECT_CONFIRM_BODY",
                             config.getBaseURL(),
                             project.getId(),
-                            token),
+                            token,
+                            User.Status.REQUIRE_PASSWORD.equals(user.getStatus()) ? 1 : 0),
                     url,
                     Notify.Priority.HIGH
             );
