@@ -19,6 +19,12 @@ import java.util.List;
 @NoArgsConstructor @AllArgsConstructor
 public class User extends AbstractBaseEntity {
 
+    public enum Status {
+        ACTIVE,
+        REQUIRE_CONFIRM,
+        REQUIRE_PASSWORD
+    }
+
     public static final Long CURRENT_USER_ID = 0L;
 
     @Id
@@ -33,8 +39,9 @@ public class User extends AbstractBaseEntity {
     @Basic(optional = false)
     private String password;
 
-    @Column
-    private boolean activated = false;
+    @Column(nullable = false)
+    @Basic(optional = false)
+    private Status status;
 
     @Column
     private boolean disabled = false;

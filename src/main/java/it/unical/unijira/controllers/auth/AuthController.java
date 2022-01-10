@@ -110,6 +110,20 @@ public class AuthController {
     }
 
 
+    @GetMapping("available")
+    public ResponseEntity<Boolean> isUserAvailable(@RequestParam String username) {
+
+        if(!StringUtils.hasText(username))
+            return ResponseEntity.badRequest().build();
+
+        if(userService.findByUsername(username).isPresent())
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
+        return ResponseEntity.ok(true);
+
+    }
+
+
     @GetMapping("active")
     public ResponseEntity<Boolean> active(@RequestParam String token) {
 
@@ -161,7 +175,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.GONE).build();
 
         } catch (JWTVerificationException e) {
-            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.ACCOUNT_RESET_PASSWORD", e);
+            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.ACCOUNT_RESET_PASSWORD: {}", e.getMessage());
         }
 
 
@@ -169,10 +183,10 @@ public class AuthController {
 
             if(userId == null) {
 
-                userId = authService
-                        .verifyToken(userPasswordResetDTO.getToken(), TokenType.PROJECT_INVITE, "userId")
-                        .getClaim("userId")
-                        .asLong();
+                var decoded = authService.verifyToken(userPasswordResetDTO.getToken(), TokenType.PROJECT_INVITE, "userId", "reset");
+
+                if(decoded.getClaim("reset").asBoolean())
+                    userId = decoded.getClaim("userId").asLong();
 
             }
 
@@ -180,7 +194,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.GONE).build();
 
         } catch (JWTVerificationException e) {
-            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.PROJECT_INVITE", e);
+            LOGGER.trace("resetPassword(): WARN! JWTVerificationException on TokenType.PROJECT_INVITE: {}", e.getMessage());
         }
 
 
@@ -237,7 +251,10 @@ public class AuthController {
         if(!(authentication.getPrincipal() instanceof AuthUserDetails))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        return ResponseEntity.ok(modelMapper.map(((AuthUserDetails) authentication.getPrincipal()).getModel(), UserInfoDTO.class));
+        return userService.findById(((AuthUserDetails) authentication.getPrincipal()).getModel().getId())
+                .map(user -> modelMapper.map(user, UserInfoDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
 
     }
 

@@ -84,7 +84,9 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(password));
         user.setDisabled(false);
-        user.setActivated(false);
+
+        if(!User.Status.REQUIRE_PASSWORD.equals(user.getStatus()))
+            user.setStatus(User.Status.REQUIRE_CONFIRM);
 
 
         return Optional.of(userRepository.saveAndFlush(user)).map(owner -> {
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findById(id)
                 .stream()
-                .peek(user -> user.setActivated(true))
+                .peek(user -> user.setStatus(User.Status.ACTIVE))
                 .peek(userRepository::saveAndFlush)
                 .findFirst()
                 .isPresent();

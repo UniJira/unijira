@@ -81,7 +81,7 @@ public abstract class UniJiraTest {
             User user = User.builder()
                     .username(USERNAME)
                     .password(passwordEncoder.encode(PASSWORD))
-                    .activated(true)
+                    .status(User.Status.ACTIVE)
                     .ownedProjects(Collections.emptyList())
                     .memberships(Collections.emptyList())
                     .build();

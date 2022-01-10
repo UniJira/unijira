@@ -1,5 +1,6 @@
 package it.unical.unijira.data.dto.user;
 
+import it.unical.unijira.data.models.User;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -14,7 +15,7 @@ public class UserInfoDTO {
 
     private Long id;
     private String username;
-    private boolean activated;
+    private User.Status status;
     private boolean disabled;
     private URL avatar;
     private LocalDateTime createdAt;

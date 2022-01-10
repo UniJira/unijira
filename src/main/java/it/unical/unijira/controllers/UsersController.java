@@ -5,7 +5,6 @@ import it.unical.unijira.data.dto.ProjectDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.User;
-import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemStatus;
 import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.UserService;
@@ -81,14 +80,11 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
     }
 
 
-    @GetMapping("/{id}/tickets/{status}")
+    @GetMapping("/me/tickets/{status}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> getTickets(ModelMapper modelMapper, @PathVariable Long id, @PathVariable ItemStatus status, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ItemDTO>> getTickets(ModelMapper modelMapper, @PathVariable ItemStatus status, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
-        if(User.CURRENT_USER_ID.equals(id))
-            id = getAuthenticatedUser().getId();
-
-        return ResponseEntity.ok(itemService.findAllByUser(id, page, size).stream()
+        return ResponseEntity.ok(itemService.findAllByUser(getAuthenticatedUser().getId(), page, size).stream()
                 .filter(item -> status.equals(item.getStatus()))
                 .map(item -> modelMapper.map(item, ItemDTO.class))
                 .toList());
