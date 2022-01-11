@@ -3,7 +3,9 @@ package it.unical.unijira.controllers;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.items.Item;
-import it.unical.unijira.utils.ItemType;
+import it.unical.unijira.data.models.items.ItemType;
+import it.unical.unijira.data.models.items.MeasureUnit;
+import it.unical.unijira.utils.ItemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,15 +24,14 @@ public class ItemControllerTest extends UniJiraTest {
         Item father = new Item();
         father.setDescription("this is an useless epic");
         father.setEvaluation(77);
-        father.setMeasureUnit("metri");
+        father.setMeasureUnit(MeasureUnit.WORKING_DAYS);
         father.setSummary("useless epic");
         try {
-            father.setType(ItemType.getInstance().EPIC);
+            father.setType(ItemType.EPIC);
             father.setFather(null);
         } catch (NonValidItemTypeException ignored) {}
 
         father.setOwner(userRepository.findAll().stream().findFirst().orElseThrow(RuntimeException::new));
-        father.setTags("#backend#");
 
 
         pbiRepository.saveAndFlush(father);
@@ -59,7 +60,7 @@ public class ItemControllerTest extends UniJiraTest {
                             "measureUnit": "story points",
                             "evaluation": "100000",
                             "tags" : "#BACKEND#;#FRONTEND#",
-                            "type" : "epic",
+                            "type" : "EPIC",
                             "owner" : { "id": 1, "username" : "unijira20@gmail.com"}
                         }
                         """)
@@ -75,7 +76,7 @@ public class ItemControllerTest extends UniJiraTest {
     }
 
     @Test
-    void deleteItem() throws Exception {
+    void deleteItem() {
 //        mockMvc.perform(delete("/items/"+this.chooseMyId)
 //                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
 //                .andExpect(status().isNoContent());
@@ -91,11 +92,11 @@ public class ItemControllerTest extends UniJiraTest {
                         .content("""
                         {
                             "summary": "HELLO I'M A STORY",
-                            "description": "HI I'M AN EPIC AND I WANTO TO BE A GOOD STORY",
+                            "description": "HI I'M AN EPIC AND I WANT TO BE A GOOD STORY",
                             "measureUnit": "story points",
                             "evaluation": "100033",
                             "tags" : "#BACKEND#;#FRONTEND#",
-                            "type" : "story",
+                            "type" : "STORY",
                             "owner" : { "id": 1, "username" : "unijira20@gmail.com"}
                         }
                         """)
