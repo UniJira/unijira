@@ -77,6 +77,7 @@ public class UserControllerTest extends UniJiraTest {
                 userTmp = new User();
                 userTmp.setUsername(username);
                 userTmp.setPassword("123456");
+                userTmp.setStatus(User.Status.ACTIVE);
                 userTmp = userRepository.saveAndFlush(userTmp);
             }
             mkey = new MembershipKey();
@@ -101,6 +102,7 @@ public class UserControllerTest extends UniJiraTest {
         User userTmp = new User();
         userTmp.setUsername(username);
         userTmp.setPassword("123456");
+        userTmp.setStatus(User.Status.ACTIVE);
         userTmp = userRepository.save(userTmp);
 
         ResultActions call = mockMvc.perform(get("/users/"+userId+"/collaborators")

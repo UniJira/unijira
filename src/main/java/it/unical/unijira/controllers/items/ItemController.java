@@ -5,7 +5,6 @@ import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.NoteService;
-import it.unical.unijira.utils.ItemType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -61,8 +60,6 @@ public class ItemController implements CrudController<ItemDTO, Long> {
         if(!StringUtils.hasText(itemDto.getDescription()))
             return ResponseEntity.badRequest().build();
 
-        if(!StringUtils.hasText(itemDto.getType()) || !ItemType.getInstance().isCoherentType(itemDto.getType()))
-            return ResponseEntity.badRequest().build();
 
         return pbiService.save(modelMapper.map(itemDto, Item.class))
                 .map(createdDTO -> ResponseEntity
@@ -109,6 +106,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
                 .map(item -> modelMapper.map(item, ItemDTO.class))
                 .collect(Collectors.toList()));
     }
+
 
     /* TODO Notes management
     @PostMapping("{item}/notes")

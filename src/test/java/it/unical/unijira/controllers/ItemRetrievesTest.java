@@ -6,8 +6,8 @@ import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.items.ItemType;
 import it.unical.unijira.data.models.projects.Project;
-import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class ItemRetrievementTest extends UniJiraTest {
+public class ItemRetrievesTest extends UniJiraTest {
 
     @Autowired
     private ProductBacklogRepository backlogRepository;
@@ -43,13 +43,13 @@ public class ItemRetrievementTest extends UniJiraTest {
     private Sprint savedSprint;
     private Roadmap savedRoadmap;
 
-    private List<Item> savedItems = new ArrayList<>();
+    private final List<Item> savedItems = new ArrayList<>();
 
     @BeforeEach
     public void initProjectBacklogSprintRoadmap() {
         Project p = new Project();
         p.setOwner(userRepository.findByUsername(UniJiraTest.USERNAME).orElse(null));
-        p.setName("PROGETTO PROVA");
+        p.setName("DUMMY PROJECT");
         p.setKey("PRV");
 
         this.savedProject =projectRepository.saveAndFlush(p);
@@ -61,7 +61,7 @@ public class ItemRetrievementTest extends UniJiraTest {
 
         Sprint s = new Sprint();
         s.setStartingDate(LocalDate.now());
-        s.setEndingDate(LocalDate.of(221,07,25));
+        s.setEndingDate(LocalDate.of(221,7,25));
         s.setBacklog(this.savedBacklog);
 
         this.savedSprint = this.sprintRepository.saveAndFlush(s);
@@ -83,7 +83,7 @@ public class ItemRetrievementTest extends UniJiraTest {
         epic.setDescription("THIS IS AN EPIC");
         epic.setEvaluation(20000);
         epic.setSummary("EPIC");
-        epic.setType(ItemType.getInstance().EPIC);
+        epic.setType(ItemType.EPIC);
 
         this.savedItems.add(itemRepository.saveAndFlush(epic));
 
@@ -91,7 +91,7 @@ public class ItemRetrievementTest extends UniJiraTest {
         story.setDescription("THIS IS A STORY");
         story.setEvaluation(10000);
         story.setSummary("STORY");
-        story.setType(ItemType.getInstance().STORY);
+        story.setType(ItemType.STORY);
         story.setFather(epic);
 
         this.savedItems.add(itemRepository.saveAndFlush(story));
@@ -100,7 +100,7 @@ public class ItemRetrievementTest extends UniJiraTest {
         task.setDescription("THIS IS A TASK");
         task.setEvaluation(500);
         task.setSummary("TASK");
-        task.setType(ItemType.getInstance().TASK);
+        task.setType(ItemType.TASK);
         task.setFather(story);
 
         this.savedItems.add(itemRepository.saveAndFlush(task));
@@ -109,7 +109,7 @@ public class ItemRetrievementTest extends UniJiraTest {
         secondTask.setDescription("THIS IS ANOTHER TASK");
         secondTask.setEvaluation(3000);
         secondTask.setSummary("ANOTHER TASK");
-        secondTask.setType(ItemType.getInstance().TASK);
+        secondTask.setType(ItemType.TASK);
         secondTask.setFather(epic);
 
         this.savedItems.add(itemRepository.saveAndFlush(secondTask));
@@ -118,7 +118,7 @@ public class ItemRetrievementTest extends UniJiraTest {
         issue.setDescription("THIS IS AN ISSUE");
         issue.setEvaluation(4000);
         issue.setSummary("ISSUE");
-        issue.setType(ItemType.getInstance().ISSUE);
+        issue.setType(ItemType.ISSUE);
         issue.setFather(task);
 
         this.savedItems.add(itemRepository.saveAndFlush(issue));
@@ -137,7 +137,7 @@ public class ItemRetrievementTest extends UniJiraTest {
             sprintInsertion.setItem(item);
             this.sprintInsertionRepository.saveAndFlush(sprintInsertion);
 
-            if(item.getType() == ItemType.getInstance().EPIC) {
+            if(item.getType() == ItemType.EPIC) {
                 RoadmapInsertion roadmapInsertion = new RoadmapInsertion();
                 roadmapInsertion.setRoadmap(this.savedRoadmap);
                 roadmapInsertion.setItem(item);
