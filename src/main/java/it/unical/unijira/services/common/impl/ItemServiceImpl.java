@@ -42,12 +42,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
                     }
                     updatedItem.setOwner(pbi.getOwner());
                     updatedItem.setSummary(pbi.getSummary());
-                    try {
-                        updatedItem.setType(pbi.getType());
-                    } catch (NonValidItemTypeException e) {
-                        throw new RuntimeException(e.getErrorMessage());
-                    }
-                    
+                    updatedItem.setType(pbi.getType());
                     updatedItem.setStatus(pbi.getStatus());
                     
                     pbi.setMeasureUnit(pbi.getMeasureUnit());
@@ -119,6 +114,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
         }
         return Collections.emptyList();
     }
+
 
 
 }
