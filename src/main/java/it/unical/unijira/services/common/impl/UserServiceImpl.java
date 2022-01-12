@@ -85,13 +85,17 @@ public class UserServiceImpl implements UserService {
 
         return Optional.of(userRepository.saveAndFlush(user)).map(owner -> {
 
-            if(!emailService.send(username,
-                    locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
-                    locale.get("MAIL_ACCOUNT_CONFIRM_BODY",
-                            config.getBaseURL(),
-                            authService.generateToken(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId())))
-            )) {
-                throw new RuntimeException("Error sending email to %s".formatted(username));
+            if(User.Status.REQUIRE_CONFIRM.equals(owner.getStatus())) {
+
+                if (!emailService.send(username,
+                        locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
+                        locale.get("MAIL_ACCOUNT_CONFIRM_BODY",
+                                config.getBaseURL(),
+                                authService.generateToken(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId())))
+                )) {
+                    throw new RuntimeException("Error sending email to %s".formatted(username));
+                }
+
             }
 
             return owner;
@@ -118,6 +122,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findById(id)
                 .stream()
+                .filter(user -> User.Status.REQUIRE_CONFIRM.equals(user.getStatus()))
                 .peek(user -> user.setStatus(User.Status.ACTIVE))
                 .peek(userRepository::saveAndFlush)
                 .findFirst()
