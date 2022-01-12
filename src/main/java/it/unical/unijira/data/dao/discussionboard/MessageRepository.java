@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,4 +26,7 @@ public interface MessageRepository extends JpaRepository<Message,Long>, JpaSpeci
 
     @Query("FROM Message m where m.topic.id = :id")
     List<Message> findAllByTopicNoPages(Long id);
+
+    @Query("SELECT COUNT (m) FROM Message m where m.topic.id = :topicId")
+    Integer countByTopic(Long topicId);
 }

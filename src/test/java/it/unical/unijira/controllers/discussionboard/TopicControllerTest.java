@@ -88,31 +88,33 @@ public class TopicControllerTest extends UniJiraTest {
     private void setupTopic() {
 
         this.topicJsonForTests =  "{\n" +
-                "                         \t\"summary\" : \"SUMMARY\",\n" +
+                "                         \t\"title\" : \"SUMMARY\",\n" +
+                "                         \t\"content\" : \"CONTENT\",\n" +
                 "                         \t\"projectId\" : \""+projectForTests.getId()+"\",\n" +
-                "                         \t\"userId\" : \"" + this.userForTests.getId() + "\",\n" +
-                "                         \t\"messages\" : []\n" +
+                "                         \t\"userId\" : \"" + this.userForTests.getId() + "\"\n" +
                 "                         \t}\n" +
                 "                         }";
 
         Topic forTests = Topic.builder()
                 .user(userForTests)
                 .project(projectForTests)
-                .summary("This is a wonderful topic to discuss about").build();
+                .title("This is a wonderful topic to discuss about")
+                .content("asdasdasd").build();
         this.topicForTests = this.topicService.save(forTests).orElse(null);
 
         Topic toDelete = Topic.builder()
                 .user(userForTests)
                 .project(projectForTests)
-                .summary("This is a bad topic and need to be deleted").build();
+                .title("This is a bad topic and need to be deleted")
+                .content("qweqweqwer").build();
 
         this.toDeleteForTests = this.topicService.save(toDelete).orElse(null);
 
         this.topicJsonForTestsUpdated =  "{\"id\" : \""+this.topicForTests.getId()+"\",\n" +
-                "                         \t\"summary\" : \"SUMMARY UPDATED\",\n" +
+                "                         \t\"title\" : \"SUMMARY UPDATED\",\n" +
+                "                         \t\"content\" : \"CONTENT UPDATED\",\n" +
                 "                         \t\"projectId\" : \""+projectForTests.getId()+"\",\n" +
-                "                         \t\"userId\" : \"" + this.userForTests.getId() + "\",\n" +
-                "                         \t\"messages\" : []\n" +
+                "                         \t\"userId\" : \"" + this.userForTests.getId() + "\"\n" +
                 "                         \t}\n" +
                 "                         }";
 
@@ -310,6 +312,21 @@ public class TopicControllerTest extends UniJiraTest {
         int finalSize =  messageService.findAll(topicForTests.getId(),0,100000).size();
         System.err.println(finalSize);
         Assertions.assertTrue(initialSize>finalSize);
+
+    }
+
+    @Test
+    void countMessagesByTopic() throws Exception {
+        int expectedNumber = messageService.findAll(topicForTests.getId(),0,100000).size();
+        ResultActions call = mockMvc.perform(get("/projects/"+projectForTests.getId()+"/topics/"
+                        +topicForTests.getId()+"/messages/count")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                .andExpect(status().isOk());
+
+        MvcResult returnValue = call.andReturn();
+        int obtainedNumber =Integer.parseInt(returnValue.getResponse().getContentAsString());
+        call.andExpect(status().isOk());
+        Assertions.assertEquals(expectedNumber,obtainedNumber);
 
     }
 
