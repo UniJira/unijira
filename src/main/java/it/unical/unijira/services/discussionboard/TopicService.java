@@ -1,7 +1,7 @@
 package it.unical.unijira.services.discussionboard;
 
 
-import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.discussions.Topic;
 
 import java.util.List;
 import java.util.Optional;

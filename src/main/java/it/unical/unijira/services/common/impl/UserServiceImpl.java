@@ -1,7 +1,6 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.UserRepository;
-import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
@@ -18,9 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

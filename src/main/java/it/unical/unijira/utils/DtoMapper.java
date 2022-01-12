@@ -1,5 +1,7 @@
 package it.unical.unijira.utils;
 
+import it.unical.unijira.data.dto.AbstractBaseDTO;
+import it.unical.unijira.data.models.AbstractBaseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
@@ -10,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -29,8 +33,10 @@ public class DtoMapper extends ModelMapper {
         this.getConfiguration().setSkipNullEnabled(true);
         this.getConfiguration().setImplicitMappingEnabled(true);
         this.getConfiguration().setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
+        this.getConfiguration().setMethodAccessLevel(Configuration.AccessLevel.PUBLIC);
         this.getConfiguration().setSourceNameTokenizer(NameTokenizers.CAMEL_CASE);
         this.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
+        this.getConfiguration().setUseOSGiClassLoaderBridging(true);
 
     }
 
@@ -57,50 +63,76 @@ public class DtoMapper extends ModelMapper {
 
 
     @SuppressWarnings("unchecked")
-    private <T> T resolveEntity(T entity) throws NullPointerException {
+    private <T> T resolveEntity(Object source, T entity) throws NullPointerException {
 
         Objects.requireNonNull(entity);
 
-        if(!entity.getClass().isAnnotationPresent(Entity.class))
-            return entity;
+        if(entity.getClass().isAnnotationPresent(Entity.class)) {
 
+            for (var field : entity.getClass().getDeclaredFields()) {
 
-        for(var field : entity.getClass().getDeclaredFields()) {
+                if (Collection.class.isAssignableFrom(field.getType())) {
 
-            if(Collection.class.isAssignableFrom(field.getType())) {
+                    field.setAccessible(true);
 
-                field.setAccessible(true);
+                    try {
 
-                try {
+                        Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
 
-                    Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
+                        for (var item : items) {
 
-                    for(var item : items) {
+                            if (!item.getClass().isAnnotationPresent(Entity.class))
+                                continue;
 
-                        if(!item.getClass().isAnnotationPresent(Entity.class))
-                            continue;
+                            items.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
+                            items.remove(item);
 
-                        items.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
-                        items.remove(item);
+                        }
 
+                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
                     }
 
-                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
 
+                } else if (field.getType().isAnnotationPresent(Entity.class)) {
 
-            } else if(field.getType().isAnnotationPresent(Entity.class)) {
+                    field.setAccessible(true);
 
-                field.setAccessible(true);
+                    try {
 
-                try {
+                        field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(field.get(entity)))));
 
-                    field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(field.get(entity)))));
+                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
+                    }
 
-                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
+                }
 
             }
 
         }
+
+
+        if(entity instanceof AbstractBaseEntity e && source instanceof AbstractBaseDTO dto) {
+
+            try {
+
+                e.setCreatedAt(LocalDateTime.parse(dto.getCreatedAt()));
+                e.setUpdatedAt(LocalDateTime.parse(dto.getUpdatedAt()));
+
+            } catch (Exception ignored) { }
+
+        }
+
+        if(source instanceof AbstractBaseEntity e && entity instanceof AbstractBaseDTO dto) {
+
+            try {
+
+                dto.setCreatedAt(e.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME));
+                dto.setUpdatedAt(e.getUpdatedAt().format(DateTimeFormatter.ISO_DATE_TIME));
+
+            } catch (Exception ignored) { }
+
+        }
+
 
         return entity;
 
@@ -108,22 +140,22 @@ public class DtoMapper extends ModelMapper {
 
     @Override
     public <T> T map(Object source, Class<T> destinationClass) {
-        return resolveEntity(super.map(source, destinationClass));
+        return resolveEntity(source, super.map(source, destinationClass));
     }
 
     @Override
     public <D> D map(Object source, Class<D> destinationType, String typeMapName) {
-        return resolveEntity(super.map(source, destinationType, typeMapName));
+        return resolveEntity(source, super.map(source, destinationType, typeMapName));
     }
 
     @Override
     public <D> D map(Object source, Type destinationType) {
-        return resolveEntity(super.map(source, destinationType));
+        return resolveEntity(source, super.map(source, destinationType));
     }
 
     @Override
     public <D> D map(Object source, Type destinationType, String typeMapName) {
-        return resolveEntity(super.map(source, destinationType, typeMapName));
+        return resolveEntity(source, super.map(source, destinationType, typeMapName));
     }
 
 }

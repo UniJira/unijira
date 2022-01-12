@@ -89,6 +89,7 @@ public class Item extends AbstractBaseEntity {
     @Getter
     @Setter
     @ToString.Exclude
+    @Builder.Default
     private List<Note> notes = new ArrayList<>();
 
 
@@ -104,6 +105,7 @@ public class Item extends AbstractBaseEntity {
     @Getter
     @Setter
     @ToString.Exclude
+    @Builder.Default
     private List<ItemAssignment> assignees = new ArrayList<>();
 
     @ManyToOne

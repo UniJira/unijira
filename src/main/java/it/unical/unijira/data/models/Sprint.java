@@ -1,6 +1,5 @@
 package it.unical.unijira.data.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,7 +27,6 @@ public class Sprint  extends  AbstractBaseEntity{
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate startingDate;
 
     @Column
@@ -36,7 +34,6 @@ public class Sprint  extends  AbstractBaseEntity{
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate endingDate;
 
 

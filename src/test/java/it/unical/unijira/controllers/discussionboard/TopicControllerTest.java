@@ -2,8 +2,8 @@ package it.unical.unijira.controllers.discussionboard;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.User;
-import it.unical.unijira.data.models.discussionboard.Message;
-import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.discussions.Message;
+import it.unical.unijira.data.models.discussions.Topic;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -96,14 +96,14 @@ public class TopicControllerTest extends UniJiraTest {
                 "                         }";
 
         Topic forTests = Topic.builder()
-                .user(userForTests)
+                .author(userForTests)
                 .project(projectForTests)
                 .title("This is a wonderful topic to discuss about")
                 .content("asdasdasd").build();
         this.topicForTests = this.topicService.save(forTests).orElse(null);
 
         Topic toDelete = Topic.builder()
-                .user(userForTests)
+                .author(userForTests)
                 .project(projectForTests)
                 .title("This is a bad topic and need to be deleted")
                 .content("qweqweqwer").build();
@@ -121,20 +121,20 @@ public class TopicControllerTest extends UniJiraTest {
         Message message = Message.builder()
                 .author(userForTests)
                 .topic(topicForTests)
-                .text("THIS IS THE FIRST MESSAGE").build();
+                .content("THIS IS THE FIRST MESSAGE").build();
 
         this.messageForTests = this.messageService.save(message).orElse(null);
 
         Message reply = Message.builder()
                 .author(userForTests)
                 .topic(topicForTests)
-                .text("THIS IS MY REPLY TO YOUR PREVIOUS MESSAGE")
+                .content("THIS IS MY REPLY TO YOUR PREVIOUS MESSAGE")
                 .repliesTo(this.messageForTests).build();
 
         this.messageService.save(reply);
 
 
-        this.messageJsonForTests =  "{\t\"text\" : \""+this.messageForTests.getText()+"\",\n" +
+        this.messageJsonForTests =  "{\t\"content\" : \""+this.messageForTests.getContent()+"\",\n" +
                 "                         \t\"topicId\" : \""+this.messageForTests.getTopic().getId()+"\",\n" +
                 "                         \t\"authorUsername\" : \""+this.messageForTests.getAuthor().getUsername()+"\",\n" +
                 "                         \t\"authorId\" : \"" + this.messageForTests.getAuthor().getId() + "\"\n" +
@@ -142,7 +142,7 @@ public class TopicControllerTest extends UniJiraTest {
                 "                         }";
 
         this.messageJSonForTestsUpdated = "{\"id\" : \""+this.messageForTests.getId()+"\",\n" +
-                "                         \t\"text\" : \""+this.messageForTests.getText()+" UPDATED"+"\",\n" +
+                "                         \t\"content\" : \""+this.messageForTests.getContent()+" UPDATED"+"\",\n" +
                 "                         \t\"topicId\" : \""+this.messageForTests.getTopic().getId()+"\",\n" +
                 "                         \t\"authorUsername\" : \""+this.messageForTests.getAuthor().getUsername()+"\",\n" +
                 "                         \t\"authorId\" : \"" + this.messageForTests.getAuthor().getId() + "\"\n" +

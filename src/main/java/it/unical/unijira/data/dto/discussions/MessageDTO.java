@@ -1,7 +1,6 @@
-package it.unical.unijira.data.dto.discussionboard;
+package it.unical.unijira.data.dto.discussions;
 
 import it.unical.unijira.data.dto.AbstractBaseDTO;
-
 import lombok.*;
 
 
@@ -14,7 +13,7 @@ import lombok.*;
 public class MessageDTO extends AbstractBaseDTO {
 
     private Long id;
-    private String text;
+    private String content;
     private Long topicId;
     private Long authorId;
     private String authorUsername;

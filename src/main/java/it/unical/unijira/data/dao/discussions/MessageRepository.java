@@ -1,13 +1,12 @@
-package it.unical.unijira.data.dao.discussionboard;
+package it.unical.unijira.data.dao.discussions;
 
-import it.unical.unijira.data.models.discussionboard.Message;
+import it.unical.unijira.data.models.discussions.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +21,6 @@ public interface MessageRepository extends JpaRepository<Message,Long>, JpaSpeci
 
     @Query("FROM Message m where m.repliesTo.id = :id")
     List<Message> findMyReplies(Long id);
-
 
     @Query("FROM Message m where m.topic.id = :id")
     List<Message> findAllByTopicNoPages(Long id);

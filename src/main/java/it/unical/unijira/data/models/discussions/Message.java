@@ -1,12 +1,10 @@
-package it.unical.unijira.data.models.discussionboard;
+package it.unical.unijira.data.models.discussions;
 
 import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
-import it.unical.unijira.data.models.projects.Project;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table
@@ -16,7 +14,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Topic extends AbstractBaseEntity {
+public class Message extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue
@@ -25,23 +23,21 @@ public class Topic extends AbstractBaseEntity {
 
     @Column
     @Basic(optional = false)
-    private String title;
-
-    @Column
-    @Basic(optional = false)
     private String content;
 
 
     @ManyToOne
     @JoinColumn
-    private Project project;
+    private Topic topic;
 
 
     @ManyToOne
     @JoinColumn
-    private User user;
+    private User author;
 
 
-    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER)
-    private List<Message> messages;
+    @ManyToOne
+    @JoinColumn
+    private Message repliesTo;
+
 }

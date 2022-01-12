@@ -3,13 +3,13 @@ package it.unical.unijira.controllers;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
-import it.unical.unijira.data.dto.discussionboard.MessageDTO;
-import it.unical.unijira.data.dto.discussionboard.TopicDTO;
+import it.unical.unijira.data.dto.discussions.MessageDTO;
+import it.unical.unijira.data.dto.discussions.TopicDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
 import it.unical.unijira.data.models.*;
-import it.unical.unijira.data.models.discussionboard.Message;
-import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.discussions.Message;
+import it.unical.unijira.data.models.discussions.Topic;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -1105,7 +1106,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
             return ResponseEntity.badRequest().build();
 
-        if(releaseDTO.getStartDate().isAfter(releaseDTO.getEndDate()))
+        if(LocalDate.parse(releaseDTO.getStartDate()).isAfter(LocalDate.parse(releaseDTO.getEndDate())))
             return ResponseEntity.badRequest().build();
 
         if(releaseDTO.getStatus() == null)
@@ -1133,7 +1134,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
             return ResponseEntity.badRequest().build();
 
-        if(releaseDTO.getStartDate().isAfter(releaseDTO.getEndDate()))
+        if(LocalDate.parse(releaseDTO.getStartDate()).isAfter(LocalDate.parse(releaseDTO.getEndDate())))
             return ResponseEntity.badRequest().build();
 
         if(releaseDTO.getStatus() == null)

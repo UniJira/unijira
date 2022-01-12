@@ -12,6 +12,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @SpringBootTest
@@ -68,45 +71,50 @@ public class DtoMapperTest extends UniJiraTest {
 
     }
 
-//    @Test
-//    void DTOtoUserNotificationsTest() {
-//
-//        TestDTO testDTO = new TestDTO() {{
-//
-//            setNotificationsIds(notifyRepository.findAll()
-//                    .stream()
-//                    .mapToLong(Notify::getId)
-//                    .boxed()
-//                    .collect(Collectors.toList()));
-//
-//        }};
-//
-//
-//        Assertions.assertNotNull(testDTO.getNotificationsIds());
-//        Assertions.assertTrue(testDTO.getNotificationsIds().size() > 0);
-//
-//
-//        Converter<List<Long>, List<Notify>> idToNotify = c -> c.getSource()
-//                .stream()
-//                .map(id -> new Notify() {{ setId(id); }})
-//                .collect(Collectors.toList());
-//
-//
-//        modelMapper.createTypeMap(TestDTO.class, User.class, "IdsToNotifications")
-//                .addMappings(m -> m.using(idToNotify).map(TestDTO::getNotificationsIds, User::setNotifications));
-//
-//
-//        User user = modelMapper.map(testDTO, User.class, "IdsToNotifications");
-//
-//        System.err.println(user.getNotifications().size());
-//        user.getNotifications().forEach(System.err::println);
-//
-//        Assertions.assertNotNull(user.getNotifications());
-//        Assertions.assertEquals(notifyRepository.count(), user.getNotifications().size());
-//        Assertions.assertTrue(user.getNotifications().stream().allMatch(n -> n.getId() != null));
-//        Assertions.assertTrue(user.getNotifications().stream().allMatch(n -> n.getMessage() != null));
-//        Assertions.assertTrue(user.getNotifications().stream().allMatch(n -> n.getUser() != null));
-//
-//    }
+    @Test
+    void DTOtoEntityDateTest() {
+
+        LocalDateTime date = LocalDateTime.of(2021, Month.JANUARY, 1, 16, 30, 30, 0);
+
+        var notifyDTO = new NotifyDTO() {{
+            setId(null);
+            setCreatedAt(date.format(DateTimeFormatter.ISO_DATE_TIME));
+            setUpdatedAt(date.format(DateTimeFormatter.ISO_DATE_TIME));
+        }};
+
+        Assertions.assertEquals(date.format(DateTimeFormatter.ISO_DATE_TIME), notifyDTO.getCreatedAt());
+        Assertions.assertEquals(date.format(DateTimeFormatter.ISO_DATE_TIME), notifyDTO.getUpdatedAt());
+
+
+        Notify notify = modelMapper.map(notifyDTO, Notify.class);
+
+        Assertions.assertEquals("2021-01-01T16:30:30", date.format(DateTimeFormatter.ISO_DATE_TIME));
+        Assertions.assertEquals(date, notify.getCreatedAt());
+        Assertions.assertEquals(date, notify.getUpdatedAt());
+
+    }
+
+    @Test
+    void EntityToDTODateTest() {
+
+        LocalDateTime date = LocalDateTime.of(2021, Month.JANUARY, 1, 16, 30, 30, 0);
+
+        var notify = new Notify() {{
+            setId(null);
+            setCreatedAt(date);
+            setUpdatedAt(date);
+        }};
+
+        Assertions.assertEquals(date, notify.getCreatedAt());
+        Assertions.assertEquals(date, notify.getUpdatedAt());
+
+
+        NotifyDTO notifyDTO = modelMapper.map(notify, NotifyDTO.class);
+
+        Assertions.assertEquals("2021-01-01T16:30:30", date.format(DateTimeFormatter.ISO_DATE_TIME));
+        Assertions.assertEquals(date.format(DateTimeFormatter.ISO_DATE_TIME), notifyDTO.getCreatedAt());
+        Assertions.assertEquals(date.format(DateTimeFormatter.ISO_DATE_TIME), notifyDTO.getUpdatedAt());
+
+    }
 
 }

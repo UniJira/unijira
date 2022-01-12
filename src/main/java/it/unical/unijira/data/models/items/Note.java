@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table
@@ -20,30 +19,20 @@ public class Note extends AbstractBaseEntity {
     @GeneratedValue
     private Long id;
 
-
-    @Column
-    @Basic(optional = false)
-    private LocalDateTime timestamp;
-
-
     @Column
     @Basic(optional = false)
     private String message;
-
 
     @ManyToOne
     @JoinColumn
     private Note replyTo;
 
-
     @ManyToOne
     @JoinColumn
     private Item refersTo;
 
-
     @ManyToOne
     @JoinColumn
     private User author;
-
 
 }
