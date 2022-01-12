@@ -41,11 +41,11 @@ public class Project extends AbstractBaseEntity {
     @ToString.Exclude
     private List<Membership> memberships = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<ProductBacklog> backlogs = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Release> releases = new ArrayList<>();
 
