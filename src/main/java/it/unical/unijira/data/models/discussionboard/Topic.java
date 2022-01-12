@@ -38,6 +38,6 @@ public class Topic extends AbstractBaseEntity {
     private User user;
 
 
-    @OneToMany(mappedBy = "topic")
+    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER)
     private List<Message> messages;
 }

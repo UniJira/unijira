@@ -6,7 +6,6 @@ import it.unical.unijira.services.discussionboard.MessageService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,10 +27,8 @@ public record MessageServiceImpl (MessageRepository messageRepository)
     @Override
     public void delete(Message message, Long projectId, Long topicId) {
         List<Message> myReplies = messageRepository.findMyReplies(message.getId());
-        for (Message reply : myReplies) {
-            messageRepository.delete(reply);
-        }
-        messageRepository.delete(message);
+        messageRepository.deleteAll(myReplies);
+
     }
 
     @Override

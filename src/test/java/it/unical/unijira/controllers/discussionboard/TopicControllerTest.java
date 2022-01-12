@@ -7,7 +7,6 @@ import it.unical.unijira.data.models.discussionboard.Topic;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
-import it.unical.unijira.services.common.ProjectService;
 import it.unical.unijira.services.common.UserService;
 import it.unical.unijira.services.discussionboard.MessageService;
 import it.unical.unijira.services.discussionboard.TopicService;
@@ -16,14 +15,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,10 +33,7 @@ public class TopicControllerTest extends UniJiraTest {
     private Topic topicForTests;
     private Topic toDeleteForTests;
     private Message messageForTests;
-    private Message replyForTests;
 
-    @Autowired
-    private ProjectService projectService;
 
     @Autowired
     private MessageService messageService;
@@ -60,7 +54,7 @@ public class TopicControllerTest extends UniJiraTest {
     }
 
     @BeforeEach
-    void setupAllStuff() throws Exception {
+    void setupAllStuff() {
 
         this.userForTests = userService.findByUsername(UniJiraTest.USERNAME).orElse(null);
 
@@ -135,7 +129,7 @@ public class TopicControllerTest extends UniJiraTest {
                 .text("THIS IS MY REPLY TO YOUR PREVIOUS MESSAGE")
                 .repliesTo(this.messageForTests).build();
 
-        this.replyForTests = this.messageService.save(reply).orElse(null);
+        this.messageService.save(reply);
 
 
         this.messageJsonForTests =  "{\t\"text\" : \""+this.messageForTests.getText()+"\",\n" +
@@ -172,7 +166,7 @@ public class TopicControllerTest extends UniJiraTest {
 
         int finalSize =  topicService.findAll(projectForTests.getId(),0,100000).size();
 
-        Assertions.assertTrue(initialSize+1==finalSize);
+        Assertions.assertEquals(initialSize + 1, finalSize);
 
     }
 
@@ -258,7 +252,7 @@ public class TopicControllerTest extends UniJiraTest {
 
         int finalSize =  messageService.findAll(topicForTests.getId(),0,100000).size();
 
-        Assertions.assertTrue(initialSize+1==finalSize);
+        Assertions.assertEquals(initialSize + 1, finalSize);
     }
 
     @Test

@@ -33,11 +33,9 @@ public record TopicServiceImpl(TopicRepository topicRepository, MessageRepositor
         List<Message> myMessages = messageRepository.findAllByTopicNoPages(topic.getId());
         for (Message m : myMessages) {
             List<Message> myReplies = messageRepository.findMyReplies(m.getId());
-            for (Message reply : myReplies) {
-                messageRepository.delete(reply);
-            }
+            messageRepository.deleteAll(myReplies);
             messageRepository.delete(m);
-            myMessages = messageRepository.findAllByTopicNoPages(topic.getId());
+            //myMessages = messageRepository.findAllByTopicNoPages(topic.getId());
         }
         topicRepository.delete(topic);
 
