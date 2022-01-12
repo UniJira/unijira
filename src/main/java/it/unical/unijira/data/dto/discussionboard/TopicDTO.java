@@ -19,7 +19,7 @@ public class TopicDTO {
     private Long id;
     private String summary;
     private Long projectId;
-    private UserInfoDTO createdBy;
+    private Long userId;
     private List<MessageDTO> messages;
 
 }

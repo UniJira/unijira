@@ -35,7 +35,7 @@ public class Topic extends AbstractBaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private User createdBy;
+    private User user;
 
 
     @OneToMany(mappedBy = "topic")
