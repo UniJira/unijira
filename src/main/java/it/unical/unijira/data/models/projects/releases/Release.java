@@ -41,8 +41,8 @@ public class Release extends AbstractBaseEntity {
     @JoinColumn
     private Project project;
 
-    @OneToMany
-    @JoinColumn
+    @OneToMany(mappedBy = "release", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Item> items = new ArrayList<>();
 
 

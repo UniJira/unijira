@@ -40,7 +40,7 @@ public class Sprint  extends  AbstractBaseEntity{
     private LocalDate endingDate;
 
 
-    @OneToMany(mappedBy = "sprint")
+    @OneToMany(mappedBy = "sprint", cascade = CascadeType.ALL)
     @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @Setter

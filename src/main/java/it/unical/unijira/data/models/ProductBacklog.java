@@ -28,10 +28,15 @@ public class ProductBacklog extends AbstractBaseEntity{
     private Project project;
 
 
-    @OneToMany(mappedBy = "backlog")
+    @OneToMany(mappedBy = "backlog", cascade = CascadeType.ALL)
     @Getter
     @Setter
     @ToString.Exclude
     private List<Sprint> sprints;
 
+    @OneToMany(mappedBy = "backlog", cascade = CascadeType.ALL)
+    @Getter
+    @Setter
+    @ToString.Exclude
+    private List<Roadmap> roadmaps;
 }
