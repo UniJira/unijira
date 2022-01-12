@@ -19,4 +19,11 @@ public interface MessageRepository extends JpaRepository<Message,Long>, JpaSpeci
 
     @Query("FROM Message m where m.id = :id and m.topic.id = :topicId")
     Optional<Message> findByIdAndTopic(Long id, Long topicId);
+
+    @Query("FROM Message m where m.repliesTo.id = :id")
+    List<Message> findMyReplies(Long id);
+
+
+    @Query("FROM Message m where m.topic.id = :id")
+    List<Message> findAllByTopicNoPages(Long id);
 }

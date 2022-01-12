@@ -1,5 +1,6 @@
 package it.unical.unijira.data.dto.discussionboard;
 
+import it.unical.unijira.data.dto.AbstractBaseDTO;
 import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.discussionboard.Message;
@@ -14,7 +15,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class TopicDTO {
+public class TopicDTO extends AbstractBaseDTO {
 
     private Long id;
     private String summary;

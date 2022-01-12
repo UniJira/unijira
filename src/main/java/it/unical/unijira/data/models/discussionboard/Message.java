@@ -1,5 +1,6 @@
 package it.unical.unijira.data.models.discussionboard;
 
+import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Message {
+public class Message extends AbstractBaseEntity {
 
     @Id
     @GeneratedValue

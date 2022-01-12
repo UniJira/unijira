@@ -1178,10 +1178,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     }
 
     @PostMapping("{projectId}/topics")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<TopicDTO> create(ModelMapper modelMapper, TopicDTO dto,
+    public ResponseEntity<TopicDTO> create(ModelMapper modelMapper, @RequestBody TopicDTO dto,
                                            @PathVariable Long projectId) {
-
         if (dto.getProjectId() == null) {
             dto.setProjectId(projectId);
         }
@@ -1199,7 +1197,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     // no other edit operations are admitted
     @PutMapping("{projectId}/topics/{topicId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<TopicDTO> update(ModelMapper modelMapper, TopicDTO dto,
+    public ResponseEntity<TopicDTO> update(ModelMapper modelMapper, @RequestBody TopicDTO dto,
                                            @PathVariable Long projectId,
                                            @PathVariable Long topicId) {
 
@@ -1269,7 +1267,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("{projectId}/topics/{topicId}/messages")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageDTO> createMessage(ModelMapper modelMapper, MessageDTO dto,
+    public ResponseEntity<MessageDTO> createMessage(ModelMapper modelMapper, @RequestBody MessageDTO dto,
                                                     @PathVariable Long projectId, @PathVariable Long topicId) {
         try {
             topicService.findById(topicId, projectId).orElseThrow(Exception::new);
@@ -1280,7 +1278,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if (dto.getTopicId() == null) {
             dto.setTopicId(topicId);
         }
-        else if (!dto.getTopicId().equals(projectId)) {
+        else if (!dto.getTopicId().equals(topicId)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -1294,7 +1292,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PutMapping("{projectId}/topics/{topicId}/messages/{messageId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageDTO> updateMessage(ModelMapper modelMapper,  @PathVariable Long messageId, MessageDTO dto,
+    public ResponseEntity<MessageDTO> updateMessage(ModelMapper modelMapper,  @PathVariable Long messageId,
+                                                    @RequestBody MessageDTO dto,
                                                     @PathVariable Long projectId, @PathVariable Long topicId) {
         try {
             topicService.findById(topicId, projectId).orElseThrow(Exception::new);
@@ -1329,6 +1328,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         try {
             messageService.delete(toDelete, projectId, topicId);
         } catch (Exception e) {
+            e.printStackTrace();
             ResponseEntity.notFound().build();
         }
 
