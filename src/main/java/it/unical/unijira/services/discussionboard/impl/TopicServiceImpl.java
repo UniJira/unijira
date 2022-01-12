@@ -24,7 +24,10 @@ public record TopicServiceImpl(TopicRepository topicRepository, MessageRepositor
     @Override
     public Optional<Topic> update(Long id, Topic topic, Long projectId) {
         return topicRepository.findByIdAndProject(id,projectId).stream()
-                .peek(updated -> updated.setSummary(topic.getSummary())).findFirst().map(topicRepository::saveAndFlush);
+                .peek(updated -> {
+                    updated.setTitle(topic.getTitle());
+                    updated.setContent(topic.getContent());
+                }).findFirst().map(topicRepository::saveAndFlush);
     }
 
     @Override
@@ -35,7 +38,6 @@ public record TopicServiceImpl(TopicRepository topicRepository, MessageRepositor
             List<Message> myReplies = messageRepository.findMyReplies(m.getId());
             messageRepository.deleteAll(myReplies);
             messageRepository.delete(m);
-            //myMessages = messageRepository.findAllByTopicNoPages(topic.getId());
         }
         topicRepository.delete(topic);
 

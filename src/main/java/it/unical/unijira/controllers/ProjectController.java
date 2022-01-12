@@ -1336,6 +1336,21 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     }
 
 
+    @GetMapping("{projectId}/topics/{topicId}/messages/count")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Integer> countMessages(@PathVariable Long projectId, @PathVariable Long topicId) {
+
+        try {
+            topicService.findById(topicId, projectId).orElseThrow(Exception::new);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().body(messageService.countByTopic(topicId));
+
+    }
+
+
 
 }
 
