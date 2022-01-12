@@ -3,15 +3,21 @@ package it.unical.unijira.controllers;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
+import it.unical.unijira.data.dto.discussionboard.MessageDTO;
+import it.unical.unijira.data.dto.discussionboard.TopicDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.discussionboard.Message;
+import it.unical.unijira.data.models.discussionboard.Topic;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
+import it.unical.unijira.services.discussionboard.MessageService;
+import it.unical.unijira.services.discussionboard.TopicService;
 import it.unical.unijira.services.projects.ReleaseService;
 import it.unical.unijira.utils.ControllerUtilities;
 import org.modelmapper.ModelMapper;
@@ -45,6 +51,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final AuthService authService;
     private final ReleaseService releaseService;
     private final PasswordEncoder passwordEncoder;
+    private final MessageService messageService;
+    private final TopicService topicService;
 
     @Autowired
     public ProjectController(UserService userService,
@@ -58,7 +66,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              RoadmapInsertionService roadmapInsertionService,
                              ItemService itemService,
                              ReleaseService releaseService,
-                             PasswordEncoder passwordEncoder) {
+                             PasswordEncoder passwordEncoder,
+                             TopicService topicService,
+                             MessageService messageService) {
 
         this.userService = userService;
         this.projectService = projectService;
@@ -72,6 +82,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.itemService = itemService;
         this.releaseService = releaseService;
         this.passwordEncoder = passwordEncoder;
+        this.messageService = messageService;
+        this.topicService = topicService;
 
     }
 
@@ -1140,6 +1152,189 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
 
     }
+
+    @GetMapping("{projectId}/topics")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<TopicDTO>> readAll(ModelMapper modelMapper,
+                                                  @RequestParam (required = false, defaultValue = "0") Integer page,
+                                                  @RequestParam (required = false, defaultValue = "10000") Integer size,
+                                                  @PathVariable Long projectId) {
+
+        return ResponseEntity.ok(topicService.findAll(projectId,page,size).stream()
+                .map(topic -> modelMapper.map(topic, TopicDTO.class))
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("{projectId}/topics/{topicId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<TopicDTO> read(ModelMapper modelMapper, @PathVariable Long topicId,
+                                         @PathVariable Long projectId) {
+
+
+        return topicService.findById(topicId,projectId)
+                .map(topic -> modelMapper.map(topic, TopicDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("{projectId}/topics")
+    public ResponseEntity<TopicDTO> create(ModelMapper modelMapper, @RequestBody TopicDTO dto,
+                                           @PathVariable Long projectId) {
+        if (dto.getProjectId() == null) {
+            dto.setProjectId(projectId);
+        }
+        else if (!dto.getProjectId().equals(projectId)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return topicService.save(modelMapper.map(dto, Topic.class))
+                .map(savedObject -> ResponseEntity
+                        .created(URI.create("/projects/%d/topics/%d".formatted(projectId,savedObject.getId())))
+                        .body(modelMapper.map(savedObject, TopicDTO.class))).orElse(ResponseEntity.badRequest().build());
+    }
+
+    // can update just the "summary" text field,
+    // no other edit operations are admitted
+    @PutMapping("{projectId}/topics/{topicId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<TopicDTO> update(ModelMapper modelMapper, @RequestBody TopicDTO dto,
+                                           @PathVariable Long projectId,
+                                           @PathVariable Long topicId) {
+
+        if (dto.getProjectId() == null || !dto.getProjectId().equals(projectId)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return topicService.update(topicId, modelMapper.map(dto,Topic.class), projectId)
+                .map(updated -> modelMapper.map(updated, TopicDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+
+    }
+
+    @DeleteMapping("{projectId}/topics/{topicId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> delete(@PathVariable Long topicId,
+                                          @PathVariable Long projectId) {
+
+        return topicService.findById(topicId,projectId)
+                .stream()
+                .peek(topicService::delete)
+                .findFirst()
+                .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+
+    @GetMapping("{projectId}/topics/{topicId}/messages")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<MessageDTO>> readAllMessages(ModelMapper modelMapper,
+                                                            @RequestParam (required = false, defaultValue = "0") Integer page,
+                                                            @RequestParam (required = false, defaultValue = "10000") Integer size,
+                                                            @PathVariable Long projectId,
+                                                            @PathVariable Long topicId) {
+
+        try {
+            topicService.findById(topicId, projectId).orElseThrow(Exception::new);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+
+
+        return ResponseEntity.ok(messageService.findAll(topicId,page,size).stream()
+                .map(message -> modelMapper.map(message, MessageDTO.class))
+                .collect(Collectors.toList()));
+
+    }
+
+    @GetMapping("{projectId}/topics/{topicId}/messages/{messageId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageDTO> readMessage(ModelMapper modelMapper, @PathVariable Long messageId,
+                                                  @PathVariable Long projectId, @PathVariable Long topicId) {
+        try {
+            topicService.findById(topicId, projectId).orElseThrow(Exception::new);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return messageService.findById(messageId,topicId)
+                .map(message -> modelMapper.map(message, MessageDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("{projectId}/topics/{topicId}/messages")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageDTO> createMessage(ModelMapper modelMapper, @RequestBody MessageDTO dto,
+                                                    @PathVariable Long projectId, @PathVariable Long topicId) {
+        try {
+            topicService.findById(topicId, projectId).orElseThrow(Exception::new);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (dto.getTopicId() == null) {
+            dto.setTopicId(topicId);
+        }
+        else if (!dto.getTopicId().equals(topicId)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return messageService.save(modelMapper.map(dto, Message.class))
+                .map(savedObject -> ResponseEntity
+                        .created(URI.create("/projects/%d/topics/%d/messages/%d".formatted(projectId,topicId,savedObject.getId())))
+                        .body(modelMapper.map(savedObject, MessageDTO.class))).orElse(ResponseEntity.badRequest().build());
+    }
+
+    // Can edit just the text of the message
+
+    @PutMapping("{projectId}/topics/{topicId}/messages/{messageId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageDTO> updateMessage(ModelMapper modelMapper,  @PathVariable Long messageId,
+                                                    @RequestBody MessageDTO dto,
+                                                    @PathVariable Long projectId, @PathVariable Long topicId) {
+        try {
+            topicService.findById(topicId, projectId).orElseThrow(Exception::new);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (dto.getTopicId() == null || !dto.getTopicId().equals(topicId)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return messageService.update(messageId, modelMapper.map(dto,Message.class),projectId,topicId)
+                .map(updated -> modelMapper.map(updated, MessageDTO.class))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("{projectId}/topics/{topicId}/messages/{messageId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> deleteMessage(@PathVariable Long messageId,
+                                                 @PathVariable Long projectId, @PathVariable Long topicId) {
+        try {
+            topicService.findById(topicId, projectId).orElseThrow(Exception::new);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+        Message toDelete = messageService.findById(messageId, topicId).orElse(null);
+
+        if (toDelete == null) {
+            ResponseEntity.notFound().build();
+        }
+        try {
+            messageService.delete(toDelete, projectId, topicId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 }
