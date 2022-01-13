@@ -6,7 +6,6 @@ import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemType;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
-import it.unical.unijira.utils.ItemUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

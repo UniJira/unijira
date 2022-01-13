@@ -44,6 +44,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
                     updatedItem.setSummary(pbi.getSummary());
                     updatedItem.setType(pbi.getType());
                     updatedItem.setStatus(pbi.getStatus());
+                    updatedItem.setRelease(pbi.getRelease());
                     
                     pbi.setMeasureUnit(pbi.getMeasureUnit());
                 })
