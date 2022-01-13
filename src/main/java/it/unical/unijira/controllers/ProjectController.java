@@ -30,7 +30,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -1106,7 +1105,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
             return ResponseEntity.badRequest().build();
 
-        if(LocalDate.parse(releaseDTO.getStartDate()).isAfter(LocalDate.parse(releaseDTO.getEndDate())))
+        if(releaseDTO.getStartDate().isAfter(releaseDTO.getEndDate()))
             return ResponseEntity.badRequest().build();
 
         if(releaseDTO.getStatus() == null)
@@ -1134,7 +1133,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
             return ResponseEntity.badRequest().build();
 
-        if(LocalDate.parse(releaseDTO.getStartDate()).isAfter(LocalDate.parse(releaseDTO.getEndDate())))
+        if(releaseDTO.getStartDate().isAfter((releaseDTO.getEndDate())))
             return ResponseEntity.badRequest().build();
 
         if(releaseDTO.getStatus() == null)

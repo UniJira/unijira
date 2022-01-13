@@ -3,6 +3,8 @@ package it.unical.unijira.data.dto.projects;
 import it.unical.unijira.data.models.projects.releases.ReleaseStatus;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Builder
 @Getter
 @Setter
@@ -16,8 +18,8 @@ public class ReleaseDTO {
     private String description;
     private ReleaseStatus status;
     private Long projectId;
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String createdAt;
     private String updatedAt;
 
