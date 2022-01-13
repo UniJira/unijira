@@ -3,6 +3,7 @@ package it.unical.unijira.services.discussionboard;
 
 import it.unical.unijira.data.models.discussionboard.Message;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,5 @@ public interface MessageService {
     Optional<Message> findById(Long id, Long topicId);
     List<Message> findAll(Long topicId, int page, int size);
 
+    Integer countByTopic(Long topicId);
 }

@@ -15,9 +15,10 @@ import java.util.List;
 public class TopicDTO extends AbstractBaseDTO {
 
     private Long id;
-    private String summary;
+    private String title;
+    private String content;
     private Long projectId;
     private Long userId;
-    private List<MessageDTO> messages;
+    //private List<MessageDTO> messages;
 
 }

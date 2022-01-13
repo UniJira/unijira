@@ -6,6 +6,7 @@ import it.unical.unijira.services.discussionboard.MessageService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,5 +40,10 @@ public record MessageServiceImpl (MessageRepository messageRepository)
     @Override
     public List<Message> findAll(Long topicId, int page, int size) {
         return messageRepository.findAllByTopic(topicId, PageRequest.of(page,size));
+    }
+
+    @Override
+    public Integer countByTopic(Long topicId) {
+        return messageRepository.countByTopic(topicId);
     }
 }
