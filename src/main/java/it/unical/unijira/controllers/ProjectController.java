@@ -7,9 +7,11 @@ import it.unical.unijira.data.dto.discussionboard.MessageDTO;
 import it.unical.unijira.data.dto.discussionboard.TopicDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
+import it.unical.unijira.data.dto.user.RoadmapTreeDTO;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.discussionboard.Message;
 import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -20,6 +22,7 @@ import it.unical.unijira.services.discussionboard.MessageService;
 import it.unical.unijira.services.discussionboard.TopicService;
 import it.unical.unijira.services.projects.ReleaseService;
 import it.unical.unijira.utils.ControllerUtilities;
+import it.unical.unijira.utils.ItemUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -795,6 +798,39 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/tree")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<RoadmapTreeDTO[]> getRoadmapTreeById(ModelMapper modelMapper,
+                                                               @PathVariable Long project,
+                                                               @PathVariable Long backlog,
+                                                               @PathVariable Long roadmap){
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
+        ProductBacklog backlogObj = backlogOpt.orElse(null);
+        Optional<Roadmap> optional = roadmapService.findById(roadmap);
+        Roadmap roadmapObj = optional.orElse(null);
+
+        if (!ControllerUtilities.checkRoadmapCoherence(projectObj,backlogObj,roadmapObj))
+            return ResponseEntity.notFound().build();
+
+        List<Item> items = itemService.finAllByRoadmapNoFather(roadmapObj,0,100000);
+        RoadmapTreeDTO[] tree = new RoadmapTreeDTO[items.size()];
+        var i=0;
+        for (Item item : items) {
+            tree[i] = ItemUtils.manageTree(item,roadmapObj,roadmapInsertionService, modelMapper);
+            i++;
+        }
+
+
+        if (tree.length > 0) {
+            return ResponseEntity.ok(tree);
+        }
+        return ResponseEntity.notFound().build();
+
+    }
+
 
     @DeleteMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}")
     @PreAuthorize("isAuthenticated()")
