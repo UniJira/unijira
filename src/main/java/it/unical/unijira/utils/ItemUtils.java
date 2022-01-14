@@ -47,7 +47,7 @@ public class ItemUtils {
         List <RoadmapInsertion> insertionList = roadmapInsertionService.findByItemAndRoadmap(first, roadmap);
         if (insertionList.size() > 0) {
             RoadmapInsertion currentInsertion = insertionList.get(0);
-            toSend.setParent(modelMapper.map(currentInsertion, RoadmapInsertionDTO.class));
+            toSend.setContent(modelMapper.map(currentInsertion, RoadmapInsertionDTO.class));
             List<RoadmapTreeDTO> nextLevel = new ArrayList<>();
             for (Item son : first.getSons()){
                 nextLevel.add(manageTree(son,roadmap,roadmapInsertionService,modelMapper));
