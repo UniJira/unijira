@@ -12,6 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 public class RoadmapTreeDTO {
 
-    private RoadmapInsertionDTO parent;
+    private RoadmapInsertionDTO content;
     private List<RoadmapTreeDTO> children;
 }
