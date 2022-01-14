@@ -31,6 +31,9 @@ public class Topic extends AbstractBaseEntity {
     @Basic(optional = false)
     private String content;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private TopicType type = TopicType.GENERAL;
 
     @ManyToOne
     @JoinColumn

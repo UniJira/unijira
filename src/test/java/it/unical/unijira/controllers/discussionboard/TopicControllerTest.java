@@ -4,6 +4,7 @@ import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.discussionboard.Message;
 import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.discussionboard.TopicType;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -90,6 +91,7 @@ public class TopicControllerTest extends UniJiraTest {
         this.topicJsonForTests =  "{\n" +
                 "                         \t\"title\" : \"SUMMARY\",\n" +
                 "                         \t\"content\" : \"CONTENT\",\n" +
+                "                         \t\"type\" : \"GENERAL\",\n" +
                 "                         \t\"projectId\" : \""+projectForTests.getId()+"\",\n" +
                 "                         \t\"userId\" : \"" + this.userForTests.getId() + "\"\n" +
                 "                         \t}\n" +
@@ -99,19 +101,22 @@ public class TopicControllerTest extends UniJiraTest {
                 .user(userForTests)
                 .project(projectForTests)
                 .title("This is a wonderful topic to discuss about")
-                .content("asdasdasd").build();
+                .content("asdasdasd")
+                .type(TopicType.GENERAL).build();
         this.topicForTests = this.topicService.save(forTests).orElse(null);
 
         Topic toDelete = Topic.builder()
                 .user(userForTests)
                 .project(projectForTests)
                 .title("This is a bad topic and need to be deleted")
-                .content("qweqweqwer").build();
+                .content("qweqweqwer")
+                .type(TopicType.GENERAL).build();
 
         this.toDeleteForTests = this.topicService.save(toDelete).orElse(null);
 
         this.topicJsonForTestsUpdated =  "{\"id\" : \""+this.topicForTests.getId()+"\",\n" +
                 "                         \t\"title\" : \"SUMMARY UPDATED\",\n" +
+                "                         \t\"type\" : \"IDEAS\",\n" +
                 "                         \t\"content\" : \"CONTENT UPDATED\",\n" +
                 "                         \t\"projectId\" : \""+projectForTests.getId()+"\",\n" +
                 "                         \t\"userId\" : \"" + this.userForTests.getId() + "\"\n" +
