@@ -2,9 +2,7 @@ package it.unical.unijira.data.models.items;
 
 import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,6 +11,9 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemAssignment extends AbstractBaseEntity {
 
     @Id
