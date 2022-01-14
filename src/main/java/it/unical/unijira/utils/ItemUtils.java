@@ -6,7 +6,6 @@ import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.RoadmapInsertion;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemType;
-import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.RoadmapInsertionService;
 import org.modelmapper.ModelMapper;
 
@@ -23,7 +22,7 @@ public class ItemUtils {
 
 
     // key is father, values are available sons
-    private static HashMap<ItemType, List<ItemType>> validAssignments;
+    private static final HashMap<ItemType, List<ItemType>> validAssignments;
 
     static {
         validAssignments = new HashMap<>();
