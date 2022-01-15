@@ -3,6 +3,7 @@ package it.unical.unijira.controllers.items;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.items.ItemAssignmentDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
+import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.services.common.ItemAssignmentService;
@@ -66,7 +67,18 @@ public class ItemController implements CrudController<ItemDTO, Long> {
             return ResponseEntity.badRequest().build();
 
 
-        return pbiService.save(modelMapper.map(itemDto, Item.class))
+         Item toSave = modelMapper.map(itemDto, Item.class);
+        if (toSave.getFather() == null && itemDto.getFatherId() != null) {
+            try {
+                toSave.setFather(pbiService.findById(itemDto.getFatherId()).orElse(null));
+            }
+            catch (NonValidItemTypeException e ) {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+
+        return pbiService.save(toSave)
                 .map(createdDTO -> ResponseEntity
                         .created(URI.create("/items/%d".formatted(createdDTO.getId())))
                         .body(modelMapper.map(createdDTO, ItemDTO.class)))
