@@ -2,9 +2,9 @@ package it.unical.unijira.data.dto.discussionboard;
 
 import it.unical.unijira.data.dto.AbstractBaseDTO;
 
+import it.unical.unijira.data.models.discussionboard.TopicType;
 import lombok.*;
 
-import java.util.List;
 
 @Builder
 @Getter
@@ -19,6 +19,7 @@ public class TopicDTO extends AbstractBaseDTO {
     private String content;
     private Long projectId;
     private Long userId;
+    private TopicType type;
     //private List<MessageDTO> messages;
 
 }

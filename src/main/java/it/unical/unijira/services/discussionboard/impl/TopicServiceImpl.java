@@ -27,6 +27,7 @@ public record TopicServiceImpl(TopicRepository topicRepository, MessageRepositor
                 .peek(updated -> {
                     updated.setTitle(topic.getTitle());
                     updated.setContent(topic.getContent());
+                    updated.setType(topic.getType());
                 }).findFirst().map(topicRepository::saveAndFlush);
     }
 
