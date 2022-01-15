@@ -328,6 +328,23 @@ public class ProjectControllerTest extends UniJiraTest {
                         .orElseThrow()
         );
 
+        mockMvc.perform(delete("/projects/" + this.dummyProject.getId() + "/defofdone/" + created1.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+
+                )
+                .andExpect(status().isNoContent())
+                .andDo(print());
+
+        result = mockMvc.perform(get("/projects/" + this.dummyProject.getId() + "/defofdone/")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString();
+
+        resultList = mapper.readValue(result, new TypeReference<>() {});
+        Assertions.assertEquals(1, resultList.size());
 
     }
 }
