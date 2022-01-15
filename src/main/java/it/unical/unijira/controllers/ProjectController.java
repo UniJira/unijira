@@ -6,10 +6,12 @@ import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.dto.discussionboard.MessageDTO;
 import it.unical.unijira.data.dto.discussionboard.TopicDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
+import it.unical.unijira.data.dto.projects.DefinitionOfDoneEntryDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.discussionboard.Message;
 import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.projects.DefinitionOfDoneEntry;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -18,6 +20,7 @@ import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.services.discussionboard.MessageService;
 import it.unical.unijira.services.discussionboard.TopicService;
+import it.unical.unijira.services.projects.DefinitionOfDoneEntryService;
 import it.unical.unijira.services.projects.ReleaseService;
 import it.unical.unijira.utils.ControllerUtilities;
 import org.modelmapper.ModelMapper;
@@ -53,6 +56,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final PasswordEncoder passwordEncoder;
     private final MessageService messageService;
     private final TopicService topicService;
+    private final DefinitionOfDoneEntryService definitionOfDoneEntryService;
 
     @Autowired
     public ProjectController(UserService userService,
@@ -68,7 +72,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              ReleaseService releaseService,
                              PasswordEncoder passwordEncoder,
                              TopicService topicService,
-                             MessageService messageService) {
+                             MessageService messageService,
+                             DefinitionOfDoneEntryService definitionOfDoneEntryService) {
 
         this.userService = userService;
         this.projectService = projectService;
@@ -84,6 +89,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.passwordEncoder = passwordEncoder;
         this.messageService = messageService;
         this.topicService = topicService;
+        this.definitionOfDoneEntryService = definitionOfDoneEntryService;
 
     }
 
@@ -1350,7 +1356,86 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     }
 
+    @GetMapping("{projectId}/defofdone")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<DefinitionOfDoneEntryDTO>> readProjectDefinitionOfDone(ModelMapper modelMapper,
+                                                                                      @RequestParam (required = false, defaultValue = "0") Integer page,
+                                                                                      @RequestParam (required = false, defaultValue = "10000") Integer size,
+                                                                                      @PathVariable Long projectId) {
+        return ResponseEntity.ok(definitionOfDoneEntryService
+                .findAllByProjectId(projectId, page, size)
+                .stream()
+                .map(entry -> modelMapper.map(entry, DefinitionOfDoneEntryDTO.class))
+                .collect(Collectors.toList()));
+    }
 
+    @GetMapping("{projectId}/defofdone/{entryId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<DefinitionOfDoneEntryDTO> readProjectDefinitionOfDoneEntry(ModelMapper modelMapper,
+                                                                                           @PathVariable Long projectId,
+                                                                                           @PathVariable Long entryId) {
+        return definitionOfDoneEntryService.findById(entryId).stream()
+                .filter(found -> found.getProject().getId().equals(projectId))
+                .map(found -> modelMapper.map(found, DefinitionOfDoneEntryDTO.class))
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
+    @PostMapping("/{projectId}/defofdone")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<DefinitionOfDoneEntryDTO> createDefinitionOfDoneEntry(ModelMapper modelMapper, @PathVariable Long projectId, @RequestBody DefinitionOfDoneEntryDTO definitionOfDoneEntryDTO) {
+
+        if(definitionOfDoneEntryDTO.getId() != null)
+            return ResponseEntity.badRequest().build();
+
+        if(!StringUtils.hasText(definitionOfDoneEntryDTO.getDescription()))
+            return ResponseEntity.badRequest().build();
+
+        definitionOfDoneEntryDTO.setProjectId(projectId);
+
+        return definitionOfDoneEntryService.create(modelMapper.map(definitionOfDoneEntryDTO, DefinitionOfDoneEntry.class))
+                .map(found -> modelMapper.map(found, DefinitionOfDoneEntryDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+
+    }
+
+    @PutMapping("/{projectId}/defofdone/{entryId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<DefinitionOfDoneEntryDTO> updateDefinitionOfDoneEntry(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long entryId, @RequestBody DefinitionOfDoneEntryDTO definitionOfDoneEntryDTO) {
+
+        if(definitionOfDoneEntryDTO.getId() == null)
+            return ResponseEntity.badRequest().build();
+
+        if(!StringUtils.hasText(definitionOfDoneEntryDTO.getDescription()))
+            return ResponseEntity.badRequest().build();
+
+        if(definitionOfDoneEntryDTO.getPriority() == null || definitionOfDoneEntryDTO.getPriority() <= 0)
+            return ResponseEntity.badRequest().build();
+
+        if(definitionOfDoneEntryDTO.getProjectId() == null)
+            return ResponseEntity.badRequest().build();
+
+        if(!definitionOfDoneEntryDTO.getProjectId().equals(projectId))
+            return ResponseEntity.badRequest().build();
+
+        return definitionOfDoneEntryService.update(entryId, modelMapper.map(definitionOfDoneEntryDTO, DefinitionOfDoneEntry.class))
+                .map(found -> modelMapper.map(found, DefinitionOfDoneEntryDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+
+    }
+
+    @DeleteMapping("/{projectId}/defofdone/{entryId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> deleteDefinitionOfDoneEntry(@PathVariable Long projectId, @PathVariable Long entryId) {
+        return definitionOfDoneEntryService.findById(entryId).stream()
+                .filter(found -> found.getProject().getId().equals(projectId))
+                .peek(definitionOfDoneEntryService::delete)
+                .findFirst()
+                .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
 

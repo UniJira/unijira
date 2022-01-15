@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Builder
 @Getter @Setter @ToString
 @NoArgsConstructor @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class DefinitionOfDoneEntry extends AbstractBaseEntity {
 
     @Id
