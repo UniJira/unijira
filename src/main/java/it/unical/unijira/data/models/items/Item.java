@@ -116,6 +116,10 @@ public class Item extends AbstractBaseEntity {
     @ToString.Exclude
     private List<Item> sons;
 
+    @OneToMany(mappedBy = "id.item")
+    @Getter
+    @ToString.Exclude
+    private List<ItemDefinitionOfDone> definitionOfDone;
 
     @ManyToOne
     @JoinColumn

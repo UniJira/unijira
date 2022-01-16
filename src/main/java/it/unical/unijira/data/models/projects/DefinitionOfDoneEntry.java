@@ -1,9 +1,11 @@
 package it.unical.unijira.data.models.projects;
 
 import it.unical.unijira.data.models.AbstractBaseEntity;
+import it.unical.unijira.data.models.items.ItemDefinitionOfDone;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table
@@ -28,4 +30,8 @@ public class DefinitionOfDoneEntry extends AbstractBaseEntity {
     @ManyToOne
     @JoinColumn
     private Project project;
+
+    @OneToMany(mappedBy = "id.definitionOfDoneEntry", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<ItemDefinitionOfDone> items;
 }
