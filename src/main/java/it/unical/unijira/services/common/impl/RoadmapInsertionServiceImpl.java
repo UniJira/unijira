@@ -3,10 +3,12 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.RoadmapInsertionRepository;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.RoadmapInsertion;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.services.common.RoadmapInsertionService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,5 +52,13 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
     @Override
     public List<RoadmapInsertion> findAllByRoadmap(Roadmap roadmap, int page, int size) {
         return roadmapInsertionRepository.findAllByRoadmap(roadmap, PageRequest.of(page, size));
+    }
+
+    @Override
+    public List<RoadmapInsertion> findByItemAndRoadmap(Item item, Roadmap roadmap) {
+        if (item != null && roadmap != null ) {
+            return roadmapInsertionRepository.findByItemAndRoadmap(item, roadmap);
+        }
+        return Collections.emptyList();
     }
 }
