@@ -4,6 +4,7 @@ import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.services.common.ProductBacklogInsertionService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +21,21 @@ public record ProductBacklogInsertionServiceImpl (ProductBacklogInsertionReposit
 
     @Override
     public Optional<ProductBacklogInsertion> update(Long id, ProductBacklogInsertion backlogIns) {
-        return backlogInsertionRepository.findById(id)
-                .stream()
-                .peek(updatedItem -> {
-                    updatedItem.setBacklog(backlogIns.getBacklog());
-                    updatedItem.setPriority(backlogIns.getPriority());
-                })
-                .findFirst()
-                .map(backlogInsertionRepository::saveAndFlush);
+        try {
+            return backlogInsertionRepository.findById(id)
+                    .stream()
+                    .peek(updatedItem -> {
+                        if(!updatedItem.getBacklog().getProject().getId().equals(backlogIns.getBacklog().getProject().getId()))
+                            throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+
+                        updatedItem.setBacklog(backlogIns.getBacklog());
+                        updatedItem.setPriority(backlogIns.getPriority());
+                    })
+                    .findFirst()
+                    .map(backlogInsertionRepository::saveAndFlush);
+        } catch (DataIntegrityViolationException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

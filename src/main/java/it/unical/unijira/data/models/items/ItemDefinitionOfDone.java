@@ -18,5 +18,5 @@ import javax.persistence.Table;
 @EqualsAndHashCode(callSuper = true)
 public class ItemDefinitionOfDone extends AbstractBaseEntity {
     @EmbeddedId
-    private ItemDefinitionOfDoneKey id;
+    private ItemDefinitionOfDoneKey key;
 }

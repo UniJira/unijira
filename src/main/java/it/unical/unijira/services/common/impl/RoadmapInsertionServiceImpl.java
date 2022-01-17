@@ -1,10 +1,12 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.RoadmapInsertionRepository;
+import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.RoadmapInsertion;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.services.common.RoadmapInsertionService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -17,21 +19,42 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
         implements RoadmapInsertionService {
     @Override
     public Optional<RoadmapInsertion> save(RoadmapInsertion roadmapInsertion) {
-        return Optional.of(roadmapInsertionRepository.save(roadmapInsertion));
+        ProductBacklogInsertion productBacklogInsertion = roadmapInsertion.getItem().getProductBacklogInsertion();
+
+        if(productBacklogInsertion == null || !productBacklogInsertion.getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
+            return Optional.empty();
+
+        return Optional.of(roadmapInsertionRepository.saveAndFlush(roadmapInsertion));
     }
 
     @Override
     public Optional<RoadmapInsertion> update(Long id, RoadmapInsertion roadmapInsertion) {
-        return roadmapInsertionRepository.findById(id)
-                .stream()
-                .peek(updatedItem -> {
-                    updatedItem.setStartingDate(roadmapInsertion.getStartingDate());
-                    updatedItem.setEndingDate((roadmapInsertion.getEndingDate()));
-                    updatedItem.setRoadmap(roadmapInsertion.getRoadmap());
-                    updatedItem.setItem(roadmapInsertion.getItem());
-                })
-                .findFirst()
-                .map(roadmapInsertionRepository::saveAndFlush);
+        try {
+            return roadmapInsertionRepository.findById(id)
+                    .stream()
+                    .peek(updatedItem -> {
+                        updatedItem.setStartingDate(roadmapInsertion.getStartingDate());
+                        updatedItem.setEndingDate((roadmapInsertion.getEndingDate()));
+
+                        if (updatedItem.getItem().getId().equals(roadmapInsertion.getItem().getId())) {
+                            if (!updatedItem.getRoadmap().getBacklog().getId()
+                                    .equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        } else {
+                            updatedItem.setItem(roadmapInsertion.getItem());
+
+                            ProductBacklogInsertion productBacklogInsertion = roadmapInsertion.getItem().getProductBacklogInsertion();
+                            if(productBacklogInsertion == null || !productBacklogInsertion.getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        }
+
+                        updatedItem.setRoadmap(roadmapInsertion.getRoadmap());
+                    })
+                    .findFirst()
+                    .map(roadmapInsertionRepository::saveAndFlush);
+        } catch (DataIntegrityViolationException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

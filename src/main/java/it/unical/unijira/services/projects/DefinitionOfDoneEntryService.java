@@ -14,4 +14,6 @@ public interface DefinitionOfDoneEntryService {
     Optional<DefinitionOfDoneEntry> update(Long id, DefinitionOfDoneEntry definitionOfDone);
     void delete(DefinitionOfDoneEntry definitionOfDone);
 
+    List<DefinitionOfDoneEntry> findAllByItemId(Long itemId, int page, int size);
+
 }

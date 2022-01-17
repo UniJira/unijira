@@ -17,4 +17,6 @@ public interface RoadmapInsertionRepository extends JpaRepository<RoadmapInserti
 
     @Query(value = "FROM RoadmapInsertion ri where ri.item = :item and ri.roadmap = :roadmap")
     List<RoadmapInsertion> findByItemAndRoadmap(Item item, Roadmap roadmap);
+
+    List<RoadmapInsertion> findAllByItemId(Long id);
 }

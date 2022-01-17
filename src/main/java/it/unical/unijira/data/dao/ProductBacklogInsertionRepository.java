@@ -13,4 +13,6 @@ import java.util.List;
 public interface ProductBacklogInsertionRepository extends JpaRepository<ProductBacklogInsertion, Long> {
     @Query(value = "FROM ProductBacklogInsertion pbi where pbi.backlog = :backlog")
     List<ProductBacklogInsertion> findAllByBacklog(ProductBacklog backlog, Pageable pageable);
+
+    List<ProductBacklogInsertion> findAllByItemId(Long id);
 }

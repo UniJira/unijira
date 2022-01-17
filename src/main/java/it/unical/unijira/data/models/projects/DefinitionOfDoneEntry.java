@@ -31,7 +31,7 @@ public class DefinitionOfDoneEntry extends AbstractBaseEntity {
     @JoinColumn
     private Project project;
 
-    @OneToMany(mappedBy = "id.definitionOfDoneEntry", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "key.definitionOfDoneEntry", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<ItemDefinitionOfDone> items;
 }
