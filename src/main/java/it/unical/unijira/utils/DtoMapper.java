@@ -5,6 +5,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
+import org.modelmapper.module.jdk8.Jdk8Module;
+import org.modelmapper.module.jsr310.Jsr310Module;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -32,6 +34,8 @@ public class DtoMapper extends ModelMapper {
         this.getConfiguration().setSourceNameTokenizer(NameTokenizers.CAMEL_CASE);
         this.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
 
+        this.registerModule(new Jsr310Module());
+        this.registerModule(new Jdk8Module());
     }
 
 
