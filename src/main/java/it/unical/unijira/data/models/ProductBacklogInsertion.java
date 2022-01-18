@@ -1,15 +1,16 @@
 package it.unical.unijira.data.models;
 
 import it.unical.unijira.data.models.items.Item;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ProductBacklogInsertion extends AbstractBaseEntity{
 
     @Id
