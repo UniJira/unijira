@@ -3,7 +3,6 @@ package it.unical.unijira.data.models.items;
 import it.unical.unijira.data.models.projects.DefinitionOfDoneEntry;
 import lombok.*;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;

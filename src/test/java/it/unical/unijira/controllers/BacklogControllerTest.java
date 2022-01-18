@@ -6,7 +6,6 @@ import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemType;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
-import it.unical.unijira.utils.ItemUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -110,15 +109,11 @@ public class BacklogControllerTest extends UniJiraTest {
         }
 
         if (this.projectJsonForTests == null && projectForTests!=null && projectForTests.getId()!= null ) {
-            Project p = projectService.findById(projectForTests.getId()).orElse(null);
-            if (p != null) {
-                this.projectJsonForTests =
-                        "{ \"project\":{ \"id\" : \""+p.getId()+"\"," +
-                                "\"name\": \""+ p.getName()+ "\"," +
-                                "\"key\": \""+ p.getKey()+ "\"," +
-                                "\"ownerId\": \""+ p.getOwner().getId()+ "\"} }";
-
-            }
+            projectService.findById(projectForTests.getId()).ifPresent(p -> this.projectJsonForTests =
+                    "{ \"project\":{ \"id\" : \"" + p.getId() + "\"," +
+                            "\"name\": \"" + p.getName() + "\"," +
+                            "\"key\": \"" + p.getKey() + "\"," +
+                            "\"ownerId\": \"" + p.getOwner().getId() + "\"} }");
         }
 
         this.setupBacklog();
