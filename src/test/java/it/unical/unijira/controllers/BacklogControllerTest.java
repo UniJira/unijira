@@ -267,6 +267,7 @@ public class BacklogControllerTest extends UniJiraTest {
         insertion.setRoadmap(this.roadmapForTests);
         insertion.setStartingDate(LocalDate.of(2022,1,1));
         insertion.setEndingDate(LocalDate.of(2022,12,31));
+        insertion.setItem(this.itemForTests);
 
         this.roadmapInsertionForTests = roadmapInsertionService.save(insertion).orElse(null);
     }

@@ -2,7 +2,6 @@ package it.unical.unijira.data.models.items;
 
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.AbstractBaseEntity;
-import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.utils.Errors;
@@ -126,11 +125,6 @@ public class Item extends AbstractBaseEntity {
     @JoinColumn
     @Getter @Setter
     private Release release;
-
-    @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
-    @Getter
-    @ToString.Exclude
-    private ProductBacklogInsertion productBacklogInsertion;
 
 
     public void setFather(Item father) throws NonValidItemTypeException{

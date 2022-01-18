@@ -27,19 +27,21 @@ public class ItemController implements CrudController<ItemDTO, Long> {
     private final ItemService pbiService;
     private final NoteService noteService;
     private final ItemAssignmentService itemAssignmentService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public ItemController(ItemService pbiService, NoteService noteService, ItemAssignmentService itemAssignmentService) {
+    public ItemController(ItemService pbiService, NoteService noteService, ItemAssignmentService itemAssignmentService, ModelMapper modelMapper) {
         this.pbiService = pbiService;
         this.noteService = noteService;
         this.itemAssignmentService = itemAssignmentService;
+        this.modelMapper = modelMapper;
     }
 
 
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
+    public ResponseEntity<List<ItemDTO>> readAll(Integer page, Integer size) {
         return ResponseEntity.ok(pbiService.findAll().stream()
                         .map(item -> modelMapper.map(item, ItemDTO.class))
                                 .collect(Collectors.toList()));
@@ -47,7 +49,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ItemDTO> read(ModelMapper modelMapper, Long id) {
+    public ResponseEntity<ItemDTO> read(Long id) {
         return pbiService.findById(id)
                 .stream()
                 .map(item -> modelMapper.map(item, ItemDTO.class))
@@ -58,7 +60,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ItemDTO> create(ModelMapper modelMapper, ItemDTO itemDto) {
+    public ResponseEntity<ItemDTO> create(ItemDTO itemDto) {
 
         if(!StringUtils.hasText(itemDto.getSummary()))
             return ResponseEntity.badRequest().build();
@@ -87,7 +89,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ItemDTO> update(ModelMapper modelMapper, Long id, ItemDTO dto) {
+    public ResponseEntity<ItemDTO> update(Long id, ItemDTO dto) {
         return pbiService.update(id, modelMapper.map(dto, Item.class))
                 .map(newDto -> modelMapper.map(newDto, ItemDTO.class))
                 .map(ResponseEntity::ok)
@@ -109,7 +111,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @GetMapping("by-user/{user}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsByUser(ModelMapper modelMapper, @PathVariable Long user, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ItemDTO>> itemsByUser(@PathVariable Long user, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
         return ResponseEntity.ok(pbiService.findAllByUser(user, page, size).stream()
                 .map(item -> modelMapper.map(item, ItemDTO.class))
                 .collect(Collectors.toList()));
@@ -118,7 +120,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @GetMapping("by-father/{father}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsByFather(ModelMapper modelMapper, @PathVariable Long father, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ItemDTO>> itemsByFather(@PathVariable Long father, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
         return ResponseEntity.ok(pbiService.findAllByFather(father, page, size).stream()
                 .map(item -> modelMapper.map(item, ItemDTO.class))
                 .collect(Collectors.toList()));
@@ -127,7 +129,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @GetMapping("{itemId}/assignments")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemAssignmentDTO>> readAllAssignments(ModelMapper modelMapper,
+    public ResponseEntity<List<ItemAssignmentDTO>> readAllAssignments(
                                                   @RequestParam (required = false, defaultValue = "0") Integer page,
                                                   @RequestParam (required = false, defaultValue = "10000") Integer size,
                                                   @PathVariable Long itemId) {
@@ -145,7 +147,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @GetMapping("{itemId}/assignments/{assignmentId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ItemAssignmentDTO> readAssignment(ModelMapper modelMapper, @PathVariable Long itemId,
+    public ResponseEntity<ItemAssignmentDTO> readAssignment(@PathVariable Long itemId,
                                          @PathVariable Long assignmentId) {
 
 
@@ -156,7 +158,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
     }
 
     @PostMapping("{itemId}/assignments")
-    public ResponseEntity<ItemAssignmentDTO> createAssignment(ModelMapper modelMapper, @RequestBody ItemAssignmentDTO dto,
+    public ResponseEntity<ItemAssignmentDTO> createAssignment(@RequestBody ItemAssignmentDTO dto,
                                            @PathVariable Long itemId) {
         if (dto.getItemId() == null) {
             dto.setItemId(itemId);
@@ -174,7 +176,7 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     @PutMapping("{itemId}/assignments/{assignmentId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ItemAssignmentDTO> updateAssignment(ModelMapper modelMapper, @RequestBody ItemAssignmentDTO dto,
+    public ResponseEntity<ItemAssignmentDTO> updateAssignment(@RequestBody ItemAssignmentDTO dto,
                                            @PathVariable Long itemId,
                                            @PathVariable Long assignmentId) {
 
@@ -205,23 +207,23 @@ public class ItemController implements CrudController<ItemDTO, Long> {
 
     /* TODO Notes management
     @PostMapping("{item}/notes")
-    public ResponseEntity<ProductBacklogItemDTO> addNote(ModelMapper modelMapper, @PathVariable Long item, @RequestBody NoteDTO note) {
+    public ResponseEntity<ProductBacklogItemDTO> addNote(@PathVariable Long item, @RequestBody NoteDTO note) {
 
     }
 
 
     @GetMapping("{item}/notes")
-    public ResponseEntity<List<ProductBacklogItemDTO>> getNotes(ModelMapper modelMapper, Long item, Integer page, Integer size) {
+    public ResponseEntity<List<ProductBacklogItemDTO>> getNotes(Long item, Integer page, Integer size) {
 
     }
 
      @PutMapping("{item}/notes/{note}")
-     public ResponseEntity<ProductBacklogItemDTO> getNoteById(ModelMapper modelMapper, @PathVariable Long item, @PathVariable Long note) {
+     public ResponseEntity<ProductBacklogItemDTO> getNoteById(@PathVariable Long item, @PathVariable Long note) {
 
      }
 
     @PutMapping("{item}/notes/{note}")
-    public ResponseEntity<ProductBacklogItemDTO> updateNote(ModelMapper modelMapper, @RequestBody NoteDTO note) {
+    public ResponseEntity<ProductBacklogItemDTO> updateNote(@RequestBody NoteDTO note) {
 
     }
 

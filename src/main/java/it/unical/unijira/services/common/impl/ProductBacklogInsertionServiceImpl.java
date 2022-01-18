@@ -16,6 +16,12 @@ public record ProductBacklogInsertionServiceImpl (ProductBacklogInsertionReposit
         implements ProductBacklogInsertionService {
     @Override
     public Optional<ProductBacklogInsertion> save(ProductBacklogInsertion backlogIns) {
+        if(backlogIns.getBacklog() == null ||
+                backlogIns.getItem() == null) {
+
+            return Optional.empty();
+        }
+
         return Optional.of(backlogInsertionRepository.saveAndFlush(backlogIns));
     }
 
@@ -25,10 +31,13 @@ public record ProductBacklogInsertionServiceImpl (ProductBacklogInsertionReposit
             return backlogInsertionRepository.findById(id)
                     .stream()
                     .peek(updatedItem -> {
-                        if(!updatedItem.getBacklog().getProject().getId().equals(backlogIns.getBacklog().getProject().getId()))
-                            throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        if(backlogIns.getBacklog() != null) {
+                            if (backlogIns.getBacklog().getProject() == null || !updatedItem.getBacklog().getProject().getId().equals(backlogIns.getBacklog().getProject().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
 
-                        updatedItem.setBacklog(backlogIns.getBacklog());
+                            updatedItem.setBacklog(backlogIns.getBacklog());
+                        }
+
                         updatedItem.setPriority(backlogIns.getPriority());
                     })
                     .findFirst()

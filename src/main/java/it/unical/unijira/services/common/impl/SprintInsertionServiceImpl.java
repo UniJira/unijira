@@ -5,6 +5,7 @@ import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.SprintInsertion;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.services.common.SprintInsertionService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
@@ -20,9 +21,16 @@ public record SprintInsertionServiceImpl(SprintInsertionRepository sprintInserti
 
     @Override
     public Optional<SprintInsertion> save(SprintInsertion sprintInsertion) {
-        ProductBacklogInsertion productBacklogInsertion = sprintInsertion.getItem().getProductBacklogInsertion();
+        if (sprintInsertion.getSprint() == null ||
+                sprintInsertion.getSprint().getBacklog() == null ||
+                sprintInsertion.getItem() == null) {
 
-        if(productBacklogInsertion == null || !productBacklogInsertion.getBacklog().getId().equals(sprintInsertion.getSprint().getBacklog().getId()))
+            return Optional.empty();
+        }
+
+        Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(sprintInsertion.getItem().getId());
+
+        if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(sprintInsertion.getSprint().getBacklog().getId()))
             return Optional.empty();
 
         return Optional.of(sprintInsertionRepository.saveAndFlush(sprintInsertion));
@@ -34,18 +42,27 @@ public record SprintInsertionServiceImpl(SprintInsertionRepository sprintInserti
             return sprintInsertionRepository.findById(id)
                     .stream()
                     .peek(updatedItem -> {
-                        if (updatedItem.getItem().getId().equals(sprintInsertion.getItem().getId())) {
-                            if (!updatedItem.getSprint().getBacklog().getId()
-                                    .equals(sprintInsertion.getSprint().getBacklog().getId()))
-                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
-                        } else {
+                        Item oldItem = updatedItem.getItem();
+                        Sprint oldSprint = updatedItem.getSprint();
+
+                        if(sprintInsertion.getItem() != null)
                             updatedItem.setItem(sprintInsertion.getItem());
 
-                            ProductBacklogInsertion productBacklogInsertion = sprintInsertion.getItem().getProductBacklogInsertion();
-                            if(productBacklogInsertion == null || !productBacklogInsertion.getBacklog().getId().equals(sprintInsertion.getSprint().getBacklog().getId()))
+                        if(sprintInsertion.getSprint() != null) {
+                            if(sprintInsertion.getSprint().getBacklog() == null)
+                                throw new DataIntegrityViolationException("Format not allowed");
+
+                            updatedItem.setSprint(sprintInsertion.getSprint());
+                        }
+
+                        if (oldItem.getId().equals(updatedItem.getItem().getId())) {
+                            if (!oldSprint.getBacklog().getId().equals(updatedItem.getSprint().getBacklog().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        } else {
+                            Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(updatedItem.getItem().getId());
+                            if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(updatedItem.getSprint().getBacklog().getId()))
                                 throw new DataIntegrityViolationException("An item can be assigned to a unique project");
                         }
-                        updatedItem.setSprint(sprintInsertion.getSprint());
                     })
                     .findFirst()
                     .map(sprintInsertionRepository::saveAndFlush);

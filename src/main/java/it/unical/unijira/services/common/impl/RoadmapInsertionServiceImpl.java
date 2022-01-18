@@ -1,5 +1,6 @@
 package it.unical.unijira.services.common.impl;
 
+import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.dao.RoadmapInsertionRepository;
 import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.data.models.Roadmap;
@@ -15,13 +16,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInsertionRepository)
+public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInsertionRepository,
+                                          ProductBacklogInsertionRepository productBacklogInsertionRepository)
         implements RoadmapInsertionService {
     @Override
     public Optional<RoadmapInsertion> save(RoadmapInsertion roadmapInsertion) {
-        ProductBacklogInsertion productBacklogInsertion = roadmapInsertion.getItem().getProductBacklogInsertion();
+        if (roadmapInsertion.getRoadmap() == null ||
+                roadmapInsertion.getRoadmap().getBacklog() == null ||
+                roadmapInsertion.getItem() == null) {
 
-        if(productBacklogInsertion == null || !productBacklogInsertion.getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
+            return Optional.empty();
+        }
+
+        Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(roadmapInsertion.getItem().getId());
+
+        if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
             return Optional.empty();
 
         return Optional.of(roadmapInsertionRepository.saveAndFlush(roadmapInsertion));
@@ -36,19 +45,27 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
                         updatedItem.setStartingDate(roadmapInsertion.getStartingDate());
                         updatedItem.setEndingDate((roadmapInsertion.getEndingDate()));
 
-                        if (updatedItem.getItem().getId().equals(roadmapInsertion.getItem().getId())) {
-                            if (!updatedItem.getRoadmap().getBacklog().getId()
-                                    .equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
-                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
-                        } else {
+                        Item oldItem = updatedItem.getItem();
+                        Roadmap oldRoadmap = updatedItem.getRoadmap();
+
+                        if(roadmapInsertion.getItem() != null)
                             updatedItem.setItem(roadmapInsertion.getItem());
 
-                            ProductBacklogInsertion productBacklogInsertion = roadmapInsertion.getItem().getProductBacklogInsertion();
-                            if(productBacklogInsertion == null || !productBacklogInsertion.getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
-                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        if(roadmapInsertion.getRoadmap() != null) {
+                            if(roadmapInsertion.getRoadmap().getBacklog() == null)
+                                throw new DataIntegrityViolationException("Format not allowed");
+
+                            updatedItem.setRoadmap(roadmapInsertion.getRoadmap());
                         }
 
-                        updatedItem.setRoadmap(roadmapInsertion.getRoadmap());
+                        if (oldItem.getId().equals(updatedItem.getItem().getId())) {
+                            if (!oldRoadmap.getBacklog().getId().equals(updatedItem.getRoadmap().getBacklog().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        } else {
+                            Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(updatedItem.getItem().getId());
+                            if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(updatedItem.getRoadmap().getBacklog().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        }
                     })
                     .findFirst()
                     .map(roadmapInsertionRepository::saveAndFlush);
