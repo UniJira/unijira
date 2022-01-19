@@ -1,6 +1,5 @@
 package it.unical.unijira.services.projects.impl;
 
-import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
 import it.unical.unijira.data.dao.projects.DefinitionOfDoneEntryRepository;
 import it.unical.unijira.data.dao.projects.ProjectRepository;
 import it.unical.unijira.data.models.projects.DefinitionOfDoneEntry;
@@ -13,21 +12,17 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class DefinitionOfDoneEntryServiceImpl implements DefinitionOfDoneEntryService {
     private final DefinitionOfDoneEntryRepository repository;
     private final ProjectRepository projectRepository;
-    private final ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository;
 
     @Autowired
     public DefinitionOfDoneEntryServiceImpl(DefinitionOfDoneEntryRepository repository,
-                                            ProjectRepository projectRepository,
-                                            ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository) {
+                                            ProjectRepository projectRepository) {
         this.repository = repository;
         this.projectRepository = projectRepository;
-        this.itemDefinitionOfDoneRepository = itemDefinitionOfDoneRepository;
     }
 
     @Override
@@ -94,14 +89,6 @@ public class DefinitionOfDoneEntryServiceImpl implements DefinitionOfDoneEntrySe
         repository.findAllByProjectAndPriorityIsGreaterThan(definitionOfDone.getProject(), definitionOfDone.getPriority()).stream()
                 .peek(r -> r.setPriority(r.getPriority() - 1))
                 .forEach(repository::saveAndFlush);
-    }
-
-    @Override
-    public List<DefinitionOfDoneEntry> findAllByItemId(Long itemId, int page, int size) {
-        return itemDefinitionOfDoneRepository.findAllByKeyItemId(itemId, PageRequest.of(page, size))
-                .stream()
-                .map(r -> r.getKey().getDefinitionOfDoneEntry())
-                .collect(Collectors.toList());
     }
 
 }

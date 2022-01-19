@@ -3,10 +3,13 @@ package it.unical.unijira.controllers.items;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.items.ItemAssignmentDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
+import it.unical.unijira.data.dto.items.ItemDefinitionOfDoneDTO;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
+import it.unical.unijira.data.models.items.ItemDefinitionOfDone;
 import it.unical.unijira.services.common.ItemAssignmentService;
+import it.unical.unijira.services.common.ItemDefinitionOfDoneService;
 import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.NoteService;
 import org.modelmapper.ModelMapper;
@@ -24,17 +27,25 @@ import java.util.stream.Collectors;
 @RequestMapping("/items")
 public class ItemController implements CrudController<ItemDTO, Long> {
 
+    private final ModelMapper modelMapper;
     private final ItemService pbiService;
     private final NoteService noteService;
     private final ItemAssignmentService itemAssignmentService;
-    private final ModelMapper modelMapper;
+    private final ItemDefinitionOfDoneService itemDefinitionOfDoneService;
 
     @Autowired
-    public ItemController(ItemService pbiService, NoteService noteService, ItemAssignmentService itemAssignmentService, ModelMapper modelMapper) {
+    public ItemController(
+            ModelMapper modelMapper,
+            ItemService pbiService,
+            NoteService noteService,
+            ItemAssignmentService itemAssignmentService,
+            ItemDefinitionOfDoneService itemDefinitionOfDoneService) {
+
+        this.modelMapper = modelMapper;
         this.pbiService = pbiService;
         this.noteService = noteService;
         this.itemAssignmentService = itemAssignmentService;
-        this.modelMapper = modelMapper;
+        this.itemDefinitionOfDoneService = itemDefinitionOfDoneService;
     }
 
 
@@ -204,6 +215,49 @@ public class ItemController implements CrudController<ItemDTO, Long> {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("{itemId}/defofdone")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ItemDefinitionOfDoneDTO>> readItemDefinitionOfDoneEntries(
+            @PathVariable Long itemId,
+            @RequestParam (required = false, defaultValue = "0") Integer page,
+            @RequestParam (required = false, defaultValue = "10000") Integer size) {
+
+        return ResponseEntity.ok(itemDefinitionOfDoneService
+                .findAllByItemId(itemId, page, size)
+                .stream()
+                .map(entry -> modelMapper.map(entry, ItemDefinitionOfDoneDTO.class))
+                .collect(Collectors.toList()));
+    }
+
+    @PostMapping("{itemId}/defofdone")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ItemDefinitionOfDoneDTO> addItemDefinitionOfDoneEntry(
+            @PathVariable Long itemId,
+            @RequestBody ItemDefinitionOfDoneDTO dto) {
+
+        if(dto.getKeyDefinitionOfDoneEntryId() == null)
+            return ResponseEntity.badRequest().build();
+
+        dto.setKeyItemId(itemId);
+
+        return itemDefinitionOfDoneService.create(modelMapper.map(dto, ItemDefinitionOfDone.class))
+                .map(found -> modelMapper.map(found, ItemDefinitionOfDoneDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    @DeleteMapping("{itemId}/defofdone/{entryId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> removeItemDefinitionOfDoneEntry(
+            @PathVariable Long itemId,
+            @PathVariable Long entryId) {
+
+        return itemDefinitionOfDoneService.findById(itemId, entryId).stream()
+                .peek(itemDefinitionOfDoneService::delete)
+                .findFirst()
+                .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     /* TODO Notes management
     @PostMapping("{item}/notes")

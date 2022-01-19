@@ -1,5 +1,6 @@
 package it.unical.unijira.services.common.impl;
 
+import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
@@ -9,7 +10,6 @@ import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.items.Item;
-import it.unical.unijira.data.models.items.ItemDefinitionOfDone;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +22,8 @@ import java.util.Optional;
 @Service
 public record ItemServiceImpl(ItemRepository pbiRepository,
                               UserRepository userRepository,
-                              ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository)
+                              ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository,
+                              ProductBacklogInsertionRepository productBacklogInsertionRepository)
         implements ItemService {
 
      public Optional<Item> save (Item pbi){
@@ -118,19 +119,6 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
         }
         return Collections.emptyList();
     }
-
-    @Override
-    public Optional<Item> addDefinitionOfDoneEntry(ItemDefinitionOfDone itemDefinitionOfDone) {
-        // qui devi aggiungere sta roba, tuttavia se riesci a improvvisare qualche
-        // controllo sul progetto non sarebbe neanche tanto male neh
-        return Optional.empty();
-    }
-
-    @Override
-    public void removeDefinitionOfDoneEntry(ItemDefinitionOfDone itemDefinitionOfDone) {
-        itemDefinitionOfDoneRepository.delete(itemDefinitionOfDone);
-    }
-
 
 }
 

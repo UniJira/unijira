@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ProjectControllerTest extends UniJiraTest {
 
     private Project dummyProject;
+
     @BeforeEach
     void initProject() {
         Project p = new Project();
@@ -31,7 +32,6 @@ public class ProjectControllerTest extends UniJiraTest {
         p.setKey("KEY");
         p.setOwner(userRepository.findByUsername(UniJiraTest.USERNAME).orElse(null));
         this.dummyProject = projectRepository.saveAndFlush(p);
-
     }
 
     @Test

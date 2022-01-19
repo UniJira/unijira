@@ -1408,9 +1408,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @GetMapping("{projectId}/defofdone")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<DefinitionOfDoneEntryDTO>> readProjectDefinitionOfDone(
-                                                                                      @RequestParam (required = false, defaultValue = "0") Integer page,
-                                                                                      @RequestParam (required = false, defaultValue = "10000") Integer size,
-                                                                                      @PathVariable Long projectId) {
+            @RequestParam (required = false, defaultValue = "0") Integer page,
+            @RequestParam (required = false, defaultValue = "10000") Integer size,
+            @PathVariable Long projectId) {
+
         return ResponseEntity.ok(definitionOfDoneEntryService
                 .findAllByProjectId(projectId, page, size)
                 .stream()
@@ -1421,8 +1422,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @GetMapping("{projectId}/defofdone/{entryId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<DefinitionOfDoneEntryDTO> readProjectDefinitionOfDoneEntry(
-                                                                                           @PathVariable Long projectId,
-                                                                                           @PathVariable Long entryId) {
+            @PathVariable Long projectId,
+            @PathVariable Long entryId) {
+
         return definitionOfDoneEntryService.findById(entryId).stream()
                 .filter(found -> found.getProject().getId().equals(projectId))
                 .map(found -> modelMapper.map(found, DefinitionOfDoneEntryDTO.class))

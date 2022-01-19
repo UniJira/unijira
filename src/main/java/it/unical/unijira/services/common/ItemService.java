@@ -4,7 +4,6 @@ import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.items.Item;
-import it.unical.unijira.data.models.items.ItemDefinitionOfDone;
 import it.unical.unijira.data.models.projects.Project;
 
 import java.util.List;
@@ -22,6 +21,4 @@ public interface ItemService {
     List<Item> findAllByBacklogNoFather(ProductBacklog backlog, int page, int size);
     List<Item> findAllBySprintNoFather(Sprint sprint, int page, int size);
     List<Item> finAllByRoadmapNoFather(Roadmap roadmap, int page, int size);
-    Optional<Item> addDefinitionOfDoneEntry(ItemDefinitionOfDone itemDefinitionOfDone);
-    void removeDefinitionOfDoneEntry(ItemDefinitionOfDone itemDefinitionOfDone);
 }
