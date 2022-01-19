@@ -8,9 +8,7 @@ import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.module.jdk8.Jdk8Module;
 import org.modelmapper.module.jsr310.Jsr310Module;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Objects;
@@ -45,10 +43,13 @@ public class DtoMapper extends ModelMapper {
 
         for(var field : entity.getClass().getDeclaredFields()) {
 
-            if(!field.isAnnotationPresent(Id.class))
+            if(!field.isAnnotationPresent(Id.class) && !field.isAnnotationPresent(EmbeddedId.class))
                 continue;
 
             field.setAccessible(true);
+
+            if(field.isAnnotationPresent(EmbeddedId.class))
+                return Objects.requireNonNull(resolveEntity(field.get(entity)));
 
             return Objects.requireNonNull(field.get(entity));
 
@@ -65,13 +66,24 @@ public class DtoMapper extends ModelMapper {
 
         Objects.requireNonNull(entity);
 
-        if(!entity.getClass().isAnnotationPresent(Entity.class))
+        if(!entity.getClass().isAnnotationPresent(Entity.class) && !entity.getClass().isAnnotationPresent(Embeddable.class))
             return entity;
 
 
         for(var field : entity.getClass().getDeclaredFields()) {
 
-            if(Collection.class.isAssignableFrom(field.getType())) {
+            if(field.getType().isAnnotationPresent(Embeddable.class)) {
+
+                field.setAccessible(true);
+
+                try {
+
+                    resolveEntity(field.get(entity));
+
+                } catch (IllegalAccessException ignored) { }
+
+            }
+            else if(Collection.class.isAssignableFrom(field.getType())) {
 
                 field.setAccessible(true);
 
@@ -81,10 +93,11 @@ public class DtoMapper extends ModelMapper {
 
                     for(var item : items) {
 
-                        if(!item.getClass().isAnnotationPresent(Entity.class))
-                            continue;
+                        if(item.getClass().isAnnotationPresent(Entity.class))
+                            items.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
+                        else if(!item.getClass().isAnnotationPresent(Embeddable.class))
+                            items.add(Objects.requireNonNull(resolveEntity(item)));
 
-                        items.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
                         items.remove(item);
 
                     }
