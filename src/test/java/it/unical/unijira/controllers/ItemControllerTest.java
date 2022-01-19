@@ -174,6 +174,8 @@ public class ItemControllerTest extends UniJiraTest {
         insertion.setBacklog(this.dummyBacklog);
         insertion.setItem(dummyItem);
         insertion.setPriority(1);
+
+        productBacklogInsertionService.save(insertion);
     }
 
     ResultActions createItemDefOfDone(int index) throws Exception {
