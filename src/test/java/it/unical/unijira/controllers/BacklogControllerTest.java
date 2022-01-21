@@ -332,6 +332,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
     @Test
     void addItemToOneBacklog() throws Exception {
+        insertionService.delete(backlogInsertionForTests);
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"+backlogForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
@@ -466,7 +467,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
     @Test
     void addItemToSprint() throws Exception {
-
+        sprintInsertionService.delete(sprintInsertionForTest);
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"
                 +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/insertions")
@@ -591,6 +592,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
     @Test
     void addItemToRoadmap() throws Exception {
+        roadmapInsertionService.delete(roadmapInsertionForTests);
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"
                 +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/insertions")
