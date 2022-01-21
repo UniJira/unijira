@@ -645,17 +645,13 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
         dto.setSprintId(sprintObj.getId());
 
-        SprintInsertion toSave = modelMapper.map(dto, SprintInsertion.class);
 
-        SprintInsertion saved = sprintInsertionService.save(toSave).orElse(null);
-        SprintInsertionDTO dtoSaved = new SprintInsertionDTO();
-        if (saved != null) {
-            dtoSaved = modelMapper.map(saved, SprintInsertionDTO.class);
-        }
-
-        return ResponseEntity.created(URI.create("projects/%d/backlogs/%d/sprints/%d/insertions/%d"
-                .formatted(project,backlog,sprint,dtoSaved.getId()))).body(dtoSaved);
-
+        return sprintInsertionService.save(modelMapper.map(dto, SprintInsertion.class))
+                .map(createdDTO -> ResponseEntity
+                        .created(URI.create("projects/%d/backlogs/%d/sprints/%d/insertions/%d"
+                                .formatted(project,backlog,sprint,createdDTO.getId())))
+                        .body(modelMapper.map(createdDTO, SprintInsertionDTO.class)))
+                .orElse(ResponseEntity.badRequest().build());
     }
 
     @GetMapping("/{project}/backlogs/{backlog}/sprints/{sprint}/insertions")
