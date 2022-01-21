@@ -27,7 +27,7 @@ public class Topic extends AbstractBaseEntity {
     @Basic(optional = false)
     private String title;
 
-    @Column
+    @Column(length = 1000)
     @Basic(optional = false)
     private String content;
 
