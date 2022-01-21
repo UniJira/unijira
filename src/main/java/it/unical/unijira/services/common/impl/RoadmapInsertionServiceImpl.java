@@ -28,6 +28,15 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
             return Optional.empty();
         }
 
+        if(roadmapInsertionRepository.findAllByItemId(roadmapInsertion.getItem().getId())
+                .stream()
+                .map(r -> r.getRoadmap().getId())
+                .anyMatch(id ->
+                        id.equals(roadmapInsertion.getRoadmap().getId()))
+        ) {
+            return Optional.empty();
+        }
+
         Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(roadmapInsertion.getItem().getId());
 
         if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))

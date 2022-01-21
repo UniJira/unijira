@@ -28,6 +28,16 @@ public record SprintInsertionServiceImpl(SprintInsertionRepository sprintInserti
             return Optional.empty();
         }
 
+        if(sprintInsertionRepository.findAllByItemId(sprintInsertion.getItem().getId())
+                .stream()
+                .map(s -> s.getSprint().getId())
+                .anyMatch(id ->
+                        id.equals(sprintInsertion.getSprint().getId()))
+        ) {
+
+            return Optional.empty();
+        }
+
         Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(sprintInsertion.getItem().getId());
 
         if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(sprintInsertion.getSprint().getBacklog().getId()))
