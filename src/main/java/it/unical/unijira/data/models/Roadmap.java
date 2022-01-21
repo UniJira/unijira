@@ -30,7 +30,7 @@ public class Roadmap extends AbstractBaseEntity {
     private ProductBacklog backlog;
 
 
-    @OneToMany(mappedBy = "roadmap", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "roadmap", cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     @Setter
     @Getter

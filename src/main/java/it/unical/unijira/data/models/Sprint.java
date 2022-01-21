@@ -1,9 +1,7 @@
 package it.unical.unijira.data.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,6 +13,9 @@ import java.util.List;
 @Entity
 @Table
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Sprint  extends  AbstractBaseEntity{
 
     @Id
@@ -40,7 +41,7 @@ public class Sprint  extends  AbstractBaseEntity{
     private LocalDate endingDate;
 
 
-    @OneToMany(mappedBy = "sprint", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sprint", cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
     @Setter

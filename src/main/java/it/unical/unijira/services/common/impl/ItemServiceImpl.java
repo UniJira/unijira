@@ -1,6 +1,8 @@
 package it.unical.unijira.services.common.impl;
 
+import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.ProductBacklog;
@@ -18,7 +20,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userRepository)
+public record ItemServiceImpl(ItemRepository pbiRepository,
+                              UserRepository userRepository,
+                              ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository,
+                              ProductBacklogInsertionRepository productBacklogInsertionRepository)
         implements ItemService {
 
      public Optional<Item> save (Item pbi){
@@ -114,8 +119,6 @@ public record ItemServiceImpl(ItemRepository pbiRepository, UserRepository userR
         }
         return Collections.emptyList();
     }
-
-
 
 }
 

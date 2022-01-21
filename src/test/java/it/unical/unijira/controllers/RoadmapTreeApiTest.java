@@ -2,6 +2,7 @@ package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.ProductBacklog;
+import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.RoadmapInsertion;
 import it.unical.unijira.data.models.items.Item;
@@ -43,6 +44,9 @@ public class RoadmapTreeApiTest extends UniJiraTest {
     @Autowired
     private RoadmapInsertionService roadmapInsertionService;
 
+    @Autowired
+    private ProductBacklogInsertionService productBacklogInsertionService;
+
     @BeforeEach
     void initAllStuff() {
 
@@ -75,6 +79,13 @@ public class RoadmapTreeApiTest extends UniJiraTest {
                 .build();
 
         Item savedEpic = itemService.save(forTests).orElse(null);
+        productBacklogInsertionService.save(
+                ProductBacklogInsertion.builder()
+                        .item(savedEpic)
+                        .backlog(savedBacklog)
+                        .priority(1)
+                        .build()
+        );
 
         RoadmapInsertion insertion = new RoadmapInsertion();
         insertion.setRoadmap(this.savedRoadmap);
@@ -95,6 +106,13 @@ public class RoadmapTreeApiTest extends UniJiraTest {
                 .build();
 
         Item savedStory = itemService.save(forTests).orElse(null);
+        productBacklogInsertionService.save(
+                ProductBacklogInsertion.builder()
+                        .item(savedStory)
+                        .backlog(savedBacklog)
+                        .priority(1)
+                        .build()
+        );
 
         insertion = new RoadmapInsertion();
         insertion.setRoadmap(this.savedRoadmap);
@@ -116,6 +134,13 @@ public class RoadmapTreeApiTest extends UniJiraTest {
                 .build();
 
         Item savedTask = itemService.save(forTests).orElse(null);
+        productBacklogInsertionService.save(
+                ProductBacklogInsertion.builder()
+                        .item(savedTask)
+                        .backlog(savedBacklog)
+                        .priority(1)
+                        .build()
+        );
 
         insertion = new RoadmapInsertion();
         insertion.setRoadmap(this.savedRoadmap);
@@ -137,6 +162,13 @@ public class RoadmapTreeApiTest extends UniJiraTest {
                 .build();
 
         Item anotherSavedTask = itemService.save(forTests).orElse(null);
+        productBacklogInsertionService.save(
+                ProductBacklogInsertion.builder()
+                        .item(anotherSavedTask)
+                        .backlog(savedBacklog)
+                        .priority(1)
+                        .build()
+        );
 
         insertion = new RoadmapInsertion();
         insertion.setRoadmap(this.savedRoadmap);
