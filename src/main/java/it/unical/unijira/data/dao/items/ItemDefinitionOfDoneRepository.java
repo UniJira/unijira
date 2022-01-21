@@ -12,5 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ItemDefinitionOfDoneRepository extends JpaRepository<ItemDefinitionOfDone, ItemDefinitionOfDoneKey> {
     List<ItemDefinitionOfDone> findAllByKeyItemId(Long id, Pageable pageable);
+    List<ItemDefinitionOfDone> findAllByKeyItemId(Long id);
     Optional<ItemDefinitionOfDone> findByKeyItemIdAndKeyDefinitionOfDoneEntryId(Long itemId, Long entryId);
 }
