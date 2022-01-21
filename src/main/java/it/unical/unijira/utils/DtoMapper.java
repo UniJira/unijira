@@ -10,8 +10,7 @@ import org.modelmapper.module.jsr310.Jsr310Module;
 
 import javax.persistence.*;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public class DtoMapper extends ModelMapper {
@@ -90,20 +89,21 @@ public class DtoMapper extends ModelMapper {
                 try {
 
                     Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
+                    List<Object> newElements = new ArrayList<>();
 
                     for(var item : items) {
 
                         if(item.getClass().isAnnotationPresent(Entity.class))
-                            items.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
-                        else if(!item.getClass().isAnnotationPresent(Embeddable.class))
-                            items.add(Objects.requireNonNull(resolveEntity(item)));
-
-                        items.remove(item);
-
+                            newElements.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
+                        else if(item.getClass().isAnnotationPresent(Embeddable.class))
+                            newElements.add(Objects.requireNonNull(resolveEntity(item)));
+                        else
+                            newElements.add(item);
                     }
 
+                    items.clear();
+                    items.addAll(newElements);
                 } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
-
 
             } else if(field.getType().isAnnotationPresent(Entity.class)) {
 
