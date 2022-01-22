@@ -811,24 +811,17 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                                                                @PathVariable Long backlog,
                                                                @PathVariable Long roadmap){
 
-        System.out.println(project);
-        System.out.println(backlog);
-        System.out.println(roadmap);
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
         ProductBacklog backlogObj = backlogOpt.orElse(null);
         Optional<Roadmap> optional = roadmapService.findById(roadmap);
         Roadmap roadmapObj = optional.orElse(null);
 
-        System.out.println(projectObj);
-        System.out.println(backlogObj);
-        System.out.println(roadmapObj);
         if (!ControllerUtilities.checkRoadmapCoherence(projectObj,backlogObj,roadmapObj))
             return ResponseEntity.notFound().build();
 
-        System.out.println("qui arrivo");
         List<Item> items = itemService.finAllByRoadmapNoFather(roadmapObj,0,100000);
-        System.out.println(items);
+
         RoadmapTreeDTO[] tree = new RoadmapTreeDTO[items.size()];
         var i=0;
         for (Item item : items) {
@@ -840,7 +833,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if (tree.length > 0) {
             return ResponseEntity.ok(tree);
         }
-        System.out.println("fanculo");
 
         return ResponseEntity.notFound().build();
 

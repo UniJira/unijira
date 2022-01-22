@@ -75,8 +75,8 @@ public class ProductBacklogInsertionServiceImpl implements ProductBacklogInserti
     }
 
     private void cleanAllAssociations(Long itemId, boolean sameProject) {
-        sprintInsertionRepository.deleteAll(sprintInsertionRepository.findAllByItemId(itemId).stream().peek(System.out::println).collect(Collectors.toList()));
-        roadmapInsertionRepository.deleteAll(roadmapInsertionRepository.findAllByItemId(itemId).stream().peek(System.out::println).collect(Collectors.toList()));
+        sprintInsertionRepository.deleteAll(sprintInsertionRepository.findAllByItemId(itemId));
+        roadmapInsertionRepository.deleteAll(roadmapInsertionRepository.findAllByItemId(itemId));
 
         if(!sameProject)
             itemDefinitionOfDoneRepository.deleteAll(itemDefinitionOfDoneRepository.findAllByKeyItemId(itemId));
