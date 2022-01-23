@@ -35,8 +35,10 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
         // Salvo prima l'item
         Item toReturn = pbiRepository.saveAndFlush(pbi);
         // Dopo di che salvo gli assignments dell'item
-        for (ItemAssignment assignment : pbi.getAssignees()) {
-            itemAssignmentRepository.saveAndFlush(assignment);
+        if (pbi.getAssignees() != null) {
+            for (ItemAssignment assignment : pbi.getAssignees()) {
+                itemAssignmentRepository.saveAndFlush(assignment);
+            }
         }
         // Per essere sicuro di ricevere il dato completo, lo ricarico dalla repository
         Item retrieved = pbiRepository.findById(toReturn.getId()).orElse(null);
@@ -47,9 +49,11 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
     public Optional<Item> update(Long id, Item pbi) {
 
         // Prima di modificare l'item, salviamo a db gli assignment "nuovi"
-        for (ItemAssignment assignment : pbi.getAssignees()) {
-            if (itemAssignmentRepository.isPresentAssignment(id, assignment.getId()) > 0) {
-                itemAssignmentRepository.saveAndFlush(assignment);
+        if (pbi.getAssignees() != null) {
+            for (ItemAssignment assignment : pbi.getAssignees()) {
+                if (itemAssignmentRepository.isPresentAssignment(id, assignment.getId()) > 0) {
+                    itemAssignmentRepository.saveAndFlush(assignment);
+                }
             }
         }
 
