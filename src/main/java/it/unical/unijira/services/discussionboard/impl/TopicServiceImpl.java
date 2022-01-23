@@ -2,7 +2,6 @@ package it.unical.unijira.services.discussionboard.impl;
 
 import it.unical.unijira.data.dao.discussionboard.MessageRepository;
 import it.unical.unijira.data.dao.discussionboard.TopicRepository;
-import it.unical.unijira.data.models.discussionboard.Message;
 import it.unical.unijira.data.models.discussionboard.Topic;
 import it.unical.unijira.services.discussionboard.TopicService;
 import org.springframework.data.domain.PageRequest;
@@ -33,15 +32,7 @@ public record TopicServiceImpl(TopicRepository topicRepository, MessageRepositor
 
     @Override
     public void delete(Topic topic) {
-
-        List<Message> myMessages = messageRepository.findAllByTopicNoPages(topic.getId());
-        for (Message m : myMessages) {
-            List<Message> myReplies = messageRepository.findMyReplies(m.getId());
-            messageRepository.deleteAll(myReplies);
-            messageRepository.delete(m);
-        }
         topicRepository.delete(topic);
-
     }
 
 

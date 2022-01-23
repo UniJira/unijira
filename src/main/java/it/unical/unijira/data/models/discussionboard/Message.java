@@ -5,6 +5,7 @@ import it.unical.unijira.data.models.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table
@@ -40,4 +41,7 @@ public class Message extends AbstractBaseEntity {
     @JoinColumn
     private Message repliesTo;
 
+    @OneToMany(mappedBy = "repliesTo", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    private List<Message> myReplies;
 }
