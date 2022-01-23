@@ -90,10 +90,13 @@ public class ItemControllerTest extends UniJiraTest {
                             "evaluation": "100000",
                             "tags" : "#BACKEND#;#FRONTEND#",
                             "type" : "EPIC",
+                            "assignees" : [{"assigneeId" : 1}],
                             "owner" : { "id": 1, "username" : "unijira20@gmail.com"}
                         }
                         """)
         ).andExpect(status().isCreated());
+
+
     }
 
     @Test

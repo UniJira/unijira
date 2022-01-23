@@ -20,7 +20,7 @@ public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentR
 
     @Override
     public Optional<ItemAssignment> save(ItemAssignment itemAssignment) {
-        return Optional.of(itemAssignmentRepo.save(itemAssignment));
+        return Optional.of(itemAssignmentRepo.saveAndFlush(itemAssignment));
     }
 
     @Override
@@ -39,7 +39,7 @@ public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentR
                    }
                 })
                 .findFirst()
-                .map(itemAssignmentRepo::save);
+                .map(itemAssignmentRepo::saveAndFlush);
     }
 
     @Override
