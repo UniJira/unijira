@@ -37,6 +37,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
         // Dopo di che salvo gli assignments dell'item
         if (pbi.getAssignees() != null) {
             for (ItemAssignment assignment : pbi.getAssignees()) {
+                assignment.setItem(pbi);
                 itemAssignmentRepository.saveAndFlush(assignment);
             }
         }
@@ -51,6 +52,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
         // Prima di modificare l'item, salviamo a db gli assignment "nuovi"
         if (pbi.getAssignees() != null) {
             for (ItemAssignment assignment : pbi.getAssignees()) {
+                assignment.setItem(pbi);
                 if (itemAssignmentRepository.isPresentAssignment(id, assignment.getId()) > 0) {
                     itemAssignmentRepository.saveAndFlush(assignment);
                 }
