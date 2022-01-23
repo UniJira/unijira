@@ -45,6 +45,7 @@ public class Topic extends AbstractBaseEntity {
     private User user;
 
 
-    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
     private List<Message> messages;
 }

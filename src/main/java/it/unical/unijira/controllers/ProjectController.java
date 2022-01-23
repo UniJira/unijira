@@ -1366,13 +1366,14 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         Message toDelete = messageService.findById(messageId, topicId).orElse(null);
 
         if (toDelete == null) {
-            ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
+
         try {
             messageService.delete(toDelete, projectId, topicId);
         } catch (Exception e) {
             e.printStackTrace();
-            ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.noContent().build();

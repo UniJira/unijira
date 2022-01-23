@@ -26,9 +26,7 @@ public record MessageServiceImpl (MessageRepository messageRepository)
 
     @Override
     public void delete(Message message, Long projectId, Long topicId) {
-        List<Message> myReplies = messageRepository.findMyReplies(message.getId());
-        messageRepository.deleteAll(myReplies);
-
+        messageRepository.delete(message);
     }
 
     @Override
