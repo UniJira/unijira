@@ -5,6 +5,6 @@ public enum ItemType {
     EPIC,
     STORY,
     TASK,
-    ISSUE;
+    ISSUE
 
 }

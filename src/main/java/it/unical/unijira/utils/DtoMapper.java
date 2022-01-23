@@ -1,20 +1,18 @@
 package it.unical.unijira.utils;
 
-import it.unical.unijira.data.dto.AbstractBaseDTO;
-import it.unical.unijira.data.models.AbstractBaseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
+import org.modelmapper.module.jdk8.Jdk8Module;
+import org.modelmapper.module.jsr310.Jsr310Module;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -38,6 +36,8 @@ public class DtoMapper extends ModelMapper {
         this.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
         this.getConfiguration().setUseOSGiClassLoaderBridging(true);
 
+        this.registerModule(new Jsr310Module());
+        this.registerModule(new Jdk8Module());
     }
 
 
@@ -47,10 +47,13 @@ public class DtoMapper extends ModelMapper {
 
         for(var field : entity.getClass().getDeclaredFields()) {
 
-            if(!field.isAnnotationPresent(Id.class))
+            if(!field.isAnnotationPresent(Id.class) && !field.isAnnotationPresent(EmbeddedId.class))
                 continue;
 
             field.setAccessible(true);
+
+            if(field.isAnnotationPresent(EmbeddedId.class))
+                return Objects.requireNonNull(resolveEntity(field.get(entity)));
 
             return Objects.requireNonNull(field.get(entity));
 
@@ -63,46 +66,58 @@ public class DtoMapper extends ModelMapper {
 
 
     @SuppressWarnings("unchecked")
-    private <T> T resolveEntity(Object source, T entity) throws NullPointerException {
+    private <T> T resolveEntity(T entity) throws NullPointerException {
 
         Objects.requireNonNull(entity);
 
-        if(entity.getClass().isAnnotationPresent(Entity.class)) {
+        if(!entity.getClass().isAnnotationPresent(Entity.class) && !entity.getClass().isAnnotationPresent(Embeddable.class))
+            return entity;
+
 
             for (var field : entity.getClass().getDeclaredFields()) {
 
                 if (Collection.class.isAssignableFrom(field.getType())) {
 
-                    field.setAccessible(true);
 
-                    try {
+                    if(field.getType().isAnnotationPresent(Embeddable.class)) {
 
-                        Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
+                        field.setAccessible(true);
 
-                        for (var item : items) {
+                        try {
 
-                            if (!item.getClass().isAnnotationPresent(Entity.class))
-                                continue;
+                            resolveEntity(field.get(entity));
 
-                            items.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
-                            items.remove(item);
+                        } catch (IllegalAccessException ignored) { }
 
-                        }
+                    } else if(Collection.class.isAssignableFrom(field.getType())) {
 
-                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
-                    }
+                        try {
 
+                            Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
+                            List<Object> newElements = new ArrayList<>();
 
-                } else if (field.getType().isAnnotationPresent(Entity.class)) {
+                            for(var item : items) {
 
-                    field.setAccessible(true);
+                                if(item.getClass().isAnnotationPresent(Entity.class))
+                                    newElements.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
+                                else if(item.getClass().isAnnotationPresent(Embeddable.class))
+                                    newElements.add(Objects.requireNonNull(resolveEntity(item)));
+                                else
+                                    newElements.add(item);
+                            }
+
+                            items.clear();
+                            items.addAll(newElements);
+
+                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
+
+                } else if(field.getType().isAnnotationPresent(Entity.class)) {
 
                     try {
 
                         field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(field.get(entity)))));
 
-                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {
-                    }
+                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {}
 
                 }
 
@@ -111,28 +126,6 @@ public class DtoMapper extends ModelMapper {
         }
 
 
-        if(entity instanceof AbstractBaseEntity e && source instanceof AbstractBaseDTO dto) {
-
-            try {
-
-                e.setCreatedAt(LocalDateTime.parse(dto.getCreatedAt()));
-                e.setUpdatedAt(LocalDateTime.parse(dto.getUpdatedAt()));
-
-            } catch (Exception ignored) { }
-
-        }
-
-        if(source instanceof AbstractBaseEntity e && entity instanceof AbstractBaseDTO dto) {
-
-            try {
-
-                dto.setCreatedAt(e.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME));
-                dto.setUpdatedAt(e.getUpdatedAt().format(DateTimeFormatter.ISO_DATE_TIME));
-
-            } catch (Exception ignored) { }
-
-        }
-
 
         return entity;
 
@@ -140,22 +133,22 @@ public class DtoMapper extends ModelMapper {
 
     @Override
     public <T> T map(Object source, Class<T> destinationClass) {
-        return resolveEntity(source, super.map(source, destinationClass));
+        return resolveEntity(super.map(source, destinationClass));
     }
 
     @Override
     public <D> D map(Object source, Class<D> destinationType, String typeMapName) {
-        return resolveEntity(source, super.map(source, destinationType, typeMapName));
+        return resolveEntity(super.map(source, destinationType, typeMapName));
     }
 
     @Override
     public <D> D map(Object source, Type destinationType) {
-        return resolveEntity(source, super.map(source, destinationType));
+        return resolveEntity(super.map(source, destinationType));
     }
 
     @Override
     public <D> D map(Object source, Type destinationType, String typeMapName) {
-        return resolveEntity(source, super.map(source, destinationType, typeMapName));
+        return resolveEntity(super.map(source, destinationType, typeMapName));
     }
 
 }

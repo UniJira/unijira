@@ -1,10 +1,15 @@
-package it.unical.unijira.services.discussionboard.impl;
+package it.unical.unijira.services.discussions.impl;
 
+<<<<<<< HEAD
 import it.unical.unijira.data.dao.discussions.MessageRepository;
 import it.unical.unijira.data.dao.discussions.TopicRepository;
-import it.unical.unijira.data.models.discussions.Message;
 import it.unical.unijira.data.models.discussions.Topic;
-import it.unical.unijira.services.discussionboard.TopicService;
+=======
+import it.unical.unijira.data.dao.discussionboard.MessageRepository;
+import it.unical.unijira.data.dao.discussionboard.TopicRepository;
+import it.unical.unijira.data.models.discussionboard.Topic;
+>>>>>>> 1dbf55d1168b8b42e92641c1e18a2ff0f7e39c44
+import it.unical.unijira.services.discussions.TopicService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -33,15 +38,7 @@ public record TopicServiceImpl(TopicRepository topicRepository, MessageRepositor
 
     @Override
     public void delete(Topic topic) {
-
-        List<Message> myMessages = messageRepository.findAllByTopicNoPages(topic.getId());
-        for (Message m : myMessages) {
-            List<Message> myReplies = messageRepository.findMyReplies(m.getId());
-            messageRepository.deleteAll(myReplies);
-            messageRepository.delete(m);
-        }
         topicRepository.delete(topic);
-
     }
 
 

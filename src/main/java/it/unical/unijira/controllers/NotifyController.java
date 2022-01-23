@@ -23,16 +23,18 @@ import java.util.stream.Collectors;
 public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     private final NotifyService notifyService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public NotifyController(NotifyService notifyService) {
+    public NotifyController(NotifyService notifyService, ModelMapper modelMapper) {
         this.notifyService = notifyService;
+        this.modelMapper = modelMapper;
     }
 
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<NotifyDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
+    public ResponseEntity<List<NotifyDTO>> readAll(Integer page, Integer size) {
 
         return ResponseEntity.ok(notifyService
                 .findAllByUserId(getAuthenticatedUser().getId(), page, size)
@@ -44,7 +46,7 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<NotifyDTO> read(ModelMapper modelMapper, Long id) {
+    public ResponseEntity<NotifyDTO> read(Long id) {
 
         return notifyService.findById(id)
                 .stream()
@@ -57,7 +59,7 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
     }
 
     @Override
-    public ResponseEntity<NotifyDTO> create(ModelMapper modelMapper, NotifyDTO dto) {
+    public ResponseEntity<NotifyDTO> create(NotifyDTO dto) {
 
         return notifyService.create(modelMapper.map(dto, Notify.class))
                 .map(notify -> ResponseEntity
@@ -68,7 +70,7 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
     }
 
     @Override
-    public ResponseEntity<NotifyDTO> update(ModelMapper modelMapper, Long id, NotifyDTO dto) {
+    public ResponseEntity<NotifyDTO> update(Long id, NotifyDTO dto) {
 
         return notifyService.update(id, modelMapper.map(dto, Notify.class))
                 .map(notify -> modelMapper.map(notify, NotifyDTO.class))

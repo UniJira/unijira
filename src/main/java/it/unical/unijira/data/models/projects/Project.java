@@ -52,5 +52,8 @@ public class Project extends AbstractBaseEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Release> releases = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<DefinitionOfDoneEntry> definitionOfDone = new ArrayList<>();
 
 }

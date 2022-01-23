@@ -27,7 +27,7 @@ public class Topic extends AbstractBaseEntity {
     @Basic(optional = false)
     private String title;
 
-    @Column
+    @Column(length = 1000)
     @Basic(optional = false)
     private String content;
 
@@ -43,9 +43,8 @@ public class Topic extends AbstractBaseEntity {
     @JoinColumn
     private User author;
 
-    @Builder.Default
+    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
-    @OneToMany(mappedBy = "topic")
-    private List<Message> messages = new ArrayList<>();
+    private List<Message> messages;
 
 }

@@ -1,10 +1,13 @@
 package it.unical.unijira.services.common.impl;
 
+import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.dao.RoadmapInsertionRepository;
+import it.unical.unijira.data.models.ProductBacklogInsertion;
 import it.unical.unijira.data.models.Roadmap;
 import it.unical.unijira.data.models.RoadmapInsertion;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.services.common.RoadmapInsertionService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -13,25 +16,71 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInsertionRepository)
+public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInsertionRepository,
+                                          ProductBacklogInsertionRepository productBacklogInsertionRepository)
         implements RoadmapInsertionService {
     @Override
     public Optional<RoadmapInsertion> save(RoadmapInsertion roadmapInsertion) {
-        return Optional.of(roadmapInsertionRepository.save(roadmapInsertion));
+        if (roadmapInsertion.getRoadmap() == null ||
+                roadmapInsertion.getRoadmap().getBacklog() == null ||
+                roadmapInsertion.getItem() == null) {
+
+            return Optional.empty();
+        }
+
+        if(roadmapInsertionRepository.findAllByItemId(roadmapInsertion.getItem().getId())
+                .stream()
+                .map(r -> r.getRoadmap().getId())
+                .anyMatch(id ->
+                        id.equals(roadmapInsertion.getRoadmap().getId()))
+        ) {
+            return Optional.empty();
+        }
+
+        Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(roadmapInsertion.getItem().getId());
+
+        if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
+            return Optional.empty();
+
+        return Optional.of(roadmapInsertionRepository.saveAndFlush(roadmapInsertion));
     }
 
     @Override
     public Optional<RoadmapInsertion> update(Long id, RoadmapInsertion roadmapInsertion) {
-        return roadmapInsertionRepository.findById(id)
-                .stream()
-                .peek(updatedItem -> {
-                    updatedItem.setStartingDate(roadmapInsertion.getStartingDate());
-                    updatedItem.setEndingDate((roadmapInsertion.getEndingDate()));
-                    updatedItem.setRoadmap(roadmapInsertion.getRoadmap());
-                    updatedItem.setItem(roadmapInsertion.getItem());
-                })
-                .findFirst()
-                .map(roadmapInsertionRepository::saveAndFlush);
+        try {
+            return roadmapInsertionRepository.findById(id)
+                    .stream()
+                    .peek(updatedItem -> {
+                        updatedItem.setStartingDate(roadmapInsertion.getStartingDate());
+                        updatedItem.setEndingDate((roadmapInsertion.getEndingDate()));
+
+                        Item oldItem = updatedItem.getItem();
+                        Roadmap oldRoadmap = updatedItem.getRoadmap();
+
+                        if(roadmapInsertion.getItem() != null)
+                            updatedItem.setItem(roadmapInsertion.getItem());
+
+                        if(roadmapInsertion.getRoadmap() != null) {
+                            if(roadmapInsertion.getRoadmap().getBacklog() == null)
+                                throw new DataIntegrityViolationException("Format not allowed");
+
+                            updatedItem.setRoadmap(roadmapInsertion.getRoadmap());
+                        }
+
+                        if (oldItem.getId().equals(updatedItem.getItem().getId())) {
+                            if (!oldRoadmap.getBacklog().getId().equals(updatedItem.getRoadmap().getBacklog().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        } else {
+                            Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(updatedItem.getItem().getId());
+                            if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(updatedItem.getRoadmap().getBacklog().getId()))
+                                throw new DataIntegrityViolationException("An item can be assigned to a unique project");
+                        }
+                    })
+                    .findFirst()
+                    .map(roadmapInsertionRepository::saveAndFlush);
+        } catch (DataIntegrityViolationException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

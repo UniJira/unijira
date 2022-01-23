@@ -1,8 +1,8 @@
-package it.unical.unijira.services.discussionboard.impl;
+package it.unical.unijira.services.discussions.impl;
 
 import it.unical.unijira.data.dao.discussions.MessageRepository;
 import it.unical.unijira.data.models.discussions.Message;
-import it.unical.unijira.services.discussionboard.MessageService;
+import it.unical.unijira.services.discussions.MessageService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ public record MessageServiceImpl (MessageRepository messageRepository) implement
 
     @Override
     public void delete(Message message, Long projectId, Long topicId) {
-        messageRepository.deleteAll(messageRepository.findMyReplies(message.getId()));
+        messageRepository.delete(message);
     }
 
     @Override

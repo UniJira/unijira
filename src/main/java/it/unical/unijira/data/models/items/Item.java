@@ -118,12 +118,15 @@ public class Item extends AbstractBaseEntity {
     @ToString.Exclude
     private List<Item> sons;
 
+    @OneToMany(mappedBy = "key.item", cascade = CascadeType.ALL)
+    @Getter
+    @ToString.Exclude
+    private List<ItemDefinitionOfDone> definitionOfDone;
 
     @ManyToOne
     @JoinColumn
     @Getter @Setter
     private Release release;
-
 
 
     public void setFather(Item father) throws NonValidItemTypeException{

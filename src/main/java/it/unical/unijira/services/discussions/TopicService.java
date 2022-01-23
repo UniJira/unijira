@@ -1,4 +1,4 @@
-package it.unical.unijira.services.discussionboard;
+package it.unical.unijira.services.discussions;
 
 
 import it.unical.unijira.data.models.discussions.Topic;

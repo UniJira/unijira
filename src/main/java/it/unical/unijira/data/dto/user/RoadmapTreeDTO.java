@@ -1,9 +1,6 @@
 package it.unical.unijira.data.dto.user;
 
-import it.unical.unijira.data.dto.RoadmapInsertionDTO;
 import it.unical.unijira.data.dto.items.ItemAssignmentDTO;
-import it.unical.unijira.data.dto.items.ItemDTO;
-import it.unical.unijira.data.dto.items.NoteDTO;
 import it.unical.unijira.data.models.items.ItemStatus;
 import lombok.*;
 

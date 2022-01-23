@@ -9,8 +9,8 @@ import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.UserService;
-import it.unical.unijira.services.discussionboard.MessageService;
-import it.unical.unijira.services.discussionboard.TopicService;
+import it.unical.unijira.services.discussions.MessageService;
+import it.unical.unijira.services.discussions.TopicService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +34,8 @@ public class TopicControllerTest extends UniJiraTest {
     private Topic topicForTests;
     private Topic toDeleteForTests;
     private Message messageForTests;
+    private Message replyMsg;
+    private Message replyToReplyMsg;
 
 
     @Autowired
@@ -136,8 +138,15 @@ public class TopicControllerTest extends UniJiraTest {
                 .content("THIS IS MY REPLY TO YOUR PREVIOUS MESSAGE")
                 .repliesTo(this.messageForTests).build();
 
-        this.messageService.save(reply);
+        this.replyMsg = this.messageService.save(reply).orElse(null);
 
+        reply = Message.builder()
+                .author(userForTests)
+                .topic(topicForTests)
+                .text("THIS IS MY 2X REPLY TO YOUR PREVIOUS MESSAGE")
+                .repliesTo(this.replyMsg).build();
+
+        this.replyToReplyMsg = this.messageService.save(reply).orElse(null);
 
         this.messageJsonForTests =  "{\t\"content\" : \""+this.messageForTests.getContent()+"\",\n" +
                 "                         \t\"topicId\" : \""+this.messageForTests.getTopic().getId()+"\",\n" +
@@ -220,32 +229,40 @@ public class TopicControllerTest extends UniJiraTest {
 
     @Test
     void deleteOne() throws Exception {
-
         int initialSize = topicService.findAll(projectForTests.getId(),0,100000).size();
+        Assertions.assertEquals(2, initialSize);
+
+        int msgNumber =  messageService.findAll(toDeleteForTests.getId(),0,100000).size();
+        Assertions.assertEquals(0, msgNumber);
 
         mockMvc.perform(delete("/projects/"+projectForTests.getId()+"/topics/"+toDeleteForTests.getId())
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isNoContent());
 
         int finalSize =  topicService.findAll(projectForTests.getId(),0,100000).size();
+        Assertions.assertEquals(1, finalSize);
 
-        Assertions.assertTrue(initialSize>finalSize);
-
+        msgNumber =  messageService.findAll(toDeleteForTests.getId(),0,100000).size();
+        Assertions.assertEquals(0, msgNumber);
     }
 
     @Test
     void deleteOneNotEmpty() throws Exception {
-
         int initialSize = topicService.findAll(projectForTests.getId(),0,100000).size();
+        Assertions.assertEquals(2, initialSize);
+
+        int msgNumber =  messageService.findAll(topicForTests.getId(),0,100000).size();
+        Assertions.assertEquals(3, msgNumber);
 
         mockMvc.perform(delete("/projects/"+projectForTests.getId()+"/topics/"+topicForTests.getId())
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isNoContent());
 
         int finalSize =  topicService.findAll(projectForTests.getId(),0,100000).size();
+        Assertions.assertEquals(1, finalSize);
 
-        Assertions.assertTrue(initialSize>finalSize);
-
+        msgNumber =  messageService.findAll(topicForTests.getId(),0,100000).size();
+        Assertions.assertEquals(0, msgNumber);
     }
 
     @Test
@@ -305,19 +322,44 @@ public class TopicControllerTest extends UniJiraTest {
         Assertions.assertTrue(result.contains("UPDATED"));
     }
 
-    @Test
-    void deleteOneMessage() throws Exception {
-        int initialSize = messageService.findAll(topicForTests.getId(),0,100000).size();
-        System.err.println(initialSize);
+    void deleteMessage(Long msgId) throws Exception {
         mockMvc.perform(delete("/projects/"+projectForTests.getId()+"/topics/"
-                        +topicForTests.getId()+"/messages/"+messageForTests.getId())
+                        +topicForTests.getId()+"/messages/"+ msgId)
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteFatherMessage() throws Exception {
+        int initialSize = messageService.findAll(topicForTests.getId(),0,100000).size();
+        Assertions.assertEquals(3, initialSize);
+
+        deleteMessage(messageForTests.getId());
 
         int finalSize =  messageService.findAll(topicForTests.getId(),0,100000).size();
-        System.err.println(finalSize);
-        Assertions.assertTrue(initialSize>finalSize);
+        Assertions.assertEquals(0, finalSize);
+    }
 
+    @Test
+    void deleteSonMessage() throws Exception {
+        int initialSize = messageService.findAll(topicForTests.getId(),0,100000).size();
+        Assertions.assertEquals(3, initialSize);
+
+        deleteMessage(replyMsg.getId());
+
+        int finalSize =  messageService.findAll(topicForTests.getId(),0,100000).size();
+        Assertions.assertEquals(1, finalSize);
+    }
+
+    @Test
+    void deleteNephewMessage() throws Exception {
+        int initialSize = messageService.findAll(topicForTests.getId(),0,100000).size();
+        Assertions.assertEquals(3, initialSize);
+
+        deleteMessage(replyToReplyMsg.getId());
+
+        int finalSize =  messageService.findAll(topicForTests.getId(),0,100000).size();
+        Assertions.assertEquals(2, finalSize);
     }
 
     @Test
