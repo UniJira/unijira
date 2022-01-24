@@ -1,4 +1,4 @@
-package it.unical.unijira.data.models.discussionboard;
+package it.unical.unijira.data.models.discussions;
 
 public enum TopicType {
 

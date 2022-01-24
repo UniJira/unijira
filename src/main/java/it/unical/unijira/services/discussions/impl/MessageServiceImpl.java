@@ -1,8 +1,8 @@
-package it.unical.unijira.services.discussionboard.impl;
+package it.unical.unijira.services.discussions.impl;
 
-import it.unical.unijira.data.dao.discussionboard.MessageRepository;
-import it.unical.unijira.data.models.discussionboard.Message;
-import it.unical.unijira.services.discussionboard.MessageService;
+import it.unical.unijira.data.dao.discussions.MessageRepository;
+import it.unical.unijira.data.models.discussions.Message;
+import it.unical.unijira.services.discussions.MessageService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +20,11 @@ public record MessageServiceImpl (MessageRepository messageRepository)
 
     @Override
     public Optional<Message> update(Long id, Message message, Long projectId, Long topicId) {
-        return messageRepository.findByIdAndTopic(id,topicId).stream()
-                .peek(updated -> updated.setText(message.getText())).findFirst().map(messageRepository::saveAndFlush);
+        return messageRepository.findByIdAndTopic(id,topicId)
+                .stream()
+                .peek(updated -> updated.setText(message.getText()))
+                .findFirst()
+                .map(messageRepository::saveAndFlush);
     }
 
     @Override

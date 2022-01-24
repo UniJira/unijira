@@ -81,8 +81,7 @@ public class DtoMapper extends ModelMapper {
 
                 } catch (IllegalAccessException ignored) { }
 
-            }
-            else if(Collection.class.isAssignableFrom(field.getType())) {
+            } else if(Collection.class.isAssignableFrom(field.getType())) {
 
                 field.setAccessible(true);
 
@@ -95,14 +94,17 @@ public class DtoMapper extends ModelMapper {
 
                         if(item.getClass().isAnnotationPresent(Entity.class))
                             newElements.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
+
                         else if(item.getClass().isAnnotationPresent(Embeddable.class))
                             newElements.add(Objects.requireNonNull(resolveEntity(item)));
+
                         else
                             newElements.add(item);
                     }
 
                     items.clear();
                     items.addAll(newElements);
+
                 } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
 
             } else if(field.getType().isAnnotationPresent(Entity.class)) {

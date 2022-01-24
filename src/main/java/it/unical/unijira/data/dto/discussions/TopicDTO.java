@@ -1,17 +1,13 @@
-package it.unical.unijira.data.dto.discussionboard;
+package it.unical.unijira.data.dto.discussions;
 
 import it.unical.unijira.data.dto.AbstractBaseDTO;
-
-import it.unical.unijira.data.models.discussionboard.TopicType;
+import it.unical.unijira.data.models.discussions.TopicType;
 import lombok.*;
 
 
 @Builder
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @ToString
+@NoArgsConstructor @AllArgsConstructor
 public class TopicDTO extends AbstractBaseDTO {
 
     private Long id;
@@ -20,6 +16,5 @@ public class TopicDTO extends AbstractBaseDTO {
     private Long projectId;
     private Long userId;
     private TopicType type;
-    //private List<MessageDTO> messages;
 
 }

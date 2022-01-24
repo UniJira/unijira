@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface NotifyRepository extends JpaRepository<Notify, Long>, JpaSpecificationExecutor<Notify> {
-    List<Notify> findByUserIdOrderByReadAscPriorityAscDateDesc(Long id);
-    List<Notify> findByUserIdOrderByReadAscPriorityAscDateDesc(Long id, Pageable pageable);
+    List<Notify> findByUserIdOrderByReadAscPriorityAscCreatedAtDesc(Long id);
+    List<Notify> findByUserIdOrderByReadAscPriorityAscCreatedAtDesc(Long id, Pageable pageable);
 }

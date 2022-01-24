@@ -29,6 +29,11 @@ public class RoadmapTreeDTO {
     private ItemStatus itemStatus;
     private UserInfoDTO itemOwner;
     private Long itemFatherId;
+
+    @Builder.Default
     private List<ItemAssignmentDTO> itemAssignees = new ArrayList<>();
-    private List<RoadmapTreeDTO> children;
+
+    @Builder.Default
+    private List<RoadmapTreeDTO> children = new ArrayList<>();
+
 }

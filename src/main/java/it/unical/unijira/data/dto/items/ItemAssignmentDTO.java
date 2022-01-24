@@ -2,6 +2,8 @@ package it.unical.unijira.data.dto.items;
 
 import lombok.*;
 
+import java.net.URL;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,5 +16,6 @@ public class ItemAssignmentDTO {
     private Long itemId;
     private Long assigneeId;
     private String assigneeUsername;
+    private URL assigneeAvatar;
 
 }

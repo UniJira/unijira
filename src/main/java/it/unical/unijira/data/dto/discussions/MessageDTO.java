@@ -1,7 +1,6 @@
-package it.unical.unijira.data.dto.discussionboard;
+package it.unical.unijira.data.dto.discussions;
 
 import it.unical.unijira.data.dto.AbstractBaseDTO;
-
 import lombok.*;
 
 

@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.net.URL;
-import java.time.LocalDateTime;
 
 @Entity
 @Table
@@ -39,6 +38,7 @@ public class Notify extends AbstractBaseEntity {
 
     @Column
     @Enumerated(EnumType.ORDINAL)
+    @Builder.Default
     private Priority priority = Priority.LOW;
 
     @ManyToOne
@@ -46,9 +46,7 @@ public class Notify extends AbstractBaseEntity {
     private User user;
 
     @Column
+    @Builder.Default
     private boolean read = false;
-
-    @Column
-    private LocalDateTime date = LocalDateTime.now();
 
 }

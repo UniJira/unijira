@@ -1,4 +1,4 @@
-package it.unical.unijira.data.models.discussionboard;
+package it.unical.unijira.data.models.discussions;
 
 import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
@@ -44,4 +44,5 @@ public class Message extends AbstractBaseEntity {
     @OneToMany(mappedBy = "repliesTo", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<Message> myReplies;
+
 }
