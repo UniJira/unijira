@@ -3,8 +3,6 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.SprintRepository;
 import it.unical.unijira.data.dao.UserScoreboardRepository;
-import it.unical.unijira.data.dao.items.HintRepository;
-import it.unical.unijira.data.dao.projects.MembershipRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.SprintStatus;
@@ -37,6 +35,7 @@ public record SprintServiceImpl(SprintRepository sprintRepository,
                     updatedItem.setEndingDate(sprint.getEndingDate());
                     updatedItem.setStartingDate(sprint.getStartingDate());
                     updatedItem.setInsertions(sprint.getInsertions());
+                    updatedItem.setStatus(sprint.getStatus());
                     })
                 .findFirst()
                 .map(sprintRepository::saveAndFlush);
