@@ -3,6 +3,7 @@ package it.unical.unijira.data.models;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -44,6 +45,7 @@ public class User extends AbstractBaseEntity {
     private Status status;
 
     @Column
+    @Builder.Default
     private boolean disabled = false;
 
     @Column
@@ -59,6 +61,7 @@ public class User extends AbstractBaseEntity {
 
     @OneToMany(mappedBy = "key.user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
+    @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
 
 
@@ -69,6 +72,7 @@ public class User extends AbstractBaseEntity {
     /* Campi per riempire la sezione profilo utente */
 
     @Column
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate birthDate;
 
     @Column

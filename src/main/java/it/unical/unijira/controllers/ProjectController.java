@@ -3,15 +3,15 @@ package it.unical.unijira.controllers;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
-import it.unical.unijira.data.dto.discussionboard.MessageDTO;
-import it.unical.unijira.data.dto.discussionboard.TopicDTO;
+import it.unical.unijira.data.dto.discussions.MessageDTO;
+import it.unical.unijira.data.dto.discussions.TopicDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.projects.DefinitionOfDoneEntryDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
 import it.unical.unijira.data.dto.user.RoadmapTreeDTO;
 import it.unical.unijira.data.models.*;
-import it.unical.unijira.data.models.discussionboard.Message;
-import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.discussions.Message;
+import it.unical.unijira.data.models.discussions.Topic;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.DefinitionOfDoneEntry;
 import it.unical.unijira.data.models.projects.Membership;
@@ -20,8 +20,8 @@ import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
-import it.unical.unijira.services.discussionboard.MessageService;
-import it.unical.unijira.services.discussionboard.TopicService;
+import it.unical.unijira.services.discussions.MessageService;
+import it.unical.unijira.services.discussions.TopicService;
 import it.unical.unijira.services.projects.DefinitionOfDoneEntryService;
 import it.unical.unijira.services.projects.ReleaseService;
 import it.unical.unijira.utils.ControllerUtilities;
@@ -1176,7 +1176,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
             return ResponseEntity.badRequest().build();
 
-        if(releaseDTO.getStartDate().isAfter(releaseDTO.getEndDate()))
+        if(releaseDTO.getStartDate().isAfter((releaseDTO.getEndDate())))
             return ResponseEntity.badRequest().build();
 
         if(releaseDTO.getStatus() == null)

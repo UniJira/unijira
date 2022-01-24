@@ -1,16 +1,16 @@
-package it.unical.unijira.controllers.discussionboard;
+package it.unical.unijira.controllers.discussions;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.User;
-import it.unical.unijira.data.models.discussionboard.Message;
-import it.unical.unijira.data.models.discussionboard.Topic;
-import it.unical.unijira.data.models.discussionboard.TopicType;
+import it.unical.unijira.data.models.discussions.Message;
+import it.unical.unijira.data.models.discussions.Topic;
+import it.unical.unijira.data.models.discussions.TopicType;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.UserService;
-import it.unical.unijira.services.discussionboard.MessageService;
-import it.unical.unijira.services.discussionboard.TopicService;
+import it.unical.unijira.services.discussions.MessageService;
+import it.unical.unijira.services.discussions.TopicService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -175,9 +175,9 @@ public class TopicControllerTest extends UniJiraTest {
 
         int initialSize = topicService.findAll(projectForTests.getId(),0,100000).size();
         mockMvc.perform(post("/projects/"+projectForTests.getId()+"/topics")
-                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
-                .contentType("application/json")
-                .content(this.topicJsonForTests))
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content(this.topicJsonForTests))
                 .andExpect(status().isCreated());
 
         int finalSize =  topicService.findAll(projectForTests.getId(),0,100000).size();
@@ -236,7 +236,7 @@ public class TopicControllerTest extends UniJiraTest {
         Assertions.assertEquals(0, msgNumber);
 
         mockMvc.perform(delete("/projects/"+projectForTests.getId()+"/topics/"+toDeleteForTests.getId())
-                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isNoContent());
 
         int finalSize =  topicService.findAll(projectForTests.getId(),0,100000).size();

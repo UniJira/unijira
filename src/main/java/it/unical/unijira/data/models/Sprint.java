@@ -1,6 +1,5 @@
 package it.unical.unijira.data.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -29,7 +28,6 @@ public class Sprint  extends  AbstractBaseEntity{
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate startingDate;
 
     @Column
@@ -37,7 +35,6 @@ public class Sprint  extends  AbstractBaseEntity{
     @Getter
     @Setter
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate endingDate;
 
 

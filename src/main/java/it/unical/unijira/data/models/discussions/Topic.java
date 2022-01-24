@@ -1,4 +1,4 @@
-package it.unical.unijira.data.models.discussionboard;
+package it.unical.unijira.data.models.discussions;
 
 import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
@@ -22,7 +22,6 @@ public class Topic extends AbstractBaseEntity {
     @GeneratedValue
     private Long id;
 
-
     @Column
     @Basic(optional = false)
     private String title;
@@ -39,13 +38,12 @@ public class Topic extends AbstractBaseEntity {
     @JoinColumn
     private Project project;
 
-
     @ManyToOne
     @JoinColumn
     private User user;
 
-
     @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<Message> messages;
+
 }

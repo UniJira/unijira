@@ -50,7 +50,7 @@ public class NotifyControllerTest extends UniJiraTest {
                 .andExpect(status().isOk());
 
         Assertions.assertTrue(notifyRepository
-                .findByUserIdOrderByReadAscPriorityAscDateDesc(1L, PageRequest.of(0, 25))
+                .findByUserIdOrderByReadAscPriorityAscCreatedAtDesc(1L, PageRequest.of(0, 25))
                 .stream()
                 .allMatch(Notify::isRead));
 

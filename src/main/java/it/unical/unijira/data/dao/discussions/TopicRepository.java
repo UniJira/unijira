@@ -1,6 +1,6 @@
-package it.unical.unijira.data.dao.discussionboard;
+package it.unical.unijira.data.dao.discussions;
 
-import it.unical.unijira.data.models.discussionboard.Topic;
+import it.unical.unijira.data.models.discussions.Topic;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
