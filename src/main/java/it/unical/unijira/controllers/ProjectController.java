@@ -18,6 +18,7 @@ import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.data.models.projects.releases.Release;
+import it.unical.unijira.services.common.HintService;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.services.discussionboard.MessageService;
@@ -60,6 +61,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final MessageService messageService;
     private final TopicService topicService;
     private final DefinitionOfDoneEntryService definitionOfDoneEntryService;
+    private final HintService hintService;
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -78,6 +80,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              TopicService topicService,
                              MessageService messageService,
                              DefinitionOfDoneEntryService definitionOfDoneEntryService,
+                             HintService hintService,
                              ModelMapper modelMapper) {
 
         this.userService = userService;
@@ -95,6 +98,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.messageService = messageService;
         this.topicService = topicService;
         this.definitionOfDoneEntryService = definitionOfDoneEntryService;
+        this.hintService = hintService;
         this.modelMapper = modelMapper;
 
     }
@@ -1054,6 +1058,64 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .map(p -> modelMapper.map(p, ItemDTO.class))
                 .collect(Collectors.toList()));
     }
+
+
+    @GetMapping ("/{project}/backlogs/{backlog}/sprints/{sprint}/user/{user}/hint")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ItemDTO>> hintNextTicket(@PathVariable Long project,
+                                                        @PathVariable Long backlog,
+                                                        @PathVariable Long sprint,
+                                                        @PathVariable Long user,
+                                                        @RequestParam(defaultValue = "QUICK") String type) {
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        ProductBacklog backlogObj = backlogService.findById(backlog).orElse(null);
+        Sprint sprintObj = sprintService.findById(sprint).orElse(null);
+
+        if (!ControllerUtilities.checkSprintCoherence(projectObj,backlogObj,sprintObj)) {
+            return ResponseEntity.notFound().build();
+        }
+        // User is not found
+        User userObj = userService.findById(user).orElse(null);
+        if (userObj == null) {
+            return ResponseEntity.notFound().build();
+        }
+        // User is not enrolled in projects
+        List<Membership> memberships = userObj.getMemberships();
+        if(memberships == null || memberships.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        // User is not enrolled in the current project
+        boolean isEnrolledInThisProject = false;
+        for (Membership membership : memberships) {
+            if(project.equals(membership.getKey().getProject().getId())) {
+                isEnrolledInThisProject = true;
+                break;
+            }
+        }
+        if (!isEnrolledInThisProject) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // There are no closed sprints, so I can't hint
+        List<Sprint> sprints = sprintService.findSprintsByBacklog(backlogObj, 0, 100000);
+        boolean hintable = false;
+        for (Sprint s : sprints) {
+            if (SprintStatus.INACTIVE.equals(s.getStatus())) {
+                hintable = true;
+                break;
+            }
+        }
+        if(!hintable) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(hintService.sendHint(sprintObj,userObj, type)
+                .stream()
+                .map(p -> modelMapper.map(p, ItemDTO.class))
+                .collect(Collectors.toList()));
+    }
+
 
 
     @GetMapping ("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items")

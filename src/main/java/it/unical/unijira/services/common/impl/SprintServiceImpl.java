@@ -1,8 +1,15 @@
 package it.unical.unijira.services.common.impl;
 
+import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.SprintRepository;
+import it.unical.unijira.data.dao.UserScoreboardRepository;
+import it.unical.unijira.data.dao.items.HintRepository;
+import it.unical.unijira.data.dao.projects.MembershipRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Sprint;
+import it.unical.unijira.data.models.SprintStatus;
+import it.unical.unijira.data.models.UserScoreboard;
+import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.SprintService;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +19,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public record SprintServiceImpl(SprintRepository sprintRepository)
+public record SprintServiceImpl(SprintRepository sprintRepository,
+                                UserScoreboardRepository userScoreboardRepository,
+                                SprintInsertionRepository sprintInsertionRepository)
         implements SprintService {
     @Override
     public Optional<Sprint> save(Sprint sprint) {
@@ -21,7 +30,7 @@ public record SprintServiceImpl(SprintRepository sprintRepository)
 
     @Override
     public Optional<Sprint> update(Long id, Sprint sprint) {
-        return sprintRepository.findById(id)
+        Optional<Sprint> returnValue = sprintRepository.findById(id)
                 .stream()
                 .peek(updatedItem -> {
                     updatedItem.setBacklog(sprint.getBacklog());
@@ -31,6 +40,25 @@ public record SprintServiceImpl(SprintRepository sprintRepository)
                     })
                 .findFirst()
                 .map(sprintRepository::saveAndFlush);
+
+        if (SprintStatus.INACTIVE.equals(returnValue.orElse(sprint).getStatus())) {
+            userScoreboardRepository.deleteAllBySprint(returnValue.orElse(sprint));
+            List<Membership> members = returnValue.orElse(sprint).getBacklog().getProject().getMemberships();
+            for (Membership member : members) {
+                UserScoreboard usb = UserScoreboard.builder()
+                        .sprint(returnValue.orElse(sprint))
+                                .user(member.getKey().getUser())
+                                .score(sprintInsertionRepository
+                                        .getScoredPointsBySprint(returnValue.orElse(sprint),
+                                                member.getKey().getUser()))
+                                .build();
+
+                userScoreboardRepository.saveAndFlush(usb);
+            }
+        }
+
+
+        return returnValue;
     }
 
     @Override
