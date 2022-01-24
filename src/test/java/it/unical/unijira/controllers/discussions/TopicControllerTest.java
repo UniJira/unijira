@@ -1,4 +1,4 @@
-package it.unical.unijira.controllers.discussionboard;
+package it.unical.unijira.controllers.discussions;
 
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.User;
@@ -95,12 +95,12 @@ public class TopicControllerTest extends UniJiraTest {
                 "                         \t\"content\" : \"CONTENT\",\n" +
                 "                         \t\"type\" : \"GENERAL\",\n" +
                 "                         \t\"projectId\" : \""+projectForTests.getId()+"\",\n" +
-                "                         \t\"authorId\" : \"" + this.userForTests.getId() + "\"\n" +
+                "                         \t\"userId\" : \"" + this.userForTests.getId() + "\"\n" +
                 "                         \t}\n" +
                 "                         }";
 
         Topic forTests = Topic.builder()
-                .author(userForTests)
+                .user(userForTests)
                 .project(projectForTests)
                 .title("This is a wonderful topic to discuss about")
                 .content("asdasdasd")
@@ -108,7 +108,7 @@ public class TopicControllerTest extends UniJiraTest {
         this.topicForTests = this.topicService.save(forTests).orElse(null);
 
         Topic toDelete = Topic.builder()
-                .author(userForTests)
+                .user(userForTests)
                 .project(projectForTests)
                 .title("This is a bad topic and need to be deleted")
                 .content("qweqweqwer")
@@ -121,21 +121,21 @@ public class TopicControllerTest extends UniJiraTest {
                 "                         \t\"type\" : \"IDEAS\",\n" +
                 "                         \t\"content\" : \"CONTENT UPDATED\",\n" +
                 "                         \t\"projectId\" : \""+projectForTests.getId()+"\",\n" +
-                "                         \t\"authorId\" : \"" + this.userForTests.getId() + "\"\n" +
+                "                         \t\"userId\" : \"" + this.userForTests.getId() + "\"\n" +
                 "                         \t}\n" +
                 "                         }";
 
         Message message = Message.builder()
                 .author(userForTests)
                 .topic(topicForTests)
-                .content("THIS IS THE FIRST MESSAGE").build();
+                .text("THIS IS THE FIRST MESSAGE").build();
 
         this.messageForTests = this.messageService.save(message).orElse(null);
 
         Message reply = Message.builder()
                 .author(userForTests)
                 .topic(topicForTests)
-                .content("THIS IS MY REPLY TO YOUR PREVIOUS MESSAGE")
+                .text("THIS IS MY REPLY TO YOUR PREVIOUS MESSAGE")
                 .repliesTo(this.messageForTests).build();
 
         this.replyMsg = this.messageService.save(reply).orElse(null);
@@ -148,7 +148,7 @@ public class TopicControllerTest extends UniJiraTest {
 
         this.replyToReplyMsg = this.messageService.save(reply).orElse(null);
 
-        this.messageJsonForTests =  "{\t\"content\" : \""+this.messageForTests.getContent()+"\",\n" +
+        this.messageJsonForTests =  "{\t\"text\" : \""+this.messageForTests.getText()+"\",\n" +
                 "                         \t\"topicId\" : \""+this.messageForTests.getTopic().getId()+"\",\n" +
                 "                         \t\"authorUsername\" : \""+this.messageForTests.getAuthor().getUsername()+"\",\n" +
                 "                         \t\"authorId\" : \"" + this.messageForTests.getAuthor().getId() + "\"\n" +
@@ -156,7 +156,7 @@ public class TopicControllerTest extends UniJiraTest {
                 "                         }";
 
         this.messageJSonForTestsUpdated = "{\"id\" : \""+this.messageForTests.getId()+"\",\n" +
-                "                         \t\"content\" : \""+this.messageForTests.getContent()+" UPDATED"+"\",\n" +
+                "                         \t\"text\" : \""+this.messageForTests.getText()+" UPDATED"+"\",\n" +
                 "                         \t\"topicId\" : \""+this.messageForTests.getTopic().getId()+"\",\n" +
                 "                         \t\"authorUsername\" : \""+this.messageForTests.getAuthor().getUsername()+"\",\n" +
                 "                         \t\"authorId\" : \"" + this.messageForTests.getAuthor().getId() + "\"\n" +
@@ -175,9 +175,9 @@ public class TopicControllerTest extends UniJiraTest {
 
         int initialSize = topicService.findAll(projectForTests.getId(),0,100000).size();
         mockMvc.perform(post("/projects/"+projectForTests.getId()+"/topics")
-                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
-                .contentType("application/json")
-                .content(this.topicJsonForTests))
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content(this.topicJsonForTests))
                 .andExpect(status().isCreated());
 
         int finalSize =  topicService.findAll(projectForTests.getId(),0,100000).size();
@@ -236,7 +236,7 @@ public class TopicControllerTest extends UniJiraTest {
         Assertions.assertEquals(0, msgNumber);
 
         mockMvc.perform(delete("/projects/"+projectForTests.getId()+"/topics/"+toDeleteForTests.getId())
-                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isNoContent());
 
         int finalSize =  topicService.findAll(projectForTests.getId(),0,100000).size();

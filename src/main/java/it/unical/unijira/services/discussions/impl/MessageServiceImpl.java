@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public record MessageServiceImpl (MessageRepository messageRepository) implements MessageService {
+public record MessageServiceImpl (MessageRepository messageRepository)
+        implements MessageService {
 
     @Override
     public Optional<Message> save(Message message) {
@@ -19,12 +20,11 @@ public record MessageServiceImpl (MessageRepository messageRepository) implement
 
     @Override
     public Optional<Message> update(Long id, Message message, Long projectId, Long topicId) {
-
-        return messageRepository.findByIdAndTopic(id,topicId).stream()
-                .peek(updated -> updated.setContent(message.getContent()))
+        return messageRepository.findByIdAndTopic(id,topicId)
+                .stream()
+                .peek(updated -> updated.setText(message.getText()))
                 .findFirst()
                 .map(messageRepository::saveAndFlush);
-
     }
 
     @Override

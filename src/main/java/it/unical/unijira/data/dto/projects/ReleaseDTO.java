@@ -1,5 +1,6 @@
 package it.unical.unijira.data.dto.projects;
 
+import it.unical.unijira.data.dto.AbstractBaseDTO;
 import it.unical.unijira.data.models.projects.releases.ReleaseStatus;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import java.time.LocalDate;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReleaseDTO {
+public class ReleaseDTO extends AbstractBaseDTO {
 
     private Long id;
     private String version;
@@ -20,7 +21,5 @@ public class ReleaseDTO {
     private Long projectId;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String createdAt;
-    private String updatedAt;
 
 }

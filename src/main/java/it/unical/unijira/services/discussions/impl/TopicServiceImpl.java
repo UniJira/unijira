@@ -1,14 +1,8 @@
 package it.unical.unijira.services.discussions.impl;
 
-<<<<<<< HEAD
 import it.unical.unijira.data.dao.discussions.MessageRepository;
 import it.unical.unijira.data.dao.discussions.TopicRepository;
 import it.unical.unijira.data.models.discussions.Topic;
-=======
-import it.unical.unijira.data.dao.discussionboard.MessageRepository;
-import it.unical.unijira.data.dao.discussionboard.TopicRepository;
-import it.unical.unijira.data.models.discussionboard.Topic;
->>>>>>> 1dbf55d1168b8b42e92641c1e18a2ff0f7e39c44
 import it.unical.unijira.services.discussions.TopicService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

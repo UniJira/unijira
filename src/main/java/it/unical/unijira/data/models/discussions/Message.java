@@ -24,7 +24,7 @@ public class Message extends AbstractBaseEntity {
 
     @Column
     @Basic(optional = false)
-    private String content;
+    private String text;
 
 
     @ManyToOne
@@ -44,4 +44,5 @@ public class Message extends AbstractBaseEntity {
     @OneToMany(mappedBy = "repliesTo", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<Message> myReplies;
+
 }

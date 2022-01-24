@@ -3,6 +3,8 @@ package it.unical.unijira.data.dto;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @ToString
@@ -11,8 +13,8 @@ import lombok.*;
 public class RoadmapInsertionDTO {
 
     private Long id;
-    private String startingDate;
-    private String endingDate;
+    private LocalDate startingDate;
+    private LocalDate endingDate;
     private ItemDTO item;
     private Long roadmapId;
 

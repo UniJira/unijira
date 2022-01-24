@@ -13,7 +13,7 @@ import lombok.*;
 public class MessageDTO extends AbstractBaseDTO {
 
     private Long id;
-    private String content;
+    private String text;
     private Long topicId;
     private Long authorId;
     private String authorUsername;

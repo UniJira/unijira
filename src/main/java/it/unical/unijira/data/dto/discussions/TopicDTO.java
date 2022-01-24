@@ -14,7 +14,6 @@ public class TopicDTO extends AbstractBaseDTO {
     private String title;
     private String content;
     private Long projectId;
-    private Long authorId;
     private Long userId;
     private TopicType type;
 

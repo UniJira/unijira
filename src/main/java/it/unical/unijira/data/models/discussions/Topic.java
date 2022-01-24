@@ -6,7 +6,6 @@ import it.unical.unijira.data.models.projects.Project;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -41,7 +40,7 @@ public class Topic extends AbstractBaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private User author;
+    private User user;
 
     @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude

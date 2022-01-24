@@ -7,6 +7,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.module.jdk8.Jdk8Module;
 import org.modelmapper.module.jsr310.Jsr310Module;
+import org.modelmapper.module.jsr310.Jsr310ModuleConfig;
 
 import javax.persistence.*;
 import java.lang.reflect.Type;
@@ -36,8 +37,9 @@ public class DtoMapper extends ModelMapper {
         this.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
         this.getConfiguration().setUseOSGiClassLoaderBridging(true);
 
-        this.registerModule(new Jsr310Module());
+        this.registerModule(new Jsr310Module(new Jsr310ModuleConfig()));
         this.registerModule(new Jdk8Module());
+
     }
 
 
@@ -100,8 +102,10 @@ public class DtoMapper extends ModelMapper {
 
                                 if(item.getClass().isAnnotationPresent(Entity.class))
                                     newElements.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
+
                                 else if(item.getClass().isAnnotationPresent(Embeddable.class))
                                     newElements.add(Objects.requireNonNull(resolveEntity(item)));
+
                                 else
                                     newElements.add(item);
                             }

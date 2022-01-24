@@ -54,6 +54,7 @@ public class Project extends AbstractBaseEntity {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @Builder.Default
     private List<DefinitionOfDoneEntry> definitionOfDone = new ArrayList<>();
 
 }
