@@ -87,6 +87,12 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
 
     @Override
     public void delete(Item pbi) {
+        if (pbi.getAssignees() != null) {
+            for (ItemAssignment assignment : pbi.getAssignees()) {
+                assignment.setItem(pbi);
+                itemAssignmentRepository.delete(assignment);
+            }
+        }
         pbiRepository.delete(pbi);
 
     }
