@@ -3,6 +3,7 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.UserScoreboardRepository;
 import it.unical.unijira.data.dao.items.HintRepository;
+import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemStatus;
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
 @Service
 public record HintServiceImpl(HintRepository hintRepository,
                               UserScoreboardRepository userScoreboardRepository,
-                              SprintInsertionRepository sprintInsertionRepository) implements HintService {
+                              SprintInsertionRepository sprintInsertionRepository,
+                              ItemRepository pbiRepository) implements HintService {
 
 
     @Override
@@ -68,7 +70,13 @@ public record HintServiceImpl(HintRepository hintRepository,
     }
 
     private SprintHint calculateHintsAndSave(Sprint sprint, HintType type, User user) {
-
+        Integer currentScore = 0;
+        List<Item> completedItems = pbiRepository.findAllClosedByAssigneeAndSprint(user,sprint);
+        for (Item item : completedItems) {
+            if (item.getSons()== null || item.getSons().isEmpty()) {
+                currentScore+=item.getEvaluation();
+            }
+        }
         List<Item> candidateItems = new ArrayList<>();
         Integer maxScoreFound = 0;
         Float scoreLimit;
@@ -82,8 +90,9 @@ public record HintServiceImpl(HintRepository hintRepository,
         List<SprintInsertion> insertionList = sprintInsertionRepository.findItemsBySprint(sprint, Pageable.unpaged());
         for (SprintInsertion insertion : insertionList) {
             if (ItemStatus.OPEN.equals(insertion.getItem().getStatus())
+                    && insertion.getItem().getEvaluation() > 0
                     && insertion.getItem().getEvaluation() > maxScoreFound
-                    && insertion.getItem().getEvaluation() <= scoreLimit) {
+                    && insertion.getItem().getEvaluation() <= scoreLimit-currentScore) {
 
                 candidateItems = new ArrayList<>();
                 maxScoreFound = insertion.getItem().getEvaluation();
@@ -91,7 +100,8 @@ public record HintServiceImpl(HintRepository hintRepository,
 
             }
             if (ItemStatus.OPEN.equals(insertion.getItem().getStatus())
-                    && maxScoreFound.equals(insertion.getItem().getEvaluation())) {
+                    && maxScoreFound.equals(insertion.getItem().getEvaluation())
+                    && insertion.getItem().getEvaluation() > 0) {
 
                 candidateItems.add(insertion.getItem());
             }

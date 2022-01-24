@@ -46,4 +46,11 @@ public interface ItemRepository extends JpaRepository<Item, Long>,
     List<Item> findAllByRoadmapNoFather(Roadmap roadmap, Pageable pageable);
 
 
+    @Query(value = "SELECT ia.item " +
+            "FROM ItemAssignment ia, SprintInsertion si " +
+            "where ia.assignee = :assignee and si.item = ia.item and si.sprint = :sprint " +
+            "and ia.item.status = 'DONE'")
+    List<Item> findAllClosedByAssigneeAndSprint(User assignee, Sprint sprint);
+
+
 }

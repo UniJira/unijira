@@ -3,10 +3,12 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.SprintRepository;
 import it.unical.unijira.data.dao.UserScoreboardRepository;
+import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.SprintStatus;
 import it.unical.unijira.data.models.UserScoreboard;
+import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.SprintService;
@@ -19,7 +21,8 @@ import java.util.Optional;
 @Service
 public record SprintServiceImpl(SprintRepository sprintRepository,
                                 UserScoreboardRepository userScoreboardRepository,
-                                SprintInsertionRepository sprintInsertionRepository)
+                                SprintInsertionRepository sprintInsertionRepository,
+                                ItemRepository pbiRepository)
         implements SprintService {
     @Override
     public Optional<Sprint> save(Sprint sprint) {
@@ -43,13 +46,19 @@ public record SprintServiceImpl(SprintRepository sprintRepository,
         if (SprintStatus.INACTIVE.equals(returnValue.orElse(sprint).getStatus())) {
             userScoreboardRepository.deleteAllBySprint(returnValue.orElse(sprint));
             List<Membership> members = returnValue.orElse(sprint).getBacklog().getProject().getMemberships();
+            int score = 0;
             for (Membership member : members) {
+                List<Item> myCompletedItems = pbiRepository
+                        .findAllClosedByAssigneeAndSprint(member.getKey().getUser(),sprint);
+                for (Item item : myCompletedItems) {
+                    if (item.getSons()== null || item.getSons().isEmpty()) {
+                        score+=item.getEvaluation();
+                    }
+                }
                 UserScoreboard usb = UserScoreboard.builder()
                         .sprint(returnValue.orElse(sprint))
                                 .user(member.getKey().getUser())
-                                .score(sprintInsertionRepository
-                                        .getScoredPointsBySprint(returnValue.orElse(sprint),
-                                                member.getKey().getUser()))
+                                .score(score)
                                 .build();
 
                 userScoreboardRepository.saveAndFlush(usb);
