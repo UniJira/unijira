@@ -7,14 +7,10 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.module.jdk8.Jdk8Module;
 import org.modelmapper.module.jsr310.Jsr310Module;
-import org.modelmapper.module.jsr310.Jsr310ModuleConfig;
 
 import javax.persistence.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public class DtoMapper extends ModelMapper {
@@ -32,14 +28,11 @@ public class DtoMapper extends ModelMapper {
         this.getConfiguration().setSkipNullEnabled(true);
         this.getConfiguration().setImplicitMappingEnabled(true);
         this.getConfiguration().setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
-        this.getConfiguration().setMethodAccessLevel(Configuration.AccessLevel.PUBLIC);
         this.getConfiguration().setSourceNameTokenizer(NameTokenizers.CAMEL_CASE);
         this.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
-        this.getConfiguration().setUseOSGiClassLoaderBridging(true);
 
-        this.registerModule(new Jsr310Module(new Jsr310ModuleConfig()));
+        this.registerModule(new Jsr310Module());
         this.registerModule(new Jdk8Module());
-
     }
 
 
@@ -76,60 +69,57 @@ public class DtoMapper extends ModelMapper {
             return entity;
 
 
-            for (var field : entity.getClass().getDeclaredFields()) {
+        for(var field : entity.getClass().getDeclaredFields()) {
 
-                if (Collection.class.isAssignableFrom(field.getType())) {
+            if(field.getType().isAnnotationPresent(Embeddable.class)) {
 
+                field.setAccessible(true);
 
-                    if(field.getType().isAnnotationPresent(Embeddable.class)) {
+                try {
 
-                        field.setAccessible(true);
+                    resolveEntity(field.get(entity));
 
-                        try {
+                } catch (IllegalAccessException ignored) { }
 
-                            resolveEntity(field.get(entity));
+            } else if(Collection.class.isAssignableFrom(field.getType())) {
 
-                        } catch (IllegalAccessException ignored) { }
+                field.setAccessible(true);
 
-                    } else if(Collection.class.isAssignableFrom(field.getType())) {
+                try {
 
-                        try {
+                    Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
+                    List<Object> newElements = new ArrayList<>();
 
-                            Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
-                            List<Object> newElements = new ArrayList<>();
+                    for(var item : items) {
 
-                            for(var item : items) {
+                        if(item.getClass().isAnnotationPresent(Entity.class))
+                            newElements.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
 
-                                if(item.getClass().isAnnotationPresent(Entity.class))
-                                    newElements.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
+                        else if(item.getClass().isAnnotationPresent(Embeddable.class))
+                            newElements.add(Objects.requireNonNull(resolveEntity(item)));
 
-                                else if(item.getClass().isAnnotationPresent(Embeddable.class))
-                                    newElements.add(Objects.requireNonNull(resolveEntity(item)));
+                        else
+                            newElements.add(item);
+                    }
 
-                                else
-                                    newElements.add(item);
-                            }
+                    items.clear();
+                    items.addAll(newElements);
 
-                            items.clear();
-                            items.addAll(newElements);
+                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
 
-                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
+            } else if(field.getType().isAnnotationPresent(Entity.class)) {
 
-                } else if(field.getType().isAnnotationPresent(Entity.class)) {
+                field.setAccessible(true);
 
-                    try {
+                try {
 
-                        field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(field.get(entity)))));
+                    field.set(entity, Objects.requireNonNull(entityManager.find(field.getType(), resolveId(field.get(entity)))));
 
-                    } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) {}
-
-                }
+                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
 
             }
 
         }
-
-
 
         return entity;
 
