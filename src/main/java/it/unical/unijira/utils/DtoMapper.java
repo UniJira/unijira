@@ -5,13 +5,12 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
+import org.modelmapper.module.jdk8.Jdk8Module;
+import org.modelmapper.module.jsr310.Jsr310Module;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public class DtoMapper extends ModelMapper {
@@ -32,6 +31,8 @@ public class DtoMapper extends ModelMapper {
         this.getConfiguration().setSourceNameTokenizer(NameTokenizers.CAMEL_CASE);
         this.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
 
+        this.registerModule(new Jsr310Module());
+        this.registerModule(new Jdk8Module());
     }
 
 
@@ -41,10 +42,13 @@ public class DtoMapper extends ModelMapper {
 
         for(var field : entity.getClass().getDeclaredFields()) {
 
-            if(!field.isAnnotationPresent(Id.class))
+            if(!field.isAnnotationPresent(Id.class) && !field.isAnnotationPresent(EmbeddedId.class))
                 continue;
 
             field.setAccessible(true);
+
+            if(field.isAnnotationPresent(EmbeddedId.class))
+                return Objects.requireNonNull(resolveEntity(field.get(entity)));
 
             return Objects.requireNonNull(field.get(entity));
 
@@ -61,32 +65,47 @@ public class DtoMapper extends ModelMapper {
 
         Objects.requireNonNull(entity);
 
-        if(!entity.getClass().isAnnotationPresent(Entity.class))
+        if(!entity.getClass().isAnnotationPresent(Entity.class) && !entity.getClass().isAnnotationPresent(Embeddable.class))
             return entity;
 
 
         for(var field : entity.getClass().getDeclaredFields()) {
 
-            if(Collection.class.isAssignableFrom(field.getType())) {
+            if(field.getType().isAnnotationPresent(Embeddable.class)) {
+
+                field.setAccessible(true);
+
+                try {
+
+                    resolveEntity(field.get(entity));
+
+                } catch (IllegalAccessException ignored) { }
+
+            } else if(Collection.class.isAssignableFrom(field.getType())) {
 
                 field.setAccessible(true);
 
                 try {
 
                     Collection<Object> items = (Collection<Object>) Objects.requireNonNull(field.get(entity));
+                    List<Object> newElements = new ArrayList<>();
 
                     for(var item : items) {
 
-                        if(!item.getClass().isAnnotationPresent(Entity.class))
-                            continue;
+                        if(item.getClass().isAnnotationPresent(Entity.class))
+                            newElements.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
 
-                        items.add(Objects.requireNonNull(entityManager.find(item.getClass(), resolveId(item))));
-                        items.remove(item);
+                        else if(item.getClass().isAnnotationPresent(Embeddable.class))
+                            newElements.add(Objects.requireNonNull(resolveEntity(item)));
 
+                        else
+                            newElements.add(item);
                     }
 
-                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
+                    items.clear();
+                    items.addAll(newElements);
 
+                } catch (IllegalAccessException | IllegalArgumentException | NullPointerException ignored) { }
 
             } else if(field.getType().isAnnotationPresent(Entity.class)) {
 

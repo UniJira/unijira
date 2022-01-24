@@ -18,4 +18,6 @@ public interface ItemAssignmentService {
     List<ItemAssignment> findAll();
     List<ItemAssignment> findAllByAssignee(User assignee, int page, int size);
     List<ItemAssignment> findAllByItem(Item pbi, int page, int size);
+
+    Optional<ItemAssignment> findByIdAndItem(Long assignmentId, Long itemId);
 }

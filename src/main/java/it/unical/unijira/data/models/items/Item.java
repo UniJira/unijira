@@ -5,7 +5,7 @@ import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.utils.Errors;
-import it.unical.unijira.utils.ItemType;
+import it.unical.unijira.utils.ItemUtils;
 import lombok.*;
 
 import javax.persistence.*;
@@ -44,9 +44,10 @@ public class Item extends AbstractBaseEntity {
 
 
     @Column
+    @Enumerated(EnumType.STRING)
     @Getter
     @Setter
-    private String measureUnit;
+    private MeasureUnit measureUnit;
 
 
     @Column
@@ -62,8 +63,6 @@ public class Item extends AbstractBaseEntity {
     private ItemStatus status;
 
 
-
-
     // Important to assert for the tags structure
     //Tags are separated by ; and surrounded by ##
     @Column
@@ -74,16 +73,10 @@ public class Item extends AbstractBaseEntity {
 
     @Column
     @Basic(optional = false)
+    @Enumerated(EnumType.STRING)
     @Getter
-    private String type;
-
-    public void setType(String type) throws NonValidItemTypeException {
-        if (ItemType.getInstance().isCoherentType(type)) {
-            this.type = type;
-        } else {
-            throw new NonValidItemTypeException(String.format(Errors.INVALID_BACKLOG_ITEM_TYPE,type));
-        }
-    }
+    @Setter
+    private ItemType type;
 
 
     // RELATIONSHIPS
@@ -96,6 +89,7 @@ public class Item extends AbstractBaseEntity {
     @Getter
     @Setter
     @ToString.Exclude
+    @Builder.Default
     private List<Note> notes = new ArrayList<>();
 
 
@@ -111,6 +105,7 @@ public class Item extends AbstractBaseEntity {
     @Getter
     @Setter
     @ToString.Exclude
+    @Builder.Default
     private List<ItemAssignment> assignees = new ArrayList<>();
 
     @ManyToOne
@@ -123,6 +118,10 @@ public class Item extends AbstractBaseEntity {
     @ToString.Exclude
     private List<Item> sons;
 
+    @OneToMany(mappedBy = "key.item", cascade = CascadeType.ALL)
+    @Getter
+    @ToString.Exclude
+    private List<ItemDefinitionOfDone> definitionOfDone;
 
     @ManyToOne
     @JoinColumn
@@ -130,15 +129,13 @@ public class Item extends AbstractBaseEntity {
     private Release release;
 
 
-
     public void setFather(Item father) throws NonValidItemTypeException{
 
         if (father == null) return;
-
-        if (!ItemType.getInstance().isValidAssignment(father.getType(), this.type))
+        if (!ItemUtils.isValidAssignment(father.getType(), this.type))
             throw new NonValidItemTypeException(String.format(Errors.INVALID_FATHER_ITEM_TYPE,
                     father.getType(), this.getType()));
-        this.father  = ItemType.getInstance().isValidAssignment(father.getType(), this.type)
+        this.father  = ItemUtils.isValidAssignment(father.getType(), this.type)
                 ? father : null;
 
     }

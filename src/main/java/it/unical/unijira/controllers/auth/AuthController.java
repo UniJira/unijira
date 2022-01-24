@@ -85,7 +85,7 @@ public class AuthController {
 
 
     @PostMapping("register")
-    public ResponseEntity<UserInfoDTO> register(ModelMapper modelMapper, @RequestBody UserRegisterDTO user) {
+    public ResponseEntity<UserInfoDTO> register(@RequestBody UserRegisterDTO user) {
 
         if(!StringUtils.hasText(user.getUsername()))
             return ResponseEntity.badRequest().build();

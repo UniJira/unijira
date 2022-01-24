@@ -1,7 +1,6 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.UserRepository;
-import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.data.models.User;
@@ -18,9 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -91,13 +87,17 @@ public class UserServiceImpl implements UserService {
 
         return Optional.of(userRepository.saveAndFlush(user)).map(owner -> {
 
-            if(!emailService.send(username,
-                    locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
-                    locale.get("MAIL_ACCOUNT_CONFIRM_BODY",
-                            config.getBaseURL(),
-                            authService.generateToken(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId())))
-            )) {
-                throw new RuntimeException("Error sending email to %s".formatted(username));
+            if(User.Status.REQUIRE_CONFIRM.equals(owner.getStatus())) {
+
+                if (!emailService.send(username,
+                        locale.get("MAIL_ACCOUNT_CONFIRM_SUBJECT"),
+                        locale.get("MAIL_ACCOUNT_CONFIRM_BODY",
+                                config.getBaseURL(),
+                                authService.generateToken(TokenType.ACCOUNT_CONFIRM, Map.of("userId", owner.getId())))
+                )) {
+                    throw new RuntimeException("Error sending email to %s".formatted(username));
+                }
+
             }
 
             return owner;
@@ -124,6 +124,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findById(id)
                 .stream()
+                .filter(user -> User.Status.REQUIRE_CONFIRM.equals(user.getStatus()))
                 .peek(user -> user.setStatus(User.Status.ACTIVE))
                 .peek(userRepository::saveAndFlush)
                 .findFirst()

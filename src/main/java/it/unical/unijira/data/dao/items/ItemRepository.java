@@ -45,6 +45,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>,
     @Query(value ="SELECT i FROM Item i, RoadmapInsertion insertion " +
             "where i.father is null and insertion.roadmap = :roadmap and insertion.item.id = i.id")
     List<Item> findAllByRoadmapNoFather(Roadmap roadmap, Pageable pageable);
-    
-    List<Item> findAllByType(String type);
+
+
 }

@@ -22,7 +22,6 @@ public record NoteServiceImpl(NoteRepository noteRepository) implements NoteServ
                    updatedItem.setAuthor(note.getAuthor());
                    updatedItem.setMessage(note.getMessage());
                    updatedItem.setReplyTo(note.getReplyTo());
-                   updatedItem.setTimestamp(note.getTimestamp());
                    updatedItem.setRefersTo(note.getRefersTo());
                 })
                 .findFirst()
@@ -32,6 +31,5 @@ public record NoteServiceImpl(NoteRepository noteRepository) implements NoteServ
     @Override
     public void delete(Note note) {
         noteRepository.delete(note);
-
     }
 }

@@ -5,7 +5,6 @@ import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.items.ItemStatus;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,9 +23,12 @@ public class ItemDTO extends AbstractBaseDTO {
     private String type;
     private ItemStatus status;
     private UserInfoDTO owner;
+    private Long releaseId;
+    private String releaseVersion;
     private Long fatherId;
+    private Long projectId;
     private List<ItemDTO> sons;
-    private List<NoteDTO> notes = new ArrayList<>();
-    private List<ItemAssignmentDTO> assignees = new ArrayList<>();
+    private List<NoteDTO> notes;
+    private List<ItemAssignmentDTO> assignees;
 
 }

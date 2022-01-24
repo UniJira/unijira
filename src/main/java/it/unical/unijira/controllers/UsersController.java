@@ -25,16 +25,18 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
     private final UserService userService;
     private final ItemService itemService;
+    private final ModelMapper modelMapper;
 
 
     @Autowired
-    public UsersController(UserService userService, ItemService itemService) {
+    public UsersController(UserService userService, ItemService itemService, ModelMapper modelMapper) {
         this.userService = userService;
         this.itemService = itemService;
+        this.modelMapper = modelMapper;
     }
 
     @Override
-    public ResponseEntity<List<UserInfoDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
+    public ResponseEntity<List<UserInfoDTO>> readAll(Integer page, Integer size) {
 
         return ResponseEntity.ok(userService.findAll(page, size)
                 .stream()
@@ -46,7 +48,7 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
 
     @Override
-    public ResponseEntity<UserInfoDTO> read(ModelMapper modelMapper, Long id) {
+    public ResponseEntity<UserInfoDTO> read(Long id) {
 
         return userService.findById(id)
                 .map(user -> modelMapper.map(user, UserInfoDTO.class))
@@ -56,12 +58,12 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
     }
 
     @Override
-    public ResponseEntity<UserInfoDTO> create(ModelMapper modelMapper, UserInfoDTO dto) {
+    public ResponseEntity<UserInfoDTO> create(UserInfoDTO dto) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
     @Override
-    public ResponseEntity<UserInfoDTO> update(ModelMapper modelMapper, Long id, UserInfoDTO dto) {
+    public ResponseEntity<UserInfoDTO> update(Long id, UserInfoDTO dto) {
 
         System.err.println(dto.getAvatar() !=null ? dto.getAvatar().toString() : "NULL");
 
@@ -82,7 +84,7 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
     @GetMapping("/me/tickets/{status}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> getTickets(ModelMapper modelMapper, @PathVariable ItemStatus status, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ItemDTO>> getTickets(@PathVariable ItemStatus status, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         return ResponseEntity.ok(itemService.findAllByUser(getAuthenticatedUser().getId(), page, size).stream()
                 .filter(item -> status.equals(item.getStatus()))
@@ -93,7 +95,7 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
     @GetMapping("/{id}/collaborators")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<UserInfoDTO>> getCollaborators(ModelMapper modelMapper, @PathVariable Long id) {
+    public ResponseEntity<List<UserInfoDTO>> getCollaborators(@PathVariable Long id) {
 
         User me = userService.findById(id).orElse(null);
 
@@ -106,7 +108,7 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
 
     @GetMapping("/{id}/projects")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProjectDTO>> getProjects(ModelMapper modelMapper, @PathVariable Long id) {
+    public ResponseEntity<List<ProjectDTO>> getProjects(@PathVariable Long id) {
 
         User me = userService.findById(id).orElse(null);
 

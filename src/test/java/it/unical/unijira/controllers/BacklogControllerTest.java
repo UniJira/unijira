@@ -3,9 +3,9 @@ package it.unical.unijira.controllers;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.items.ItemType;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
-import it.unical.unijira.utils.ItemType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,6 @@ public class BacklogControllerTest extends UniJiraTest {
     private String itemJsonOnRoadmapForTestsUpdated;
 
     private Sprint sprintForTests;
-    private Sprint activeSprint;
 
 
     private String sprintJson;
@@ -110,15 +109,11 @@ public class BacklogControllerTest extends UniJiraTest {
         }
 
         if (this.projectJsonForTests == null && projectForTests!=null && projectForTests.getId()!= null ) {
-            Project p = projectService.findById(projectForTests.getId()).orElse(null);
-            if (p != null) {
-                this.projectJsonForTests =
-                        "{ \"project\":{ \"id\" : \""+p.getId()+"\"," +
-                                "\"name\": \""+ p.getName()+ "\"," +
-                                "\"key\": \""+ p.getKey()+ "\"," +
-                                "\"ownerId\": \""+ p.getOwner().getId()+ "\"} }";
-
-            }
+            projectService.findById(projectForTests.getId()).ifPresent(p -> this.projectJsonForTests =
+                    "{ \"project\":{ \"id\" : \"" + p.getId() + "\"," +
+                            "\"name\": \"" + p.getName() + "\"," +
+                            "\"key\": \"" + p.getKey() + "\"," +
+                            "\"ownerId\": \"" + p.getOwner().getId() + "\"} }");
         }
 
         this.setupBacklog();
@@ -149,11 +144,11 @@ public class BacklogControllerTest extends UniJiraTest {
         }
     }
 
-    private void setupItem() throws Exception {
+    private void setupItem() {
         Item i = new Item();
         i.setSummary("DummyItem");
         i.setDescription("this is a Dummy Item and it's so cool");
-        i.setType(ItemType.getInstance().EPIC);
+        i.setType(ItemType.EPIC);
         i.setEvaluation(1);
 
         this.itemForTests = itemService.save(i).orElse(null);
@@ -238,7 +233,7 @@ public class BacklogControllerTest extends UniJiraTest {
         s.setEndingDate(LocalDate.of(2023,1,31));
         s.setStatus(SprintStatus.ACTIVE);
 
-        this.activeSprint = sprintService.save(s).orElse(null);
+        Sprint activeSprint = sprintService.save(s).orElse(null);
     }
 
     private void setupSprintInsertion() {
@@ -267,6 +262,7 @@ public class BacklogControllerTest extends UniJiraTest {
         insertion.setRoadmap(this.roadmapForTests);
         insertion.setStartingDate(LocalDate.of(2022,1,1));
         insertion.setEndingDate(LocalDate.of(2022,12,31));
+        insertion.setItem(this.itemForTests);
 
         this.roadmapInsertionForTests = roadmapInsertionService.save(insertion).orElse(null);
     }
@@ -336,6 +332,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
     @Test
     void addItemToOneBacklog() throws Exception {
+        insertionService.delete(backlogInsertionForTests);
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"+backlogForTests.getId()+"/insertions")
                 .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
@@ -470,7 +467,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
     @Test
     void addItemToSprint() throws Exception {
-
+        sprintInsertionService.delete(sprintInsertionForTest);
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"
                 +backlogForTests.getId()+"/sprints/"+sprintForTests.getId()+"/insertions")
@@ -595,6 +592,7 @@ public class BacklogControllerTest extends UniJiraTest {
 
     @Test
     void addItemToRoadmap() throws Exception {
+        roadmapInsertionService.delete(roadmapInsertionForTests);
 
         mockMvc.perform(post("/projects/" + projectForTests.getId() + "/backlogs/"
                 +backlogForTests.getId()+"/roadmaps/"+roadmapForTests.getId()+"/insertions")
