@@ -139,11 +139,32 @@ public class Item extends AbstractBaseEntity {
 
     }
 
-    @ManyToOne
-    @JoinColumn
-    @Setter
-    @Getter
-    private Project project;
 
+    public Integer getEvaluation() {
+        Integer tmpEval = 0;
+        if (this.getSons() == null || this.getSons().isEmpty()) {
+            return this.evaluation;
+        }
+        for (Item son : this.getSons()) {
+            tmpEval += son.getEvaluation();
+        }
+
+        return tmpEval;
+    }
+
+    public void setEvaluation(Integer evaluation) {
+        if(this.getSons()== null || this.getSons().isEmpty()) {
+            this.evaluation = evaluation;
+        }
+        else {
+            this.evaluation = 0;
+        }
+    }
+
+        @ManyToOne
+        @JoinColumn
+        @Setter
+        @Getter
+        private Project project;
 
 }
