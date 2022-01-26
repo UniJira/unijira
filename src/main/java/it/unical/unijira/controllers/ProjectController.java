@@ -890,6 +890,16 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.notFound().build();
         }
 
+        // L'insertion nella roadmap è ricorsiva verso i figli
+        // Percio è ammessa solamente per item che non hanno father!!
+        Item i = itemService.findById(dto.getItem().getId()).orElse(null);
+        if (i==null){
+            return ResponseEntity.notFound().build();
+        }
+        if(i.getFather() != null) {
+            return ResponseEntity.badRequest().build();
+        }
+
         dto.setRoadmapId(roadmapObj.getId());
 
         return roadmapInsertionService.save(modelMapper.map(dto, RoadmapInsertion.class))

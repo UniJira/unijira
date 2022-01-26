@@ -112,7 +112,7 @@ public class Item extends AbstractBaseEntity {
     @Getter
     private Item father;
 
-    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @Getter
     @ToString.Exclude
     private List<Item> sons;

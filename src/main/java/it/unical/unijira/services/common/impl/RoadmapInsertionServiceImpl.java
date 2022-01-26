@@ -42,7 +42,23 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
         if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(roadmapInsertion.getRoadmap().getBacklog().getId()))
             return Optional.empty();
 
-        return Optional.of(roadmapInsertionRepository.saveAndFlush(roadmapInsertion));
+        Optional<RoadmapInsertion> retValue = Optional.of(roadmapInsertionRepository.saveAndFlush(roadmapInsertion));
+
+        RoadmapInsertion inserted =retValue.orElse(null);
+        if (inserted.getItem()!=null) {
+            List<Item> list = inserted.getItem().getSons();
+            for(Item item: list) {
+                RoadmapInsertion x = new RoadmapInsertion();
+                x.setRoadmap(inserted.getRoadmap());
+                x.setStartingDate(inserted.getStartingDate());
+                x.setEndingDate(inserted.getEndingDate());
+                x.setItem(item);
+                save(x);
+            }
+        }
+
+
+        return retValue;
     }
 
     @Override
