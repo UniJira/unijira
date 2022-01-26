@@ -3,6 +3,7 @@ package it.unical.unijira.data.models.items;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.utils.Errors;
 import it.unical.unijira.utils.ItemUtils;
@@ -138,29 +139,11 @@ public class Item extends AbstractBaseEntity {
 
     }
 
-
-    public Integer getEvaluation() {
-        Integer tmpEval = 0;
-        if(this.getSons()== null || this.getSons().isEmpty()) {
-            return this.evaluation;
-        }
-        for (Item son : this.getSons()) {
-            tmpEval+=son.getEvaluation();
-        }
-
-        return tmpEval;
-    }
-
-
-    public void setEvaluation(Integer evaluation) {
-        if(this.getSons()== null || this.getSons().isEmpty()) {
-            this.evaluation = evaluation;
-        }
-        else {
-            this.evaluation = 0;
-        }
-    }
-
+    @ManyToOne
+    @JoinColumn
+    @Setter
+    @Getter
+    private Project project;
 
 
 }
