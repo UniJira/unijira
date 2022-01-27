@@ -5,12 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dto.projects.DefinitionOfDoneEntryDTO;
+import it.unical.unijira.data.models.projects.Document;
 import it.unical.unijira.data.models.projects.Project;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -32,25 +36,6 @@ public class ProjectControllerTest extends UniJiraTest {
         p.setKey("KEY");
         p.setOwner(userRepository.findByUsername(UniJiraTest.USERNAME).orElse(null));
         this.dummyProject = projectRepository.saveAndFlush(p);
-
-    }
-
-    @Test
-    void readMembershipsPermissionSuccessful() throws Exception {
-
-        var projectId = projectRepository.findAll()
-                .stream()
-                .filter(i ->  i.getOwner().getId().equals(1L))
-                .findAny()
-                .stream()
-                .mapToLong(Project::getId)
-                .findAny()
-                .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
-
-        mockMvc.perform(get("/projects/" + projectId + "/memberships/1/permission/DETAILS")
-                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
-                .andExpect(status().isOk())
-                .andDo(print());
 
     }
 
@@ -183,6 +168,24 @@ public class ProjectControllerTest extends UniJiraTest {
 
     }
 
+    @Test
+    void readMembershipsPermissionSuccessful() throws Exception {
+
+        var projectId = projectRepository.findAll()
+                .stream()
+                .filter(i ->  i.getOwner().getId().equals(1L))
+                .findAny()
+                .stream()
+                .mapToLong(Project::getId)
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
+
+        mockMvc.perform(get("/projects/" + projectId + "/memberships/1/permission/DETAILS")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+    }
 
     String createDefOfDoneEntry() throws Exception {
         return mockMvc.perform(post("/projects/" + this.dummyProject.getId() + "/defofdone")
