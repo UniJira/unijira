@@ -15,6 +15,7 @@ import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.data.models.items.ItemStatus;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
+import it.unical.unijira.services.common.ProductBacklogInsertionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
     private final RoadmapInsertionRepository roadmapInsertionRepository;
     private final HintRepository hintRepository;
     private final EvaluationProposalRepository evaluationProposalRepository;
+    private final ProductBacklogInsertionService productBacklogInsertionService;
 
 
     @Autowired
@@ -48,7 +50,8 @@ public class ItemServiceImpl implements ItemService {
                             SprintInsertionRepository sprintInsertionRepository,
                             RoadmapInsertionRepository roadmapInsertionRepository,
                             HintRepository hintRepository,
-                            EvaluationProposalRepository evaluationProposalRepository){
+                            EvaluationProposalRepository evaluationProposalRepository,
+                            ProductBacklogInsertionService productBacklogInsertionService){
 
     this.pbiRepository = pbiRepository;
     this.userRepository = userRepository;
@@ -58,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
     this.roadmapInsertionRepository = roadmapInsertionRepository;
     this.hintRepository = hintRepository;
     this.evaluationProposalRepository = evaluationProposalRepository;
-
+    this.productBacklogInsertionService = productBacklogInsertionService;
     }
 
 
@@ -146,11 +149,11 @@ public class ItemServiceImpl implements ItemService {
                 itemAssignmentRepository.delete(assignment);
             }
         }
-        List<RoadmapInsertion> roadmapInsertionList = roadmapInsertionRepository.findAllByItemId(pbi.getId());
-        roadmapInsertionRepository.deleteAll(roadmapInsertionList);
-        List<SprintInsertion> sprintInsertionList = sprintInsertionRepository.findAllByItemId(pbi.getId());
-        sprintInsertionRepository.deleteAll(sprintInsertionList);
-        productBacklogInsertionRepository.findByItemId(pbi.getId()).ifPresent(productBacklogInsertionRepository::delete);
+        //List<RoadmapInsertion> roadmapInsertionList = roadmapInsertionRepository.findAllByItemId(pbi.getId());
+        //roadmapInsertionRepository.deleteAll(roadmapInsertionList);
+        //List<SprintInsertion> sprintInsertionList = sprintInsertionRepository.findAllByItemId(pbi.getId());
+        //sprintInsertionRepository.deleteAll(sprintInsertionList);
+        productBacklogInsertionService.delete(productBacklogInsertionRepository.findByItemId(pbi.getId()).orElse(null));
         hintRepository.deleteAllByItem(pbi);
         pbiRepository.delete(pbi);
 
