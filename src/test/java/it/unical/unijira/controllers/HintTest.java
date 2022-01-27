@@ -65,16 +65,45 @@ public class HintTest extends UniJiraTest {
     private ProjectRepository projectRepository;
 
     @BeforeEach
-    void fillData() throws Exception {
-        userService.save(new User(10000L, "p.theninja@gmail.com", "Mascalzon3f!", User.Status.ACTIVE, false, new URL("https://eu.ui-avatars.com/api/?background=0D8ABC&color=fff&name=P+G"), null, null, null, null, "", "", "", "", "", "", ""));
-        userService.save(new User(20000L, "fakemail1@unijira.com", "Mascalzon3f!", User.Status.ACTIVE, false, new URL("https://eu.ui-avatars.com/api/?background=0D8ABC&color=fff&name=P+G"), null, null, null, null, "", "", "", "", "", "", ""));
-        userService.save(new User(30000L, "fakemail2@unijira.com", "Mascalzon3f!", User.Status.ACTIVE, false, new URL("https://eu.ui-avatars.com/api/?background=0D8ABC&color=fff&name=P+G"), null, null, null, null, "", "", "", "", "", "", ""));
-        userService.save(new User(40000L, "fakemail3@unijira.com", "Mascalzon3f!", User.Status.ACTIVE, false, new URL("https://eu.ui-avatars.com/api/?background=0D8ABC&color=fff&name=P+G"), null, null, null, null, "", "", "", "", "", "", ""));
-        userService.save(new User(50000L, "fakemail4@unijira.com", "Mascalzon3f!", User.Status.ACTIVE, false, new URL("https://eu.ui-avatars.com/api/?background=0D8ABC&color=fff&name=P+G"), null, null, null, null, "", "", "", "", "", "", ""));
-        userService.save(new User(60000L, "fakemail5@unijira.com", "Mascalzon3f!", User.Status.ACTIVE, false, new URL("https://eu.ui-avatars.com/api/?background=0D8ABC&color=fff&name=P+G"), null, null, null, null, "", "", "", "", "", "", ""));
+    void fillData() {
+
+        userService.save(User.builder()
+                .username("p.theninja@gmail.com")
+                .password("Unijira2.0!")
+                .status(User.Status.ACTIVE)
+                .build());
+        userService.save(User.builder()
+                .username("fakemail1@unijira.com")
+                .password("Unijira2.0!")
+                .status(User.Status.ACTIVE)
+                .build());
+        userService.save(User.builder()
+                .username("fakemail2@unijira.com")
+                .password("Unijira2.0!")
+                .status(User.Status.ACTIVE)
+                .build());
+        userService.save(User.builder()
+                .username("fakemail3@unijira.com")
+                .password("Unijira2.0!")
+                .status(User.Status.ACTIVE)
+                .build());
+        userService.save(User.builder()
+                .username("fakemail4@unijira.com")
+                .password("Unijira2.0!")
+                .status(User.Status.ACTIVE)
+                .build());
+        userService.save(User.builder()
+                .username("fakemail5@unijira.com")
+                .password("Unijira2.0!")
+                .status(User.Status.ACTIVE)
+                .build());
         log.info("Initializing Project...");
             User p = userService.findByUsername(UniJiraTest.USERNAME).orElseThrow();
-            Project project = projectService.create(new Project(Long.parseLong("999"), "Project 1", "Project 1 key", new URL("https://firebasestorage.googleapis.com/v0/b/unijira-7b931.appspot.com/o/user%2F1%2Favatar%2FpuycMkQf_400x400.jpg?alt=media&token=2ba87976-65b8-44a1-9134-39f0f24579a5"), p, null, null, null, null)).orElse(null);
+            Project project = projectService
+                    .create(Project.builder()
+                            .name("Project 1")
+                            .key("Project 1 key")
+                            .owner(p).build()).orElse(null);
             List<ProductBacklog> backlogs = productBacklogService.findAllByProject(project,defaultPage,defaultSize);
             ProductBacklog backlog = backlogs.get(0);
 
