@@ -53,6 +53,7 @@ public class Membership extends AbstractBaseEntity {
     @Enumerated(EnumType.STRING)
     @CollectionTable
     @ToString.Exclude
+    @Builder.Default
     private Set<Permission> permissions = new HashSet<>();
 
 }

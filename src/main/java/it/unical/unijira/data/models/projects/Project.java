@@ -37,17 +37,24 @@ public class Project extends AbstractBaseEntity {
     @JoinColumn
     private User owner;
 
-    @OneToMany(mappedBy = "key.project", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @Builder.Default
     @ToString.Exclude
+    @OneToMany(mappedBy = "key.project", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Membership> memberships = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project")
+    @Builder.Default
     @ToString.Exclude
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<ProductBacklog> backlogs = new ArrayList<>();
 
-    @OneToMany
+    @Builder.Default
     @ToString.Exclude
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Release> releases = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @Builder.Default
+    private List<DefinitionOfDoneEntry> definitionOfDone = new ArrayList<>();
 
 }

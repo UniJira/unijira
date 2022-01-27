@@ -1,9 +1,7 @@
 package it.unical.unijira.data.models;
 
 import it.unical.unijira.data.models.projects.Project;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -12,6 +10,9 @@ import java.util.List;
 @Entity
 @Table
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ProductBacklog extends AbstractBaseEntity{
 
     @Id
@@ -28,10 +29,15 @@ public class ProductBacklog extends AbstractBaseEntity{
     private Project project;
 
 
-    @OneToMany(mappedBy = "backlog")
+    @OneToMany(mappedBy = "backlog", cascade = CascadeType.ALL)
     @Getter
     @Setter
     @ToString.Exclude
     private List<Sprint> sprints;
 
+    @OneToMany(mappedBy = "backlog", cascade = CascadeType.ALL)
+    @Getter
+    @Setter
+    @ToString.Exclude
+    private List<Roadmap> roadmaps;
 }

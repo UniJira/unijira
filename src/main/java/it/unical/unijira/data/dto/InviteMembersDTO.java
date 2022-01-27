@@ -9,8 +9,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InviteMembersDTO {
-
     private Long projectId;
     private List<String> emails;
-
 }

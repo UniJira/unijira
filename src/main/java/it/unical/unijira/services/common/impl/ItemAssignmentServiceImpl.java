@@ -1,5 +1,6 @@
 package it.unical.unijira.services.common.impl;
 
+import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.items.Item;
@@ -14,24 +15,31 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentRepo) implements ItemAssignmentService {
+public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentRepo, UserRepository userRepository) implements ItemAssignmentService {
 
 
     @Override
     public Optional<ItemAssignment> save(ItemAssignment itemAssignment) {
-        return Optional.of(itemAssignmentRepo.save(itemAssignment));
+        return Optional.of(itemAssignmentRepo.saveAndFlush(itemAssignment));
     }
 
     @Override
     public Optional<ItemAssignment> update(ItemAssignment itemAssignment, Long id) {
+
+        if (itemAssignment!= null && itemAssignment.getAssignee()!= null && itemAssignment.getAssignee().getId() != null) {
+            userRepository.findById(itemAssignment.getAssignee().getId()).ifPresent(itemAssignment::setAssignee);
+        }
+
         return itemAssignmentRepo.findById(id)
                 .stream()
                 .peek(updatedItem -> {
-                   updatedItem.setItem(itemAssignment.getItem());
-                   updatedItem.setAssignee(itemAssignment.getAssignee());
+                   if(itemAssignment!= null) {
+                       updatedItem.setItem(itemAssignment.getItem());
+                       updatedItem.setAssignee(itemAssignment.getAssignee());
+                   }
                 })
                 .findFirst()
-                .map(itemAssignmentRepo::save);
+                .map(itemAssignmentRepo::saveAndFlush);
     }
 
     @Override
@@ -59,5 +67,14 @@ public record ItemAssignmentServiceImpl(ItemAssignmentRepository itemAssignmentR
     @Override
     public List<ItemAssignment> findAllByItem(Item pbi, int page, int size) {
         return itemAssignmentRepo.findAllByItem(pbi,PageRequest.of(page, size));
+    }
+
+    @Override
+    public Optional<ItemAssignment> findByIdAndItem(Long assignmentId, Long itemId) {
+        Optional<ItemAssignment> tmp = itemAssignmentRepo.findById(assignmentId);
+        if(tmp.isEmpty()|| !tmp.get().getItem().getId().equals(itemId)) {
+            return Optional.empty();
+        }
+        return tmp;
     }
 }

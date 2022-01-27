@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 public class RoadmapDTO {
 
-
     private Long id;
     private Long backlogId;
     private List<RoadmapInsertionDTO> insertions;
+
 }

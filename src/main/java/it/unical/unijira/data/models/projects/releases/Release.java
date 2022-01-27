@@ -4,6 +4,7 @@ import it.unical.unijira.data.models.AbstractBaseEntity;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.Project;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -32,17 +33,20 @@ public class Release extends AbstractBaseEntity {
     private ReleaseStatus status;
 
     @Column
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate startDate;
 
     @Column
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate endDate;
 
     @ManyToOne
     @JoinColumn
     private Project project;
 
-    @OneToMany
-    @JoinColumn
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "release", cascade = CascadeType.ALL)
     private List<Item> items = new ArrayList<>();
 
 

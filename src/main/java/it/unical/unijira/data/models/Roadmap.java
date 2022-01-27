@@ -1,8 +1,6 @@
 package it.unical.unijira.data.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -12,6 +10,9 @@ import java.util.List;
 @Entity
 @Table
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Roadmap extends AbstractBaseEntity {
 
 
@@ -29,7 +30,7 @@ public class Roadmap extends AbstractBaseEntity {
     private ProductBacklog backlog;
 
 
-    @OneToMany(mappedBy = "roadmap" )
+    @OneToMany(mappedBy = "roadmap", cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     @Setter
     @Getter

@@ -1,11 +1,17 @@
 package it.unical.unijira.controllers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -18,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ProjectControllerTest extends UniJiraTest {
 
     private Project dummyProject;
+
     @BeforeEach
     void initProject() {
         Project p = new Project();
@@ -175,6 +182,181 @@ public class ProjectControllerTest extends UniJiraTest {
                 .andDo(print());
 
     }
+
+
+    String createDefOfDoneEntry() throws Exception {
+        return mockMvc.perform(post("/projects/" + this.dummyProject.getId() + "/defofdone")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "description": "Ciaone"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    void updateDefOfDoneEntry() throws Exception {
+        DefinitionOfDoneEntryDTO created = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+
+        mockMvc.perform(put("/projects/" + this.dummyProject.getId() + "/defofdone/" + created.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "id": "%d",
+                            "description": "Amico mio",
+                            "priority": "%d",
+                            "projectId": "%d"
+                        }
+                        """.formatted(
+                                created.getId(), created.getPriority(), created.getProjectId()
+                        ))
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    void updateDefOfDoneEntryFailure() throws Exception {
+        DefinitionOfDoneEntryDTO created = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+
+        mockMvc.perform(put("/projects/" + this.dummyProject.getId() + "/defofdone/" + created.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "id": "%d",
+                            "description": "Amico mio",
+                            "priority": "%d",
+                            "projectId": "%d"
+                        }
+                        """.formatted(
+                                created.getId(), 0, created.getProjectId() + 1
+                        ))
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void updateDefOfDoneEntrySwitchPriorities() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        DefinitionOfDoneEntryDTO created1 = mapper.readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+        DefinitionOfDoneEntryDTO created2 = mapper.readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+
+        Assertions.assertEquals(1, created1.getPriority());
+        Assertions.assertEquals(2, created2.getPriority());
+
+
+        String updateResponse = mockMvc.perform(put("/projects/" + this.dummyProject.getId() + "/defofdone/" + created1.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                        .contentType("application/json")
+                        .content("""
+                        {
+                            "id": "%d",
+                            "description": "Amico mio",
+                            "priority": "%d",
+                            "projectId": "%d"
+                        }
+                        """.formatted(
+                                created1.getId(), created2.getPriority(), created1.getProjectId()
+                        ))
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString();
+
+        String secondEntryGetResponse = mockMvc.perform(get("/projects/" + this.dummyProject.getId() + "/defofdone/" + created2.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString();
+
+        Assertions.assertEquals(2, mapper.readValue(updateResponse, DefinitionOfDoneEntryDTO.class).getPriority());
+        Assertions.assertEquals(1, mapper.readValue(secondEntryGetResponse, DefinitionOfDoneEntryDTO.class).getPriority());
+
+    }
+
+    @Test
+    void deleteDefOfDoneEntry() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        DefinitionOfDoneEntryDTO created1 = mapper.readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+        DefinitionOfDoneEntryDTO created2 = mapper.readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+
+        Assertions.assertEquals(1, created1.getPriority());
+        Assertions.assertEquals(2, created2.getPriority());
+
+
+        mockMvc.perform(delete("/projects/" + this.dummyProject.getId() + "/defofdone/" + created1.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+
+                )
+                .andExpect(status().isNoContent())
+                .andDo(print());
+
+        mockMvc.perform(get("/projects/" + this.dummyProject.getId() + "/defofdone/" + created1.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                )
+                .andExpect(status().isNotFound())
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString();
+
+        String secondEntryGetResponse = mockMvc.perform(get("/projects/" + this.dummyProject.getId() + "/defofdone/" + created2.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString();
+
+
+        Assertions.assertEquals(1, mapper.readValue(secondEntryGetResponse, DefinitionOfDoneEntryDTO.class).getPriority());
+
+    }
+
+    @Test
+    void readAllDefOfDoneEntriesByProject() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        DefinitionOfDoneEntryDTO created1 = mapper.readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+        mapper.readValue(createDefOfDoneEntry(), DefinitionOfDoneEntryDTO.class);
+
+
+        String result = mockMvc.perform(get("/projects/" + this.dummyProject.getId() + "/defofdone/")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString();
+
+        List<DefinitionOfDoneEntryDTO> resultList = mapper.readValue(result, new TypeReference<>() {});
+
+        Assertions.assertFalse(resultList.isEmpty());
+        Assertions.assertEquals(2, resultList.size());
+
+        Assertions.assertEquals(
+                created1.getId(),
+                resultList.stream()
+                        .filter(r -> r.getPriority().equals(1))
+                        .findFirst()
+                        .map(DefinitionOfDoneEntryDTO::getId)
+                        .orElseThrow()
+        );
+
+        mockMvc.perform(delete("/projects/" + this.dummyProject.getId() + "/defofdone/" + created1.getId())
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
+
+                )
+                .andExpect(status().isNoContent())
+                .andDo(print());
+
+        result = mockMvc.perform(get("/projects/" + this.dummyProject.getId() + "/defofdone/")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
 
 
 }
