@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface ItemService {
     Optional<Item> save (Item pbi);
+    Optional<Item> saveWithEvaluationProposals(Item pbi);
     Optional<Item> update (Long id, Item pbi);
     void delete(Item pbi);
     Optional<Item> findById(Long id);

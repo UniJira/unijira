@@ -148,4 +148,13 @@ public class Item extends AbstractBaseEntity {
     private Project project;
 
 
+    @OneToMany
+    @JoinColumn
+    @Getter
+    @Setter
+    @Builder.Default
+    @ToString.Exclude
+    private List<EvaluationProposal> evaluationProposals = new ArrayList<>();
+
+
 }
