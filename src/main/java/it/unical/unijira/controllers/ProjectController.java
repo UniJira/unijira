@@ -2,8 +2,9 @@ package it.unical.unijira.controllers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
-import it.unical.unijira.data.dao.projects.MembershipRepository;
 import it.unical.unijira.data.dto.*;
+import it.unical.unijira.data.dto.discussions.MessageDTO;
+import it.unical.unijira.data.dto.discussions.TopicDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.projects.DefinitionOfDoneEntryDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
@@ -100,7 +101,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProjectDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
+    public ResponseEntity<List<ProjectDTO>> readAll(Integer page, Integer size) {
 
         return ResponseEntity.ok(projectService
                 .findAllByMemberId(getAuthenticatedUser().getId(), page, size)
@@ -112,11 +113,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProjectDTO> read(ModelMapper modelMapper, Long id) {
+    public ResponseEntity<ProjectDTO> read(Long id) {
 
         return projectService.findById(id)
                 .stream()
-                .filter(project -> project.getOwner().getId().equals(getAuthenticatedUser().getId()))
                 .map(project -> modelMapper.map(project, ProjectDTO.class))
                 .findFirst()
                 .map(ResponseEntity::ok)
@@ -126,7 +126,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProjectDTO> create(ModelMapper modelMapper, ProjectDTO project) {
+    public ResponseEntity<ProjectDTO> create(ProjectDTO project) {
 
         if(!StringUtils.hasText(project.getName()))
             return ResponseEntity.badRequest().build();
@@ -149,7 +149,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProjectDTO> update(ModelMapper modelMapper, Long id, ProjectDTO project) {
+    public ResponseEntity<ProjectDTO> update(Long id, ProjectDTO project) {
 
         return projectService.update(id, modelMapper.map(project, Project.class))
                 .map(p -> modelMapper.map(p, ProjectDTO.class))
@@ -224,7 +224,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 var user = User.builder()
                         .username(mail)
                         .password(passwordEncoder.encode(mail))
-                        .activated(true)
+                        .status(User.Status.ACTIVE)
                         .ownedProjects(Collections.emptyList())
                         .memberships(Collections.emptyList())
                         .build();
@@ -294,9 +294,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     }
 
+
     @GetMapping("/{project}/backlogs")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProductBacklogDTO>> readAllBacklogs(ModelMapper modelMapper, @PathVariable Long project, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ProductBacklogDTO>> readAllBacklogs(@PathVariable Long project, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         Project projectObj = projectService.findById(project).orElse(null);
 
@@ -312,7 +313,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogDTO> readBacklog(ModelMapper modelMapper, @PathVariable Long project, @PathVariable Long backlog) {
+    public ResponseEntity<ProductBacklogDTO> readBacklog(@PathVariable Long project, @PathVariable Long backlog) {
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -332,7 +333,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{project}/backlogs")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogDTO> createBacklog(ModelMapper modelMapper,  @PathVariable Long project, @RequestBody ProductBacklogDTO dto) {
+    public ResponseEntity<ProductBacklogDTO> createBacklog( @PathVariable Long project, @RequestBody ProductBacklogDTO dto) {
 
         Project projectObj = projectService.findById(project).orElse(null);
 
@@ -354,18 +355,15 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     // sono praticamente tutte chiavi esterne, quindi basta chiamare l'update degli altri oggetti
    /* @PutMapping("/{project}/backlogs/{backlog}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogDTO> updateBacklog(ModelMapper modelMapper,  @PathVariable Long project,
+    public ResponseEntity<ProductBacklogDTO> updateBacklog( @PathVariable Long project,
                                                            @PathVariable Long backlog,
                                                            @RequestBody ProductBacklogDTO dto) {
-
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
         ProductBacklog backlogObj = backlogOpt.orElse(null);
-
        if (!ControllerUtilities.checkProjectCoherence(projectObj,backlogObj)) {
            return ResponseEntity.notFound().build();
        }
-
         return backlogService.update(backlog, modelMapper.map(dto, ProductBacklog.class))
                 .map(newDto -> modelMapper.map(newDto, ProductBacklogDTO.class))
                 .map(ResponseEntity::ok)
@@ -394,10 +392,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{project}/backlogs/{backlog}/insertions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogInsertionDTO> addinsertionToBacklog(ModelMapper modelMapper,
-                                                                       @PathVariable Long project,
-                                                                       @PathVariable Long backlog,
-                                                                       @RequestBody ProductBacklogInsertionDTO dto){
+    public ResponseEntity<ProductBacklogInsertionDTO> addinsertionToBacklog(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @RequestBody ProductBacklogInsertionDTO dto){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -420,10 +418,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/insertions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ProductBacklogInsertionDTO>> allFromBacklog(ModelMapper modelMapper,
-                                                                           @PathVariable Long project,
-                                                                           @PathVariable Long backlog,
-                                                                           @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
+    public ResponseEntity<List<ProductBacklogInsertionDTO>> allFromBacklog(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -442,10 +440,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/insertions/{insertion}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogInsertionDTO> insertionById(ModelMapper modelMapper,
-                                                                    @PathVariable Long project,
-                                                                    @PathVariable Long backlog,
-                                                                    @PathVariable Long insertion){
+    public ResponseEntity<ProductBacklogInsertionDTO> insertionById(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long insertion){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -469,7 +467,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PutMapping("/{project}/backlogs/{backlog}/insertions/{insertion}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductBacklogInsertionDTO> updateInsertion(ModelMapper modelMapper, @PathVariable Long project,
+    public ResponseEntity<ProductBacklogInsertionDTO> updateInsertion(@PathVariable Long project,
                                                                       @PathVariable Long backlog, @PathVariable Long insertion,
                                                                       @RequestBody ProductBacklogInsertionDTO insertionDTO){
 
@@ -516,10 +514,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{project}/backlogs/{backlog}/sprints")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SprintDTO> addSprint(ModelMapper modelMapper,
-                                               @PathVariable Long project,
-                                               @PathVariable Long backlog,
-                                               @RequestBody SprintDTO dto){
+    public ResponseEntity<SprintDTO> addSprint(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @RequestBody SprintDTO dto){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -543,10 +541,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/sprints")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<SprintDTO>> getSprints(ModelMapper modelMapper,
-                                                      @PathVariable Long project,
-                                                      @PathVariable Long backlog,
-                                                      @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
+    public ResponseEntity<List<SprintDTO>> getSprints(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -565,10 +563,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/sprints/{sprint}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SprintDTO> getSprintById(ModelMapper modelMapper,
-                                                   @PathVariable Long project,
-                                                   @PathVariable Long backlog,
-                                                   @PathVariable Long sprint){
+    public ResponseEntity<SprintDTO> getSprintById(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long sprint){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -590,11 +588,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PutMapping("/{project}/backlogs/{backlog}/sprints/{sprint}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SprintDTO> editSprint(ModelMapper modelMapper,
-                                                @PathVariable Long project,
-                                                @PathVariable Long backlog,
-                                                @PathVariable Long sprint,
-                                                @RequestBody SprintDTO sprintDTO){
+    public ResponseEntity<SprintDTO> editSprint(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long sprint,
+            @RequestBody SprintDTO sprintDTO){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -638,11 +636,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{project}/backlogs/{backlog}/sprints/{sprint}/insertions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SprintInsertionDTO> addItemToSprint(ModelMapper modelMapper,
-                                                              @PathVariable Long project,
-                                                              @PathVariable Long backlog,
-                                                              @PathVariable Long sprint,
-                                                              @RequestBody SprintInsertionDTO dto){
+    public ResponseEntity<SprintInsertionDTO> addItemToSprint(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long sprint,
+            @RequestBody SprintInsertionDTO dto){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -661,26 +659,22 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
         dto.setSprintId(sprintObj.getId());
 
-        SprintInsertion toSave = modelMapper.map(dto, SprintInsertion.class);
 
-        SprintInsertion saved = sprintInsertionService.save(toSave).orElse(null);
-        SprintInsertionDTO dtoSaved = new SprintInsertionDTO();
-        if (saved != null) {
-            dtoSaved = modelMapper.map(saved, SprintInsertionDTO.class);
-        }
-
-        return ResponseEntity.created(URI.create("projects/%d/backlogs/%d/sprints/%d/insertions/%d"
-                .formatted(project,backlog,sprint,dtoSaved.getId()))).body(dtoSaved);
-
+        return sprintInsertionService.save(modelMapper.map(dto, SprintInsertion.class))
+                .map(createdDTO -> ResponseEntity
+                        .created(URI.create("projects/%d/backlogs/%d/sprints/%d/insertions/%d"
+                                .formatted(project,backlog,sprint,createdDTO.getId())))
+                        .body(modelMapper.map(createdDTO, SprintInsertionDTO.class)))
+                .orElse(ResponseEntity.badRequest().build());
     }
 
     @GetMapping("/{project}/backlogs/{backlog}/sprints/{sprint}/insertions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<SprintInsertionDTO>> insertionsOfASprint(ModelMapper modelMapper,
-                                                                   @PathVariable Long project,
-                                                                   @PathVariable Long backlog,
-                                                                   @PathVariable Long sprint,
-                                                                   @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<SprintInsertionDTO>> insertionsOfASprint(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long sprint,
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -700,11 +694,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/sprints/{sprint}/insertions/{item}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SprintInsertionDTO> itemOfASprint(ModelMapper modelMapper,
-                                                            @PathVariable Long project,
-                                                            @PathVariable Long backlog,
-                                                            @PathVariable Long sprint,
-                                                            @PathVariable Long item){
+    public ResponseEntity<SprintInsertionDTO> itemOfASprint(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long sprint,
+            @PathVariable Long item){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -752,10 +746,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{project}/backlogs/{backlog}/roadmaps")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<RoadmapDTO> addRoadmap(ModelMapper modelMapper,
-                                                 @PathVariable Long project,
-                                                 @PathVariable Long backlog,
-                                                 @RequestBody RoadmapDTO dto){
+    public ResponseEntity<RoadmapDTO> addRoadmap(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @RequestBody RoadmapDTO dto){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -779,10 +773,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/roadmaps")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<RoadmapDTO>> getRoadmaps(ModelMapper modelMapper,
-                                                        @PathVariable Long project,
-                                                        @PathVariable Long backlog,
-                                                        @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
+    public ResponseEntity<List<RoadmapDTO>> getRoadmaps(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -801,10 +795,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<RoadmapDTO> getRoadmapById(ModelMapper modelMapper,
-                                                     @PathVariable Long project,
-                                                     @PathVariable Long backlog,
-                                                     @PathVariable Long roadmap){
+    public ResponseEntity<RoadmapDTO> getRoadmapById(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long roadmap){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -827,9 +821,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/tree")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<RoadmapTreeDTO[]> getRoadmapTreeById(
-                                                               @PathVariable Long project,
-                                                               @PathVariable Long backlog,
-                                                               @PathVariable Long roadmap){
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long roadmap){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -885,11 +879,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/insertions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<RoadmapInsertionDTO> addItemToRoadmap(ModelMapper modelMapper,
-                                                                @PathVariable Long project,
-                                                                @PathVariable Long backlog,
-                                                                @PathVariable Long roadmap,
-                                                                @RequestBody RoadmapInsertionDTO dto){
+    public ResponseEntity<RoadmapInsertionDTO> addItemToRoadmap(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long roadmap,
+            @RequestBody RoadmapInsertionDTO dto){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -918,11 +912,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/insertions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<RoadmapInsertionDTO>> insertionsOfARoadmap(ModelMapper modelMapper,
-                                                                     @PathVariable Long project,
-                                                                     @PathVariable Long backlog,
-                                                                     @PathVariable Long roadmap,
-                                                                     @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
+    public ResponseEntity<List<RoadmapInsertionDTO>> insertionsOfARoadmap(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long roadmap,
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size){
 
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -942,11 +936,11 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/insertions/{item}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<RoadmapInsertionDTO> itemOfARoadmap(ModelMapper modelMapper,
-                                                              @PathVariable Long project,
-                                                              @PathVariable Long backlog,
-                                                              @PathVariable Long roadmap,
-                                                              @PathVariable Long item){
+    public ResponseEntity<RoadmapInsertionDTO> itemOfARoadmap(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long roadmap,
+            @PathVariable Long item){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -969,12 +963,12 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PutMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/insertions/{item}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<RoadmapInsertionDTO> editRoadmapsItem(ModelMapper modelMapper,
-                                                                @PathVariable Long project,
-                                                                @PathVariable Long backlog,
-                                                                @PathVariable Long roadmap,
-                                                                @PathVariable Long item,
-                                                                @RequestBody RoadmapInsertionDTO roadmapInsertionDTO){
+    public ResponseEntity<RoadmapInsertionDTO> editRoadmapsItem(
+            @PathVariable Long project,
+            @PathVariable Long backlog,
+            @PathVariable Long roadmap,
+            @PathVariable Long item,
+            @RequestBody RoadmapInsertionDTO roadmapInsertionDTO){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -1002,9 +996,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @DeleteMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/insertions/{insertion}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Boolean> deleteRoadmapsinsertion(@PathVariable Long project,
-                                                      @PathVariable Long backlog,
-                                                      @PathVariable Long roadmap,
-                                                      @PathVariable Long insertion){
+                                                           @PathVariable Long backlog,
+                                                           @PathVariable Long roadmap,
+                                                           @PathVariable Long insertion){
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<ProductBacklog> backlogOpt = backlogService.findById(backlog);
@@ -1028,8 +1022,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping ("/{project}/items")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsOfTheProject(ModelMapper modelMapper, @PathVariable Long project,
-                                                        @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ItemDTO>> itemsOfTheProject(@PathVariable Long project,
+                                                           @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         return ResponseEntity.ok(itemService.findAllByProjectNoFather(projectService.findById(project).orElse(null), page,size)
                 .stream()
@@ -1040,7 +1034,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping ("/{project}/backlogs/{backlog}/items")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsOfTheBacklog(ModelMapper modelMapper, @PathVariable Long project, @PathVariable Long backlog,
+    public ResponseEntity<List<ItemDTO>> itemsOfTheBacklog(@PathVariable Long project, @PathVariable Long backlog,
                                                            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         Project projectObj = projectService.findById(project).orElse(null);
@@ -1058,8 +1052,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping ("/{project}/backlogs/{backlog}/sprints/{sprint}/items")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsOfTheSprint(ModelMapper modelMapper, @PathVariable Long project, @PathVariable Long backlog, @PathVariable Long sprint,
-                                                           @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ItemDTO>> itemsOfTheSprint(@PathVariable Long project, @PathVariable Long backlog, @PathVariable Long sprint,
+                                                          @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         Project projectObj = projectService.findById(project).orElse(null);
         ProductBacklog backlogObj = backlogService.findById(backlog).orElse(null);
@@ -1078,8 +1072,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping ("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> itemsOfTheRoadmap(ModelMapper modelMapper, @PathVariable Long project, @PathVariable Long backlog, @PathVariable Long roadmap,
-                                                          @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
+    public ResponseEntity<List<ItemDTO>> itemsOfTheRoadmap(@PathVariable Long project, @PathVariable Long backlog, @PathVariable Long roadmap,
+                                                           @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
         Project projectObj = projectService.findById(project).orElse(null);
         ProductBacklog backlogObj = backlogService.findById(backlog).orElse(null);
@@ -1097,7 +1091,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{project}/sprint")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SprintDTO> getActiveSprint(ModelMapper modelMapper, @PathVariable Long project) {
+    public ResponseEntity<SprintDTO> getActiveSprint(@PathVariable Long project) {
 
         Project projectObj = projectService.findById(project).orElse(null);
         Optional<Sprint> optional = sprintService.findActiveSprint(projectObj);
@@ -1119,7 +1113,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{projectId}/releases")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ReleaseDTO>> readAllReleases(ModelMapper modelMapper, @PathVariable Long projectId) {
+    public ResponseEntity<List<ReleaseDTO>> readAllReleases(@PathVariable Long projectId) {
 
         return ResponseEntity.ok(releaseService.findAllByProjectId(projectId).stream()
                 .map(found -> modelMapper.map(found, ReleaseDTO.class))
@@ -1131,7 +1125,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{projectId}/releases/{releaseId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ReleaseDTO> readReleaseById(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long releaseId) {
+    public ResponseEntity<ReleaseDTO> readReleaseById(@PathVariable Long projectId, @PathVariable Long releaseId) {
 
         return releaseService.findById(releaseId).stream()
                 .filter(found -> found.getProject().getId().equals(projectId))
@@ -1144,7 +1138,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("/{projectId}/releases/{releaseId}/items")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> readTicketsOfReleaseById(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long releaseId) {
+    public ResponseEntity<List<ItemDTO>> readTicketsOfReleaseById(@PathVariable Long projectId, @PathVariable Long releaseId) {
 
         return ResponseEntity.ok(releaseService.findById(releaseId).stream()
                 .filter(found -> found.getProject().getId().equals(projectId))
@@ -1157,7 +1151,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PostMapping("/{projectId}/releases")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ReleaseDTO> createRelease(ModelMapper modelMapper, @PathVariable Long projectId, @RequestBody ReleaseDTO releaseDTO) {
+    public ResponseEntity<ReleaseDTO> createRelease(@PathVariable Long projectId, @RequestBody ReleaseDTO releaseDTO) {
 
         if(releaseDTO.getId() != null)
             return ResponseEntity.badRequest().build();
@@ -1185,7 +1179,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @PutMapping("/{projectId}/releases/{releaseId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ReleaseDTO> createRelease(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long releaseId, @RequestBody ReleaseDTO releaseDTO) {
+    public ResponseEntity<ReleaseDTO> createRelease(@PathVariable Long projectId, @PathVariable Long releaseId, @RequestBody ReleaseDTO releaseDTO) {
 
         if(releaseDTO.getId() == null)
             return ResponseEntity.badRequest().build();
@@ -1196,7 +1190,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(releaseDTO.getStartDate() == null || releaseDTO.getEndDate() == null)
             return ResponseEntity.badRequest().build();
 
-        if(releaseDTO.getStartDate().isAfter(releaseDTO.getEndDate()))
+        if(releaseDTO.getStartDate().isAfter((releaseDTO.getEndDate())))
             return ResponseEntity.badRequest().build();
 
         if(releaseDTO.getStatus() == null)
@@ -1219,9 +1213,9 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @GetMapping("{projectId}/topics")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<TopicDTO>> readAll(
-                                                  @RequestParam (required = false, defaultValue = "0") Integer page,
-                                                  @RequestParam (required = false, defaultValue = "10000") Integer size,
-                                                  @PathVariable Long projectId) {
+            @RequestParam (required = false, defaultValue = "0") Integer page,
+            @RequestParam (required = false, defaultValue = "10000") Integer size,
+            @PathVariable Long projectId) {
 
         return ResponseEntity.ok(topicService.findAll(projectId,page,size).stream()
                 .map(topic -> modelMapper.map(topic, TopicDTO.class))
@@ -1293,10 +1287,10 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @GetMapping("{projectId}/topics/{topicId}/messages")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MessageDTO>> readAllMessages(
-                                                            @RequestParam (required = false, defaultValue = "0") Integer page,
-                                                            @RequestParam (required = false, defaultValue = "10000") Integer size,
-                                                            @PathVariable Long projectId,
-                                                            @PathVariable Long topicId) {
+            @RequestParam (required = false, defaultValue = "0") Integer page,
+            @RequestParam (required = false, defaultValue = "10000") Integer size,
+            @PathVariable Long projectId,
+            @PathVariable Long topicId) {
 
         try {
             topicService.findById(topicId, projectId).orElseThrow(Exception::new);
@@ -1356,8 +1350,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PutMapping("{projectId}/topics/{topicId}/messages/{messageId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageDTO> updateMessage( @PathVariable Long messageId,
-                                                    @RequestBody MessageDTO dto,
-                                                    @PathVariable Long projectId, @PathVariable Long topicId) {
+                                                     @RequestBody MessageDTO dto,
+                                                     @PathVariable Long projectId, @PathVariable Long topicId) {
         try {
             topicService.findById(topicId, projectId).orElseThrow(Exception::new);
         } catch (Exception e) {
@@ -1474,5 +1468,27 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(definitionOfDoneEntryDTO.getPriority() == null || definitionOfDoneEntryDTO.getPriority() <= 0)
             return ResponseEntity.badRequest().build();
 
-}
+        if(definitionOfDoneEntryDTO.getProjectId() == null)
+            return ResponseEntity.badRequest().build();
 
+        if(!definitionOfDoneEntryDTO.getProjectId().equals(projectId))
+            return ResponseEntity.badRequest().build();
+
+        return definitionOfDoneEntryService.update(entryId, modelMapper.map(definitionOfDoneEntryDTO, DefinitionOfDoneEntry.class))
+                .map(found -> modelMapper.map(found, DefinitionOfDoneEntryDTO.class))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+
+    }
+
+    @DeleteMapping("/{projectId}/defofdone/{entryId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> deleteDefinitionOfDoneEntry(@PathVariable Long projectId, @PathVariable Long entryId) {
+        return definitionOfDoneEntryService.findById(entryId).stream()
+                .filter(found -> found.getProject().getId().equals(projectId))
+                .peek(definitionOfDoneEntryService::delete)
+                .findFirst()
+                .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
+}
