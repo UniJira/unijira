@@ -27,5 +27,7 @@ public class UserInfoDTO {
     private String github;
     private String linkedin;
     private String phoneNumber;
+    private String preferedTheme;
+    private String preferedLanguage;
 
 }
