@@ -7,9 +7,11 @@ import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.dao.items.NoteRepository;
+import it.unical.unijira.data.dao.projects.DocumentRepository;
 import it.unical.unijira.data.dao.projects.ProjectRepository;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.Document;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -23,6 +25,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,6 +71,9 @@ public abstract class UniJiraTest {
     protected NoteRepository noteRepository;
 
     @Autowired
+    protected DocumentRepository documentRepository;
+
+    @Autowired
     protected MockMvc mockMvc;
 
 
@@ -84,6 +91,8 @@ public abstract class UniJiraTest {
                     .status(User.Status.ACTIVE)
                     .ownedProjects(Collections.emptyList())
                     .memberships(Collections.emptyList())
+                    .firstName("John")
+                    .lastName("Doe")
                     .build();
 
             userRepository.saveAndFlush(user);

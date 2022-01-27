@@ -1,6 +1,7 @@
 package it.unical.unijira.controllers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.dto.discussions.MessageDTO;
@@ -13,10 +14,7 @@ import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.discussions.Message;
 import it.unical.unijira.data.models.discussions.Topic;
 import it.unical.unijira.data.models.items.Item;
-import it.unical.unijira.data.models.projects.DefinitionOfDoneEntry;
-import it.unical.unijira.data.models.projects.Membership;
-import it.unical.unijira.data.models.projects.MembershipKey;
-import it.unical.unijira.data.models.projects.Project;
+import it.unical.unijira.data.models.projects.*;
 import it.unical.unijira.data.models.projects.releases.Release;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
@@ -36,6 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -286,7 +285,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping("{projectId}/memberships/{userId}/permission/{permission}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Boolean> readMembershipPermission(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long userId, @PathVariable String permission) {
+    public ResponseEntity<Boolean> readMembershipPermission(@PathVariable Long projectId, @PathVariable Long userId, @PathVariable String permission) {
 
         return projectService.verifyPermission(projectId, userId, Membership.Permission.valueOf(permission))  ?
                 ResponseEntity.status(HttpStatus.OK).build() :
@@ -294,6 +293,49 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     }
 
+
+    @GetMapping("{projectId}/documents")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<DocumentDTO>> readAllDocuments(ModelMapper modelMapper, @PathVariable Long projectId) {
+
+        return ResponseEntity.ok(projectService
+                .findDocumentByProjectId(projectId)
+                .stream()
+                .flatMap(Collection::stream)
+                .map(document -> modelMapper.map(document, DocumentDTO.class))
+                .collect(Collectors.toList()));
+
+    }
+
+    @DeleteMapping("{projectId}/documents/{documentId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> deleteDocument(@PathVariable Long projectId, @PathVariable Long documentId) {
+
+        return projectService.findDocumentById(documentId)
+                .stream()
+                .peek(projectService::deleteDocument)
+                .findFirst()
+                .<ResponseEntity<Boolean>>map(project -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+
+    }
+
+    @PostMapping("{projectId}/documents")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<DocumentDTO> createDocument(@RequestBody DocumentDTO document) {
+
+        if(!StringUtils.hasText(document.getFilename()))
+            return ResponseEntity.badRequest().build();
+
+        var ok = modelMapper.map(document, Document.class);
+
+        return projectService.createDocument(modelMapper.map(document, Document.class))
+                .map(d -> ResponseEntity
+                        .created(URI.create("/projects/%d/documents/%d".formatted(d.getProject().getId(),d.getId())))
+                        .body(modelMapper.map(d, DocumentDTO.class)))
+                .orElse(ResponseEntity.badRequest().build());
+
+    }
 
     @GetMapping("/{project}/backlogs")
     @PreAuthorize("isAuthenticated()")

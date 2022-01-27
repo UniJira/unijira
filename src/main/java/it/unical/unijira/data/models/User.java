@@ -1,5 +1,6 @@
 package it.unical.unijira.data.models;
 
+import it.unical.unijira.data.models.projects.Document;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import lombok.*;
@@ -64,6 +65,9 @@ public class User extends AbstractBaseEntity {
     @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
 
+    @OneToMany
+    @ToString.Exclude
+    private List<Document> documents;
 
     public List<GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
