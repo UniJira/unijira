@@ -10,6 +10,7 @@ import it.unical.unijira.utils.ItemUtils;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +62,10 @@ public class Item extends AbstractBaseEntity {
     @Setter
     private ItemStatus status;
 
+
+    @Column
+    @Getter @Setter
+    private LocalDate doneOn;
 
     // Important to assert for the tags structure
     //Tags are separated by ; and surrounded by ##
@@ -166,5 +171,15 @@ public class Item extends AbstractBaseEntity {
     @Setter
     @Getter
     private Project project;
+
+
+    @OneToMany
+    @JoinColumn
+    @Getter
+    @Setter
+    @Builder.Default
+    @ToString.Exclude
+    private List<EvaluationProposal> evaluationProposals = new ArrayList<>();
+
 
 }

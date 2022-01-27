@@ -5,12 +5,15 @@ import it.unical.unijira.data.dao.RoadmapInsertionRepository;
 import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.HintRepository;
+import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
+import it.unical.unijira.data.dao.items.EvaluationProposalRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
+import it.unical.unijira.data.models.items.ItemStatus;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +21,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -32,6 +38,10 @@ public class ItemServiceImpl implements ItemService {
     private final SprintInsertionRepository sprintInsertionRepository;
     private final RoadmapInsertionRepository roadmapInsertionRepository;
     private final HintRepository hintRepository;
+    private final ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository;
+    private final EvaluationProposalRepository evaluationProposalRepository;
+
+
     @Autowired
     public ItemServiceImpl (ItemRepository pbiRepository,
                             UserRepository userRepository,
@@ -39,7 +49,9 @@ public class ItemServiceImpl implements ItemService {
                             ProductBacklogInsertionRepository productBacklogInsertionRepository,
                             SprintInsertionRepository sprintInsertionRepository,
                             RoadmapInsertionRepository roadmapInsertionRepository,
-                            HintRepository hintRepository){
+                            HintRepository hintRepository,
+                            ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository,
+                            EvaluationProposalRepository evaluationProposalRepository){
 
     this.pbiRepository = pbiRepository;
     this.userRepository = userRepository;
@@ -48,6 +60,8 @@ public class ItemServiceImpl implements ItemService {
     this.sprintInsertionRepository = sprintInsertionRepository;
     this.roadmapInsertionRepository = roadmapInsertionRepository;
     this.hintRepository = hintRepository;
+    this.itemDefinitionOfDoneRepository = itemDefinitionOfDoneRepository;
+    this.evaluationProposalRepository = evaluationProposalRepository;
 
     }
 
@@ -66,6 +80,15 @@ public class ItemServiceImpl implements ItemService {
         // Per essere sicuro di ricevere il dato completo, lo ricarico dalla repository
         Item retrieved = pbiRepository.findById(toReturn.getId()).orElse(null);
         return Optional.of(retrieved!=null ? retrieved : toReturn);
+    }
+
+    @Override
+    public Optional<Item> saveWithEvaluationProposals(Item pbi) {
+
+        pbi.setEvaluationProposals(evaluationProposalRepository.saveAll(pbi.getEvaluationProposals()));
+
+        return this.save(pbi);
+
     }
 
     @Override
@@ -99,6 +122,17 @@ public class ItemServiceImpl implements ItemService {
                     updatedItem.setType(pbi.getType());
                     updatedItem.setStatus(pbi.getStatus());
                     updatedItem.setRelease(pbi.getRelease());
+                    updatedItem.setUpdatedAt(LocalDateTime.now());
+
+                    if(ItemStatus.DONE.equals(pbi.getStatus())) {
+
+                        if(Objects.isNull(updatedItem.getDoneOn())) {
+                            updatedItem.setDoneOn(LocalDate.now());
+                        }
+
+                    } else {
+                        updatedItem.setDoneOn(null);
+                    }
 
                     pbi.setMeasureUnit(pbi.getMeasureUnit());
                 })

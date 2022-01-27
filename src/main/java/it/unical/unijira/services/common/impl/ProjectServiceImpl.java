@@ -3,9 +3,11 @@ package it.unical.unijira.services.common.impl;
 import it.unical.unijira.data.dao.ProductBacklogRepository;
 import it.unical.unijira.data.dao.RoadmapRepository;
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.dao.projects.DocumentRepository;
 import it.unical.unijira.data.dao.projects.MembershipRepository;
 import it.unical.unijira.data.dao.projects.ProjectRepository;
 import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.projects.Document;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -26,7 +28,7 @@ import java.util.*;
 public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyService notifyService, AuthService authService,
                                  MembershipRepository membershipRepository, UserRepository userRepository,
                                  ProductBacklogRepository backlogRepository, RoadmapRepository roadmapRepository,
-                                 Locale locale, Config config) implements ProjectService {
+                                 DocumentRepository documentRepository, Locale locale, Config config) implements ProjectService {
 
     @Override
     public Optional<Project> findById(Long id) {
@@ -35,7 +37,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
 
     @Override
     public Optional<Project> save(Project project) {
-        Project created = projectRepository.saveAndFlush(project);
+        projectRepository.saveAndFlush(project);
         return Optional.of(project);
     }
 
@@ -163,6 +165,31 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
     }
 
     @Override
+    public Boolean deleteMembership(Long projectId, Long userId) {
+
+        var membershipKey = new MembershipKey(userRepository.findById(userId).stream().findFirst().orElseThrow(RuntimeException::new),
+                projectRepository.findById(projectId).stream().findFirst().orElseThrow(RuntimeException::new));
+
+        membershipRepository.delete(membershipRepository.findById(membershipKey).stream().findFirst().orElseThrow(RuntimeException::new));
+
+        return membershipRepository.findById(membershipKey).isPresent();
+
+    }
+
+    @Override
+    public Boolean verifyPermission(Long projectId, Long userId, Membership.Permission permission) {
+
+        var membershipKey = new MembershipKey(userRepository.findById(userId).stream().findFirst().orElseThrow(RuntimeException::new),
+                projectRepository.findById(projectId).stream().findFirst().orElseThrow(RuntimeException::new));
+
+        return membershipRepository.findById(membershipKey).stream().findFirst().orElseThrow(RuntimeException::new)
+                .getPermissions()
+                .stream()
+                .anyMatch(p -> p.equals(permission));
+
+    }
+
+    @Override
     public Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status, Boolean owner) {
 
         var m = new Membership();
@@ -172,7 +199,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
 
         if(owner) {
             m.setPermissions(new HashSet<>(Arrays.asList(Membership.Permission.ADMIN, Membership.Permission.DETAILS,
-                    Membership.Permission.INVITATIONS, Membership.Permission.ROLES)));
+                    Membership.Permission.INVITATIONS, Membership.Permission.ROLES, Membership.Permission.TICKET)));
         } else {
             m.setPermissions(Collections.emptySet());
         }
@@ -191,6 +218,42 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
                 .findFirst()
                 .isPresent();
 
+    }
+
+    @Override
+    public Optional<List<Document>> findDocumentByProjectId(Long projectId) {
+        return Optional.of(documentRepository.findAllByProjectId(projectId));
+    }
+
+    @Override
+    public Optional<Document> findDocumentById(Long id) {
+        return documentRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Document> saveDocument(Document document) {
+        documentRepository.saveAndFlush(document);
+        return Optional.of(document);
+    }
+
+    @Override
+    public Optional<Document> createDocument(Document document) {
+
+        var d = new Document();
+        d.setProject(document.getProject());
+        d.setUser(document.getUser());
+        d.setFilename(document.getFilename());
+        d.setPath(document.getPath());
+
+        d = documentRepository.saveAndFlush(d);
+
+        return Optional.of(d);
+
+    }
+
+    @Override
+    public void deleteDocument(Document document) {
+        documentRepository.delete(document);
     }
 
 }
