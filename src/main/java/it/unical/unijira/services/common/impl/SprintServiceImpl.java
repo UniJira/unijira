@@ -1,6 +1,5 @@
 package it.unical.unijira.services.common.impl;
 
-import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.SprintRepository;
 import it.unical.unijira.data.dao.UserScoreboardRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
@@ -12,24 +11,38 @@ import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.SprintService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public record SprintServiceImpl(SprintRepository sprintRepository,
-                                UserScoreboardRepository userScoreboardRepository,
-                                SprintInsertionRepository sprintInsertionRepository,
-                                ItemRepository pbiRepository)
-        implements SprintService {
+public class SprintServiceImpl implements  SprintService {
+
+    private final SprintRepository sprintRepository;
+    private final UserScoreboardRepository userScoreboardRepository;
+    private final ItemRepository pbiRepository;
+
+
+    @Autowired
+    public SprintServiceImpl(SprintRepository sprintRepository,
+                             UserScoreboardRepository userScoreboardRepository,
+                             ItemRepository pbiRepository) {
+        this.sprintRepository = sprintRepository;
+        this.userScoreboardRepository =userScoreboardRepository;
+        this.pbiRepository = pbiRepository;
+    }
+
     @Override
     public Optional<Sprint> save(Sprint sprint) {
         return Optional.of(sprintRepository.save(sprint));
     }
 
     @Override
+    @Transactional
     public Optional<Sprint> update(Long id, Sprint sprint) {
         Optional<Sprint> returnValue = sprintRepository.findById(id)
                 .stream()
@@ -49,7 +62,7 @@ public record SprintServiceImpl(SprintRepository sprintRepository,
             int score = 0;
             for (Membership member : members) {
                 List<Item> myCompletedItems = pbiRepository
-                        .findAllClosedByAssigneeAndSprint(member.getKey().getUser(),sprint);
+                        .findAllClosedByAssigneeAndSprint(member.getKey().getUser(),returnValue.orElse(sprint));
                 for (Item item : myCompletedItems) {
                     if (item.getSons()== null || item.getSons().isEmpty()) {
                         score+=item.getEvaluation();

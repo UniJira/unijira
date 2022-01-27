@@ -24,7 +24,7 @@ public record HintServiceImpl(HintRepository hintRepository,
 
 
     @Override
-    public List<Item> sendHint(Sprint sprint, User user, String type) {
+    public List<Long> sendHint(Sprint sprint, User user, String type) {
 
 
         HintType currentType = type.equals(HintType.BALANCED.name()) ? HintType.BALANCED : HintType.QUICK;
@@ -48,7 +48,9 @@ public record HintServiceImpl(HintRepository hintRepository,
         }
 
         if(!canAvoidRecalculating) {
-            hintRepository.deleteAllBySprint(sprint);
+            if (!hintRepository.findBySprintAndType(sprint,currentType).isEmpty()) {
+                hintRepository.deleteAllBySprint(sprint);
+            }
             hintsOfThisSprint.add(calculateHintsAndSave(sprint,currentType,user));
         }
         else {
@@ -61,9 +63,9 @@ public record HintServiceImpl(HintRepository hintRepository,
         // And save them to the db
 
         // Returns just the hints for the user who requested
-        List<Item> filteredByUser = new ArrayList<>();
+        List<Long> filteredByUser = new ArrayList<>();
         for(SprintHint hint : hintsOfThisSprint) {
-                filteredByUser.add(hint.getTargetItem());
+                filteredByUser.add(hint.getTargetItem().getId());
         }
 
         return filteredByUser;
@@ -85,6 +87,10 @@ public record HintServiceImpl(HintRepository hintRepository,
         }
         else {
             scoreLimit = userScoreboardRepository.findMaxByUser(user, sprint.getBacklog().getProject());
+        }
+
+        if (scoreLimit==null) {
+            return null;
         }
 
         List<SprintInsertion> insertionList = sprintInsertionRepository.findItemsBySprint(sprint, Pageable.unpaged());

@@ -37,6 +37,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -1062,7 +1063,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     @GetMapping ("/{project}/backlogs/{backlog}/sprints/{sprint}/user/{user}/hint")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ItemDTO>> hintNextTicket(@PathVariable Long project,
+    public ResponseEntity<List<Long>> hintNextTicket(@PathVariable Long project,
                                                         @PathVariable Long backlog,
                                                         @PathVariable Long sprint,
                                                         @PathVariable Long user,
@@ -1110,10 +1111,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(hintService.sendHint(sprintObj,userObj, type)
-                .stream()
-                .map(p -> modelMapper.map(p, ItemDTO.class))
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok(new ArrayList<>(hintService.sendHint(sprintObj, userObj, type)));
     }
 
 

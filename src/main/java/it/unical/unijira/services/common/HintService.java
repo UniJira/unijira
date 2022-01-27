@@ -9,5 +9,5 @@ import java.util.List;
 public interface HintService {
 
 
-    List<Item> sendHint(Sprint sprintObj, User userObj, String type);
+    List<Long> sendHint(Sprint sprintObj, User userObj, String type);
 }
