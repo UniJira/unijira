@@ -4,6 +4,7 @@ import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.dao.RoadmapInsertionRepository;
 import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.dao.items.HintRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
@@ -30,13 +31,15 @@ public class ItemServiceImpl implements ItemService {
     private final ProductBacklogInsertionRepository productBacklogInsertionRepository;
     private final SprintInsertionRepository sprintInsertionRepository;
     private final RoadmapInsertionRepository roadmapInsertionRepository;
+    private final HintRepository hintRepository;
     @Autowired
     public ItemServiceImpl (ItemRepository pbiRepository,
-                              UserRepository userRepository,
-                              ItemAssignmentRepository itemAssignmentRepository,
-                              ProductBacklogInsertionRepository productBacklogInsertionRepository,
-                              SprintInsertionRepository sprintInsertionRepository,
-                              RoadmapInsertionRepository roadmapInsertionRepository){
+                            UserRepository userRepository,
+                            ItemAssignmentRepository itemAssignmentRepository,
+                            ProductBacklogInsertionRepository productBacklogInsertionRepository,
+                            SprintInsertionRepository sprintInsertionRepository,
+                            RoadmapInsertionRepository roadmapInsertionRepository,
+                            HintRepository hintRepository){
 
     this.pbiRepository = pbiRepository;
     this.userRepository = userRepository;
@@ -44,6 +47,7 @@ public class ItemServiceImpl implements ItemService {
     this.productBacklogInsertionRepository = productBacklogInsertionRepository;
     this.sprintInsertionRepository = sprintInsertionRepository;
     this.roadmapInsertionRepository = roadmapInsertionRepository;
+    this.hintRepository = hintRepository;
 
     }
 
@@ -117,6 +121,7 @@ public class ItemServiceImpl implements ItemService {
         List<SprintInsertion> sprintInsertionList = sprintInsertionRepository.findAllByItemId(pbi.getId());
         sprintInsertionRepository.deleteAll(sprintInsertionList);
         productBacklogInsertionRepository.findByItemId(pbi.getId()).ifPresent(productBacklogInsertionRepository::delete);
+        hintRepository.deleteAllByItem(pbi);
         pbiRepository.delete(pbi);
 
     }

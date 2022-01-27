@@ -3,6 +3,7 @@ package it.unical.unijira.data.dao.items;
 import it.unical.unijira.data.models.HintType;
 import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.SprintHint;
+import it.unical.unijira.data.models.items.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,8 @@ public interface HintRepository extends JpaRepository<SprintHint,Long> {
     @Modifying
     @Query(value="DELETE FROM SprintHint sh where sh.sprint = :sprint")
     void deleteAllBySprint(Sprint sprint);
+
+    @Modifying
+    @Query(value="DELETE FROM SprintHint sh where sh.targetItem = :pbi")
+    void deleteAllByItem(Item pbi);
 }
