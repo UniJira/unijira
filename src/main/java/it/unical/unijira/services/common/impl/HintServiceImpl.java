@@ -51,7 +51,10 @@ public record HintServiceImpl(HintRepository hintRepository,
             if (!hintRepository.findBySprintAndType(sprint,currentType).isEmpty()) {
                 hintRepository.deleteAllBySprint(sprint);
             }
-            hintsOfThisSprint.add(calculateHintsAndSave(sprint,currentType,user));
+            SprintHint sh = calculateHintsAndSave(sprint,currentType,user);
+            if (sh!= null) {
+                hintsOfThisSprint.add(sh);
+            }
         }
         else {
             hintsOfThisSprint = hintsOfThisSprint

@@ -1077,8 +1077,8 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.notFound().build();
         }
         // User is not found
-        User userObj = userService.findById(user).orElse(null);
-        if (userObj == null) {
+         User userObj = userService.findById(user).orElse(null);
+         if (userObj == null) {
             return ResponseEntity.notFound().build();
         }
         // User is not enrolled in projects
