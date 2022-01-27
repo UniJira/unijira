@@ -1,17 +1,16 @@
 package it.unical.unijira.data.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.net.URL;
-import java.time.LocalDateTime;
 
 @Entity
 @Table
+@Builder
 @Getter @Setter @ToString
-public class Notify {
+@NoArgsConstructor @AllArgsConstructor
+public class Notify extends AbstractBaseEntity {
 
     public enum Priority {
         LOW,
@@ -23,19 +22,23 @@ public class Notify {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Lob
+    @Column(length = 4096)
     @Basic(optional = false)
     private String title;
 
-    @Column
+    @Lob
+    @Column(length = 4096)
     @Basic(optional = false)
     private String message;
 
-    @Column
+    @Lob
+    @Column(length = 4096)
     private URL target;
 
     @Column
     @Enumerated(EnumType.ORDINAL)
+    @Builder.Default
     private Priority priority = Priority.LOW;
 
     @ManyToOne
@@ -43,9 +46,7 @@ public class Notify {
     private User user;
 
     @Column
+    @Builder.Default
     private boolean read = false;
-
-    @Column
-    private LocalDateTime date = LocalDateTime.now();
 
 }

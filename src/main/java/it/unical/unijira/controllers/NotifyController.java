@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,20 +19,22 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/notifies")
+@RequestMapping("/notifications")
 public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     private final NotifyService notifyService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public NotifyController(NotifyService notifyService) {
+    public NotifyController(NotifyService notifyService, ModelMapper modelMapper) {
         this.notifyService = notifyService;
+        this.modelMapper = modelMapper;
     }
 
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<NotifyDTO>> readAll(ModelMapper modelMapper, Integer page, Integer size) {
+    public ResponseEntity<List<NotifyDTO>> readAll(Integer page, Integer size) {
 
         return ResponseEntity.ok(notifyService
                 .findAllByUserId(getAuthenticatedUser().getId(), page, size)
@@ -43,7 +46,7 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<NotifyDTO> read(ModelMapper modelMapper, Long id) {
+    public ResponseEntity<NotifyDTO> read(Long id) {
 
         return notifyService.findById(id)
                 .stream()
@@ -56,18 +59,18 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
     }
 
     @Override
-    public ResponseEntity<NotifyDTO> create(ModelMapper modelMapper, NotifyDTO dto) {
+    public ResponseEntity<NotifyDTO> create(NotifyDTO dto) {
 
         return notifyService.create(modelMapper.map(dto, Notify.class))
                 .map(notify -> ResponseEntity
-                        .created(URI.create("/notifies/%d".formatted(notify.getId())))
+                        .created(URI.create("/notifications/%d".formatted(notify.getId())))
                         .body(modelMapper.map(notify, NotifyDTO.class)))
                 .orElse(ResponseEntity.badRequest().build());
 
     }
 
     @Override
-    public ResponseEntity<NotifyDTO> update(ModelMapper modelMapper, Long id, NotifyDTO dto) {
+    public ResponseEntity<NotifyDTO> update(Long id, NotifyDTO dto) {
 
         return notifyService.update(id, modelMapper.map(dto, Notify.class))
                 .map(notify -> modelMapper.map(notify, NotifyDTO.class))
@@ -80,4 +83,20 @@ public class NotifyController implements CrudController<NotifyDTO, Long> {
     public ResponseEntity<Boolean> delete(Long id) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
     }
+
+
+    @PutMapping("/mark")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> markAllAsRead() {
+
+        return notifyService.findAllByUserId(getAuthenticatedUser().getId())
+                .stream()
+                .peek(notify -> notify.setRead(true))
+                .map(notify -> notifyService.update(notify.getId(), notify))
+                .map(notify -> ResponseEntity.ok(true))
+                .reduce((a, b) -> ResponseEntity.ok(true))
+                .orElse(ResponseEntity.notFound().build());
+
+    }
+
 }

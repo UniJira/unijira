@@ -11,19 +11,29 @@
       "description": "Description for config.baseURL."
     },
     {
-      "name": "jwt.secret",
+      "name": "config.routes.public",
       "type": "java.lang.String",
-      "description": "Description for jwt.secret."
+      "description": "Description for config.routes.public."
     },
     {
-      "name": "jwt.expiration",
+      "name": "config.jwt.secret",
       "type": "java.lang.String",
-      "description": "Description for jwt.expiration."
+      "description": "Description for config.jwt.secret."
     },
     {
-      "name": "security.public-routes",
+      "name": "config.jwt.expiration",
       "type": "java.lang.String",
-      "description": "Description for security.public-routes."
+      "description": "Description for config.jwt.expiration."
+    },
+    {
+      "name": "config.jwt.leeway",
+      "type": "java.lang.String",
+      "description": "Description for config.jwt.leeway."
+    },
+    {
+      "name": "config.environment",
+      "type": "java.lang.String",
+      "description": "Description for config.environment."
     }
   ]
 }

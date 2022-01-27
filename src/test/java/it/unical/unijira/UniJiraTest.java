@@ -2,9 +2,18 @@ package it.unical.unijira;
 
 
 import it.unical.unijira.data.dao.NotifyRepository;
+import it.unical.unijira.data.dao.UserProjectRepository;
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
+import it.unical.unijira.data.dao.items.ItemRepository;
+import it.unical.unijira.data.dao.items.NoteRepository;
+import it.unical.unijira.data.dao.projects.ProjectRepository;
 import it.unical.unijira.data.models.Notify;
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.Membership;
+import it.unical.unijira.data.models.projects.MembershipKey;
+import it.unical.unijira.data.models.projects.Project;
+import it.unical.unijira.utils.Config;
 import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +22,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -24,7 +37,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public abstract class UniJiraTest {
 
     protected final static String USERNAME = "unijira20@gmail.com";
-    protected final static String PASSWORD = "Unijira20";
+    protected final static String PASSWORD = "Unijira.20";
+
+    @Autowired
+    protected Config config;
 
     @Autowired
     protected UserRepository userRepository;
@@ -33,7 +49,22 @@ public abstract class UniJiraTest {
     protected NotifyRepository notifyRepository;
 
     @Autowired
+    protected ProjectRepository projectRepository;
+
+    @Autowired
     protected PasswordEncoder passwordEncoder;
+
+    @Autowired
+    protected UserProjectRepository userProjectRepository;
+
+    @Autowired
+    protected ItemRepository pbiRepository;
+
+    @Autowired
+    protected ItemAssignmentRepository itemAssignmentRepository;
+
+    @Autowired
+    protected NoteRepository noteRepository;
 
     @Autowired
     protected MockMvc mockMvc;
@@ -47,19 +78,45 @@ public abstract class UniJiraTest {
 
         if(userRepository.findByUsername(USERNAME).isEmpty()) {
 
-            User user = new User();
-            user.setUsername(USERNAME);
-            user.setPassword(passwordEncoder.encode(PASSWORD));
+            User user = User.builder()
+                    .username(USERNAME)
+                    .password(passwordEncoder.encode(PASSWORD))
+                    .status(User.Status.ACTIVE)
+                    .ownedProjects(Collections.emptyList())
+                    .memberships(Collections.emptyList())
+                    .build();
 
             userRepository.saveAndFlush(user);
 
 
-            Notify notify = new Notify();
-            notify.setUser(user);
-            notify.setTitle("Test");
-            notify.setMessage("Test");
+            Notify notify = Notify.builder()
+                    .user(user)
+                    .title("Test")
+                    .message("Test")
+                    .build();
 
             notifyRepository.saveAndFlush(notify);
+
+
+            Project project = Project.builder()
+                    .owner(user)
+                    .name("Test")
+                    .key("TST")
+                    .memberships(Collections.emptyList())
+                    .build();
+
+            projectRepository.saveAndFlush(project);
+
+
+            Membership membership = Membership.builder()
+                    .status(Membership.Status.ENABLED)
+                    .role(Membership.Role.SCRUM_MASTER)
+                    .key(new MembershipKey(user, project))
+                    .permissions(new HashSet<>(Arrays.asList(Membership.Permission.ADMIN, Membership.Permission.DETAILS,
+                            Membership.Permission.INVITATIONS, Membership.Permission.ROLES)))
+                    .build();
+
+            userProjectRepository.saveAndFlush(membership);
 
         }
 

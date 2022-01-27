@@ -3,17 +3,13 @@ package it.unical.unijira;
 import it.unical.unijira.services.auth.AuthTokenException;
 import it.unical.unijira.services.auth.AuthTokenFilter;
 import it.unical.unijira.services.auth.AuthUserDetailsService;
+import it.unical.unijira.utils.Config;
 import it.unical.unijira.utils.DtoMapper;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -27,11 +23,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
+import java.util.Collections;
 
 
 @Configuration
@@ -40,16 +39,14 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(UniJiraSecurityConfig.class);
-
 
     private final AuthUserDetailsService userDetailsService;
     private final EntityManager entityManager;
-    private final List<String> publicUrls;
+    private final Config config;
 
     @Autowired
-    public UniJiraSecurityConfig(@Value("${security.public-routes}") String publicUrls, AuthUserDetailsService userDetailsService, EntityManager entityManager) {
-        this.publicUrls = List.of(publicUrls.split(";"));
+    public UniJiraSecurityConfig(Config config, AuthUserDetailsService userDetailsService, EntityManager entityManager) {
+        this.config = config;
         this.userDetailsService = userDetailsService;
         this.entityManager = entityManager;
     }
@@ -61,23 +58,22 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
 
         httpSecurity
                 .csrf().disable()
-                .cors().disable()
+                .cors().configurationSource(corsConfigurationSource())
+                .and()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint((r, s, e) -> this.unauthorizedEntryPoint(s, r.getAttribute("auth-token-exception")));
-
-
-        for(String url : publicUrls)
-            httpSecurity.authorizeRequests().antMatchers(url).permitAll();
-
-        httpSecurity
+                .authenticationEntryPoint((r, s, e) -> this.unauthorizedEntryPoint(s, r.getAttribute("auth-token-exception")))
+                .and()
+                .authorizeRequests()
+                .antMatchers(config.getPublicUrls()).permitAll()
+                .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new AuthTokenFilter(authenticationManager(), publicUrls), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new AuthTokenFilter(authenticationManager(), config), UsernamePasswordAuthenticationFilter.class);
 
     }
 
@@ -86,6 +82,7 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder.userDetailsService(userDetailsService);
     }
+
 
 
     @Bean
@@ -114,6 +111,8 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
+
+
     private void unauthorizedEntryPoint(HttpServletResponse response, Object exception) throws IOException {
 
         if(exception instanceof AuthTokenException e) {
@@ -123,8 +122,23 @@ public class UniJiraSecurityConfig extends WebSecurityConfigurerAdapter {
 
         }
 
-        response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized");
+        response.sendError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase());
 
+    }
+
+
+    private CorsConfigurationSource corsConfigurationSource() {
+        return new UrlBasedCorsConfigurationSource() {{
+
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOriginPatterns(Collections.singletonList(CorsConfiguration.ALL));
+            config.setAllowedMethods(Collections.singletonList(CorsConfiguration.ALL));
+            config.setAllowedHeaders(Collections.singletonList(CorsConfiguration.ALL));
+            config.setAllowCredentials(true);
+
+            this.registerCorsConfiguration("/**", config);
+
+        }};
     }
 
 }

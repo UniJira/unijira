@@ -1,23 +1,23 @@
 package it.unical.unijira.services.auth.impl;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import it.unical.unijira.data.dao.UserRepository;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import it.unical.unijira.data.models.TokenType;
 import it.unical.unijira.services.auth.AuthService;
-import it.unical.unijira.services.auth.AuthUserDetails;
+import it.unical.unijira.utils.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Date;
+import java.util.Map;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -25,17 +25,13 @@ public class AuthServiceImpl implements AuthService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final AuthenticationManager authenticationManager;
-    private final String tokenSecret;
-    private final Integer tokenExpiration;
+    private final Config config;
 
     @Autowired
-    public AuthServiceImpl(AuthenticationManager authenticationManager,
-            @Value("${jwt.secret}") String tokenSecret,
-            @Value("${jwt.expiration}") Integer tokenExpiration) {
+    public AuthServiceImpl(AuthenticationManager authenticationManager, Config config) {
 
         this.authenticationManager = authenticationManager;
-        this.tokenSecret = tokenSecret;
-        this.tokenExpiration = tokenExpiration;
+        this.config = config;
 
     }
 
@@ -56,22 +52,55 @@ public class AuthServiceImpl implements AuthService {
             throw new SecurityException("User not authenticated: missing details");
 
 
-        var userDetails = (AuthUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return JWT.create()
-                .withSubject(userDetails.getUsername())
-                .withClaim("type", TokenType.AUTHORIZATION.name())
-                .withClaim("username", username)
-                .withClaim("password", password)
-                .withExpiresAt(Date.from(LocalDateTime.now().plusSeconds(tokenExpiration).toInstant(java.time.ZoneOffset.UTC)))
-                .sign(Algorithm.HMAC512(tokenSecret));
-
+        return generateToken(TokenType.AUTHORIZATION, Map.of(
+                "username", username,
+                "password", password
+        ));
 
     }
 
     @Override
-    public void logout() {
-        SecurityContextHolder.clearContext();
+    public String refresh(String token) throws JWTVerificationException {
+
+        var decoded = JWT.require(config.getJWTAlgorithm())
+                .withIssuer(config.getJWTIssuer())
+                .withClaim("type", TokenType.AUTHORIZATION.name())
+                .withClaimPresence("username")
+                .withClaimPresence("password")
+                .acceptLeeway(config.getTokenLeeway())
+                .build()
+                .verify(token);
+
+        return authenticate(decoded.getClaim("username").asString(), decoded.getClaim("password").asString());
+
     }
 
+
+    @Override
+    public DecodedJWT verifyToken(String token, TokenType type, String... requiredClaims) throws JWTVerificationException {
+
+            var verifier = JWT.require(config.getJWTAlgorithm())
+                    .withIssuer(config.getJWTIssuer())
+                    .withClaim("type", type.name());
+
+            for (var claim : requiredClaims)
+                verifier = verifier.withClaimPresence(claim);
+
+            return verifier.build().verify(token);
+
+    }
+
+
+    @Override
+    public String generateToken(TokenType type, Map<String, ?> claims) {
+
+        return JWT.create()
+                .withIssuer(config.getJWTIssuer())
+                .withIssuedAt(Date.from(Instant.now()))
+                .withExpiresAt(Date.from(Instant.now().plusSeconds(config.getTokenExpiration())))
+                .withClaim("type", type.name())
+                .withPayload(claims)
+                .sign(config.getJWTAlgorithm());
+
+    }
 }
