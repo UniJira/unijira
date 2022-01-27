@@ -20,5 +20,8 @@ public interface ProjectService {
     List<Membership> sendInvitations(Project project, List<User> users);
     Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status, Boolean owner);
     Optional<Membership> updateMembership(Long projectId, Long userId, Membership membership);
+    Boolean deleteMembership(Long projectId, Long userId);
+    Boolean verifyPermission(Long projectId, Long userId, Membership.Permission permission);
     boolean activate(MembershipKey key);
+
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unical.unijira.UniJiraTest;
 import it.unical.unijira.data.dto.projects.DefinitionOfDoneEntryDTO;
+import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,26 @@ public class ProjectControllerTest extends UniJiraTest {
         p.setKey("KEY");
         p.setOwner(userRepository.findByUsername(UniJiraTest.USERNAME).orElse(null));
         this.dummyProject = projectRepository.saveAndFlush(p);
+
+    }
+
+    @Test
+    void readMembershipsPermissionSuccessful() throws Exception {
+
+        var projectId = projectRepository.findAll()
+                .stream()
+                .filter(i ->  i.getOwner().getId().equals(1L))
+                .findAny()
+                .stream()
+                .mapToLong(Project::getId)
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
+
+        mockMvc.perform(get("/projects/" + projectId + "/memberships/1/permission/DETAILS")
+                        .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                .andExpect(status().isOk())
+                .andDo(print());
+
     }
 
     @Test
@@ -347,4 +368,5 @@ public class ProjectControllerTest extends UniJiraTest {
         Assertions.assertEquals(1, resultList.size());
 
     }
+
 }
