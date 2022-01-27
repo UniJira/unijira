@@ -1,6 +1,7 @@
 package it.unical.unijira.services.common;
 
 import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.projects.Document;
 import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.MembershipKey;
 import it.unical.unijira.data.models.projects.Project;
@@ -23,5 +24,10 @@ public interface ProjectService {
     Boolean deleteMembership(Long projectId, Long userId);
     Boolean verifyPermission(Long projectId, Long userId, Membership.Permission permission);
     boolean activate(MembershipKey key);
+    Optional<Document> findDocumentById(Long id);
+    Optional<List<Document>> findDocumentByProjectId(Long projectId);
+    Optional<Document> saveDocument(Document document);
+    Optional<Document> createDocument(Document document);
+    void deleteDocument(Document document);
 
 }

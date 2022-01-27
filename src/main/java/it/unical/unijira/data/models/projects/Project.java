@@ -37,6 +37,10 @@ public class Project extends AbstractBaseEntity {
     @JoinColumn
     private User owner;
 
+    @OneToMany
+    @ToString.Exclude
+    private List<Document> documents;
+
     @Builder.Default
     @ToString.Exclude
     @OneToMany(mappedBy = "key.project", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
