@@ -13,14 +13,17 @@ import it.unical.unijira.data.models.Sprint;
 import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
+import it.unical.unijira.data.models.items.ItemStatus;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -90,6 +93,16 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
                     updatedItem.setStatus(pbi.getStatus());
                     updatedItem.setRelease(pbi.getRelease());
                     updatedItem.setUpdatedAt(LocalDateTime.now());
+
+                    if(ItemStatus.DONE.equals(pbi.getStatus())) {
+
+                        if(Objects.isNull(updatedItem.getDoneOn())) {
+                            updatedItem.setDoneOn(LocalDate.now());
+                        }
+
+                    } else {
+                        updatedItem.setDoneOn(null);
+                    }
 
                     pbi.setMeasureUnit(pbi.getMeasureUnit());
                 })

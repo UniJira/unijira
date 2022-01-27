@@ -5,6 +5,7 @@ import it.unical.unijira.data.dto.user.UserInfoDTO;
 import it.unical.unijira.data.models.items.ItemStatus;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -22,6 +23,7 @@ public class ItemDTO extends AbstractBaseDTO {
     private String tags;
     private String type;
     private ItemStatus status;
+    private LocalDate doneOn;
     private UserInfoDTO owner;
     private Long releaseId;
     private String releaseVersion;
