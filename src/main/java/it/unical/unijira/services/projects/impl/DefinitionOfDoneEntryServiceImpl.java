@@ -66,10 +66,24 @@ public class DefinitionOfDoneEntryServiceImpl implements DefinitionOfDoneEntrySe
                             throw new DataIntegrityViolationException("Priority out of range");
 
                         if (!r.getPriority().equals(definitionOfDone.getPriority())) {
-                            repository.findByProjectIdAndPriority(r.getProject().getId(), definitionOfDone.getPriority())
-                                    .ifPresent(s -> {
-                                        s.setPriority(r.getPriority());
-                                        repository.saveAndFlush(s);
+                            int min = Math.min(r.getPriority(), definitionOfDone.getPriority());
+                            int max = Math.max(r.getPriority(), definitionOfDone.getPriority());
+                            int inc;
+
+                            if(r.getPriority() < definitionOfDone.getPriority()) {
+                                max++;
+                                inc = -1;
+                            }
+                            else {
+                                min--;
+                                inc = 1;
+                            }
+
+                            int finalInc = inc;
+                            repository.findAllByProjectAndPriorityIsGreaterThanAndPriorityIsLessThan(r.getProject(), min, max)
+                                    .forEach(entry -> {
+                                        entry.setPriority(entry.getPriority() + finalInc);
+                                        repository.saveAndFlush(entry);
                                     });
                         }
 
