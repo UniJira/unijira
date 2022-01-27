@@ -1,6 +1,7 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.SprintInsertionRepository;
+import it.unical.unijira.data.dao.SprintRepository;
 import it.unical.unijira.data.dao.UserScoreboardRepository;
 import it.unical.unijira.data.dao.items.HintRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
@@ -27,9 +28,9 @@ public record HintServiceImpl(HintRepository hintRepository,
     @Override
     public List<Long> sendHint(Sprint sprint, User user, String type) {
 
-        cleanHints(sprint);
-        HintType currentType = type.equals(HintType.BALANCED.name()) ? HintType.BALANCED : HintType.QUICK;
 
+        HintType currentType = type.equals(HintType.BALANCED.name()) ? HintType.BALANCED : HintType.QUICK;
+        cleanHints(sprint,currentType );
         // If the sprint is already "hinted" and all the items hinted are still
         // not completed, and there is no new item, I can avoid recalculating hints
         // So, I can just return the old hints
@@ -79,8 +80,16 @@ public record HintServiceImpl(HintRepository hintRepository,
         return filteredByUser;
     }
 
-    private void cleanHints(Sprint sprint) {
-        //TODO
+    private void cleanHints(Sprint sprint, HintType currentType) {
+        List<SprintInsertion> insertionList = sprintInsertionRepository.findItemsBySprint(sprint, Pageable.unpaged());
+        List<SprintHint> hintsOfThisSprint = hintRepository.findBySprintAndType(sprint, currentType);
+        for (SprintHint hint : hintsOfThisSprint) {
+            Item found = pbiRepository.findById(hint.getTargetItem().getId()).orElse(null);
+            if (found == null || ItemStatus.DONE.equals(found.getStatus()) ||
+            !found.getAssignees().isEmpty()) {
+                hintRepository.delete(hint);
+            }
+        }
     }
 
     private boolean existsSomeHintable(List<SprintHint> hintsOfThisSprint, List<SprintInsertion> itemsBySprint) {
