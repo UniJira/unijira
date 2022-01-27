@@ -7,6 +7,7 @@ import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemStatus;
+import it.unical.unijira.data.models.items.ItemType;
 import it.unical.unijira.services.common.HintService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public record HintServiceImpl(HintRepository hintRepository,
     @Override
     public List<Long> sendHint(Sprint sprint, User user, String type) {
 
-
+        cleanHints(sprint);
         HintType currentType = type.equals(HintType.BALANCED.name()) ? HintType.BALANCED : HintType.QUICK;
 
         // If the sprint is already "hinted" and all the items hinted are still
@@ -36,7 +37,14 @@ public record HintServiceImpl(HintRepository hintRepository,
         List<SprintHint> hintsOfThisSprint = hintRepository.findBySprintAndType(sprint, currentType);
         if (!hintsOfThisSprint.isEmpty()) {
             for(SprintHint current : hintsOfThisSprint) {
-                if (ItemStatus.DONE.equals(current.getTargetItem().getStatus())) {
+                if (ItemStatus.DONE.equals(current.getTargetItem().getStatus()) &&
+                !current.getTargetItem().getAssignees().isEmpty() &&
+                existsSomeHintable(hintsOfThisSprint,
+                        sprintInsertionRepository.findItemsBySprint(sprint,
+                                Pageable.unpaged())
+                                .stream()
+                                .filter(sprintInsertion -> sprintInsertion.getItem().getType().equals(ItemType.TASK))
+                                .collect(Collectors.toList()))) {
                     canAvoidRecalculating = false;
                     break;
                 }
@@ -48,30 +56,48 @@ public record HintServiceImpl(HintRepository hintRepository,
         }
 
         if(!canAvoidRecalculating) {
-            if (!hintRepository.findBySprintAndType(sprint,currentType).isEmpty()) {
-                hintRepository.deleteAllBySprint(sprint);
-            }
+            
             SprintHint sh = calculateHintsAndSave(sprint,currentType,user);
             if (sh!= null) {
                 hintsOfThisSprint.add(sh);
             }
         }
-        else {
-            hintsOfThisSprint = hintsOfThisSprint
+        hintsOfThisSprint = hintsOfThisSprint
                     .stream()
-                    .filter(sprintHint -> sprintHint.getTargetUser().equals(user))
+                    .filter(sprintHint -> sprintHint.getTargetUser().getId().equals(user.getId()))
                     .collect(Collectors.toList());
-        }
         // Calculate hints for the whole sprint residual
         // And save them to the db
 
-        // Returns just the hints for the user who requested
+        // Returns just the ids
         List<Long> filteredByUser = new ArrayList<>();
         for(SprintHint hint : hintsOfThisSprint) {
                 filteredByUser.add(hint.getTargetItem().getId());
         }
-
+        
+        
         return filteredByUser;
+    }
+
+    private void cleanHints(Sprint sprint) {
+        //TODO
+    }
+
+    private boolean existsSomeHintable(List<SprintHint> hintsOfThisSprint, List<SprintInsertion> itemsBySprint) {
+        List<Item> itemsAlreadyHinted = new ArrayList<>();
+        for (SprintHint hint : hintsOfThisSprint) {
+            itemsAlreadyHinted.add(hint.getTargetItem());
+        }
+        for (SprintInsertion si : itemsBySprint) {
+            if (si.getItem().getAssignees().isEmpty() 
+                    && !ItemStatus.DONE.equals(si.getItem().getStatus())
+                    && !itemsAlreadyHinted.contains(si.getItem())) {
+                return true;
+            }
+        }
+        
+        return false;
+    
     }
 
     private SprintHint calculateHintsAndSave(Sprint sprint, HintType type, User user) {
@@ -98,7 +124,8 @@ public record HintServiceImpl(HintRepository hintRepository,
 
         List<SprintInsertion> insertionList = sprintInsertionRepository.findItemsBySprint(sprint, Pageable.unpaged());
         for (SprintInsertion insertion : insertionList) {
-            if (ItemStatus.OPEN.equals(insertion.getItem().getStatus())
+            if (    ItemType.TASK.equals(insertion.getItem().getType())
+                    && ItemStatus.OPEN.equals(insertion.getItem().getStatus())
                     && insertion.getItem().getEvaluation() > 0
                     && insertion.getItem().getEvaluation() > maxScoreFound
                     && insertion.getItem().getEvaluation() <= scoreLimit-currentScore) {
@@ -108,7 +135,8 @@ public record HintServiceImpl(HintRepository hintRepository,
                 candidateItems.add(insertion.getItem());
 
             }
-            if (ItemStatus.OPEN.equals(insertion.getItem().getStatus())
+            if (ItemType.TASK.equals(insertion.getItem().getType())
+                    && ItemStatus.OPEN.equals(insertion.getItem().getStatus())
                     && maxScoreFound.equals(insertion.getItem().getEvaluation())
                     && insertion.getItem().getEvaluation() > 0) {
 
