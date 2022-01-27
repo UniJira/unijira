@@ -244,6 +244,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
         d.setUser(document.getUser());
         d.setFilename(document.getFilename());
         d.setPath(document.getPath());
+        d.setMime(document.getMime());
 
         d = documentRepository.saveAndFlush(d);
 
