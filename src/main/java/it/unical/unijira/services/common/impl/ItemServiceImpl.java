@@ -1,8 +1,7 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
-import it.unical.unijira.data.dao.RoadmapInsertionRepository;
-import it.unical.unijira.data.dao.SprintInsertionRepository;
+
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.HintRepository;
 import it.unical.unijira.data.dao.items.EvaluationProposalRepository;
@@ -89,17 +88,10 @@ public class ItemServiceImpl implements ItemService {
     public Optional<Item> update(Long id, Item pbi) {
 
         // Prima di modificare l'item, salviamo a db gli assignment "nuovi"
-        itemAssignmentRepository.deleteAll(itemAssignmentRepository.findAllByItem(pbi, Pageable.unpaged()));
-        itemAssignmentRepository.saveAll(pbi.getAssignees());
-        /*
-        if (pbi.getAssignees() != null) {
-            for (ItemAssignment assignment : pbi.getAssignees()) {
-                assignment.setItem(pbi);
-                if (itemAssignmentRepository.isPresentAssignment(id, assignment.getId()) > 0) {
-                    itemAssignmentRepository.saveAndFlush(assignment);
-                }
-            }
-        }*/
+        if (!pbi.getAssignees().isEmpty() && pbi.getAssignees()!=null) {
+            itemAssignmentRepository.deleteAll(itemAssignmentRepository.findAllByItem(pbi, Pageable.unpaged()));
+            itemAssignmentRepository.saveAll(pbi.getAssignees());
+        }
 
         return pbiRepository.findById(id)
                 .stream()
@@ -147,10 +139,7 @@ public class ItemServiceImpl implements ItemService {
                 itemAssignmentRepository.delete(assignment);
             }
         }
-        //List<RoadmapInsertion> roadmapInsertionList = roadmapInsertionRepository.findAllByItemId(pbi.getId());
-        //roadmapInsertionRepository.deleteAll(roadmapInsertionList);
-        //List<SprintInsertion> sprintInsertionList = sprintInsertionRepository.findAllByItemId(pbi.getId());
-        //sprintInsertionRepository.deleteAll(sprintInsertionList);
+
         productBacklogInsertionService.delete(productBacklogInsertionRepository.findByItemId(pbi.getId()).orElse(null));
         hintRepository.deleteAllByItem(pbi);
         pbiRepository.delete(pbi);
