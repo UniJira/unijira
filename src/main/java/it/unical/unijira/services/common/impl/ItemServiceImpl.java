@@ -2,6 +2,7 @@ package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.dao.items.EvaluationProposalRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
@@ -17,6 +18,7 @@ import it.unical.unijira.services.common.ItemService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +28,8 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
                               UserRepository userRepository,
                               ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository,
                               ItemAssignmentRepository itemAssignmentRepository,
-                              ProductBacklogInsertionRepository productBacklogInsertionRepository)
+                              ProductBacklogInsertionRepository productBacklogInsertionRepository,
+                              EvaluationProposalRepository evaluationProposalRepository)
 
         implements ItemService {
 
@@ -44,6 +47,15 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
         // Per essere sicuro di ricevere il dato completo, lo ricarico dalla repository
         Item retrieved = pbiRepository.findById(toReturn.getId()).orElse(null);
         return Optional.of(retrieved!=null ? retrieved : toReturn);
+    }
+
+    @Override
+    public Optional<Item> saveWithEvaluationProposals(Item pbi) {
+
+        pbi.setEvaluationProposals(evaluationProposalRepository.saveAll(pbi.getEvaluationProposals()));
+
+        return this.save(pbi);
+
     }
 
     @Override
@@ -77,6 +89,7 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
                     updatedItem.setType(pbi.getType());
                     updatedItem.setStatus(pbi.getStatus());
                     updatedItem.setRelease(pbi.getRelease());
+                    updatedItem.setUpdatedAt(LocalDateTime.now());
 
                     pbi.setMeasureUnit(pbi.getMeasureUnit());
                 })

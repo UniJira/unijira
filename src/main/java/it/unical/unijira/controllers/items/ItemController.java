@@ -1,10 +1,12 @@
 package it.unical.unijira.controllers.items;
 
 import it.unical.unijira.controllers.common.CrudController;
+import it.unical.unijira.data.dto.items.EvaluationProposalDTO;
 import it.unical.unijira.data.dto.items.ItemAssignmentDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.items.ItemDefinitionOfDoneDTO;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
+import it.unical.unijira.data.models.items.EvaluationProposal;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.data.models.items.ItemDefinitionOfDone;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -258,6 +261,42 @@ public class ItemController implements CrudController<ItemDTO, Long> {
                 .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
+    @GetMapping("{itemId}/proposals")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<EvaluationProposalDTO>> readAllEvaluationProposals(
+            @PathVariable Long itemId,
+            @RequestParam (required = false, defaultValue = "0") Integer page,
+            @RequestParam (required = false, defaultValue = "10000") Integer size) {
+
+        return ResponseEntity.ok(pbiService.findById(itemId).stream()
+                .flatMap(pbi -> pbi.getEvaluationProposals().stream())
+                .map(proposal -> modelMapper.map(proposal, EvaluationProposalDTO.class))
+                .toList());
+
+    }
+
+    @PostMapping("{itemId}/proposals")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<EvaluationProposalDTO> updateAllEvaluationProposals(
+            @PathVariable Long itemId,
+            @RequestBody EvaluationProposalDTO proposal) {
+
+        return pbiService.findById(itemId).stream()
+                .peek(item -> item.getEvaluationProposals().add(modelMapper.map(proposal, EvaluationProposal.class)))
+                .map(pbiService::saveWithEvaluationProposals)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(item -> item.getEvaluationProposals().get(item.getEvaluationProposals().size() - 1))
+                .map(item -> modelMapper.map(item, EvaluationProposalDTO.class))
+                .map(ResponseEntity::ok)
+                .findFirst()
+                .orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+
+
 
     /* TODO Notes management
     @PostMapping("{item}/notes")
