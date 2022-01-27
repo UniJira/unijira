@@ -19,6 +19,5 @@ public interface DefinitionOfDoneEntryRepository extends JpaRepository<Definitio
     Optional<Integer> getLastPriorityByProject(Project project);
 
     List<DefinitionOfDoneEntry> findAllByProjectAndPriorityIsGreaterThan(Project project, Integer priority);
-
-    Optional<DefinitionOfDoneEntry> findByProjectIdAndPriority(Long id, Integer priority);
+    List<DefinitionOfDoneEntry> findAllByProjectAndPriorityIsGreaterThanAndPriorityIsLessThan(Project project, Integer first, Integer second);
 }
