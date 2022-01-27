@@ -159,6 +159,31 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
     }
 
     @Override
+    public Boolean deleteMembership(Long projectId, Long userId) {
+
+        var membershipKey = new MembershipKey(userRepository.findById(userId).stream().findFirst().orElseThrow(RuntimeException::new),
+                projectRepository.findById(projectId).stream().findFirst().orElseThrow(RuntimeException::new));
+
+        membershipRepository.delete(membershipRepository.findById(membershipKey).stream().findFirst().orElseThrow(RuntimeException::new));
+
+        return membershipRepository.findById(membershipKey).isPresent();
+
+    }
+
+    @Override
+    public Boolean verifyPermission(Long projectId, Long userId, Membership.Permission permission) {
+
+        var membershipKey = new MembershipKey(userRepository.findById(userId).stream().findFirst().orElseThrow(RuntimeException::new),
+                projectRepository.findById(projectId).stream().findFirst().orElseThrow(RuntimeException::new));
+
+        return membershipRepository.findById(membershipKey).stream().findFirst().orElseThrow(RuntimeException::new)
+                .getPermissions()
+                .stream()
+                .anyMatch(p -> p.equals(permission));
+
+    }
+
+    @Override
     public Optional<Membership> createMembership(Project project, User user, Membership.Role role, Membership.Status status, Boolean owner) {
 
         var m = new Membership();
@@ -168,7 +193,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
 
         if(owner) {
             m.setPermissions(new HashSet<>(Arrays.asList(Membership.Permission.ADMIN, Membership.Permission.DETAILS,
-                    Membership.Permission.INVITATIONS, Membership.Permission.ROLES)));
+                    Membership.Permission.INVITATIONS, Membership.Permission.ROLES, Membership.Permission.TICKET)));
         } else {
             m.setPermissions(Collections.emptySet());
         }

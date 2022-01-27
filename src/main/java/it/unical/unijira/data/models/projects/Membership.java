@@ -17,7 +17,9 @@ public class Membership extends AbstractBaseEntity {
     public enum Role {
         SCRUM_MASTER,
         PRODUCT_OWNER,
-        MEMBER
+        MEMBER,
+        MANAGER,
+        STAKEHOLDER
     }
 
     public enum Status {
@@ -30,7 +32,8 @@ public class Membership extends AbstractBaseEntity {
         ADMIN,
         DETAILS,
         ROLES,
-        INVITATIONS
+        INVITATIONS,
+        TICKET
     }
 
     @EmbeddedId

@@ -2,6 +2,7 @@ package it.unical.unijira.controllers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import it.unical.unijira.controllers.common.CrudController;
+import it.unical.unijira.data.dao.projects.MembershipRepository;
 import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.dto.items.ItemDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
@@ -153,8 +154,6 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MembershipDTO>> readMembership(ModelMapper modelMapper, @PathVariable Long id, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10000") Integer size) {
 
-        // FIXME: Implementaere paginazione per memberships
-
         return ResponseEntity.ok(projectService
                 .findById(id)
                 .stream()
@@ -175,6 +174,16 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
     }
 
+    @DeleteMapping("{projectId}/memberships/{userId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> deleteMembership(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long userId) {
+
+        return projectService.deleteMembership(projectId, userId)  ?
+                                ResponseEntity.noContent().build() :
+                                ResponseEntity.notFound().build();
+
+    }
+
 
     @PostMapping("invitations")
     @PreAuthorize("isAuthenticated()")
@@ -186,21 +195,21 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.notFound().build();
         }
 
-        if(getAuthenticatedUser().equals(project.getOwner())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         inviteMembersDTO.getEmails().forEach(mail -> {
 
-            var user = User.builder()
-                    .username(mail)
-                    .password(passwordEncoder.encode(mail))
-                    .activated(true)
-                    .ownedProjects(Collections.emptyList())
-                    .memberships(Collections.emptyList())
-                    .build();
+            if(userService.findByUsername(mail).isEmpty()) {
 
-            userService.save(user);
+                var user = User.builder()
+                        .username(mail)
+                        .password(passwordEncoder.encode(mail))
+                        .activated(true)
+                        .ownedProjects(Collections.emptyList())
+                        .memberships(Collections.emptyList())
+                        .build();
+
+                userService.save(user);
+
+            }
 
         });
 
@@ -250,6 +259,16 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
+    }
+
+    @GetMapping("{projectId}/memberships/{userId}/permission/{permission}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> readMembershipPermission(ModelMapper modelMapper, @PathVariable Long projectId, @PathVariable Long userId, @PathVariable String permission) {
+
+        return projectService.verifyPermission(projectId, userId, Membership.Permission.valueOf(permission))  ?
+                ResponseEntity.status(HttpStatus.OK).build() :
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
     }
 

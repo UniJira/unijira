@@ -1,6 +1,7 @@
 package it.unical.unijira.controllers;
 
 import it.unical.unijira.UniJiraTest;
+import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,6 +123,25 @@ public class ProjectControllerTest extends UniJiraTest {
         mockMvc.perform(get("/projects/3/memberships").header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("[]"))))
+                .andDo(print());
+
+    }
+
+    @Test
+    void readMembershipsPermissionSuccessful() throws Exception {
+
+        var projectId = projectRepository.findAll()
+                .stream()
+                .filter(i ->  i.getOwner().getId().equals(1L))
+                .findAny()
+                .stream()
+                .mapToLong(Project::getId)
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("Project owned by User id(1) not found"));
+
+        mockMvc.perform(get("/projects/" + projectId + "/memberships/1/permission/ADMIN")
+                .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD)))
+                .andExpect(status().isOk())
                 .andDo(print());
 
     }
