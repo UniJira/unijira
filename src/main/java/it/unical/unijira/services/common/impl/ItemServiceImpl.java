@@ -1,34 +1,52 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
+import it.unical.unijira.data.dao.RoadmapInsertionRepository;
+import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
-import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import it.unical.unijira.data.models.ProductBacklog;
-import it.unical.unijira.data.models.Roadmap;
-import it.unical.unijira.data.models.Sprint;
-import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public record ItemServiceImpl(ItemRepository pbiRepository,
-                              UserRepository userRepository,
-                              ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository,
-                              ItemAssignmentRepository itemAssignmentRepository,
-                              ProductBacklogInsertionRepository productBacklogInsertionRepository)
+public class ItemServiceImpl implements ItemService {
 
-        implements ItemService {
+    private final ItemRepository pbiRepository;
+    private final UserRepository userRepository;
+    private final ItemAssignmentRepository itemAssignmentRepository;
+    private final ProductBacklogInsertionRepository productBacklogInsertionRepository;
+    private final SprintInsertionRepository sprintInsertionRepository;
+    private final RoadmapInsertionRepository roadmapInsertionRepository;
+    @Autowired
+    public ItemServiceImpl (ItemRepository pbiRepository,
+                              UserRepository userRepository,
+                              ItemAssignmentRepository itemAssignmentRepository,
+                              ProductBacklogInsertionRepository productBacklogInsertionRepository,
+                              SprintInsertionRepository sprintInsertionRepository,
+                              RoadmapInsertionRepository roadmapInsertionRepository){
+
+    this.pbiRepository = pbiRepository;
+    this.userRepository = userRepository;
+    this.itemAssignmentRepository = itemAssignmentRepository;
+    this.productBacklogInsertionRepository = productBacklogInsertionRepository;
+    this.sprintInsertionRepository = sprintInsertionRepository;
+    this.roadmapInsertionRepository = roadmapInsertionRepository;
+
+    }
+
 
     public Optional<Item> save(Item pbi) {
 
@@ -86,7 +104,13 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
 
 
     @Override
+    @Transactional
     public void delete(Item pbi) {
+        List<RoadmapInsertion> roadmapInsertionList = roadmapInsertionRepository.findAllByItemId(pbi.getId());
+        roadmapInsertionRepository.deleteAll(roadmapInsertionList);
+        List<SprintInsertion> sprintInsertionList = sprintInsertionRepository.findAllByItemId(pbi.getId());
+        sprintInsertionRepository.deleteAll(sprintInsertionList);
+        productBacklogInsertionRepository.findByItemId(pbi.getId()).ifPresent(productBacklogInsertionRepository::delete);
         pbiRepository.delete(pbi);
 
     }
