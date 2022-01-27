@@ -5,7 +5,6 @@ import it.unical.unijira.data.dao.RoadmapInsertionRepository;
 import it.unical.unijira.data.dao.SprintInsertionRepository;
 import it.unical.unijira.data.dao.UserRepository;
 import it.unical.unijira.data.dao.items.HintRepository;
-import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
 import it.unical.unijira.data.dao.items.EvaluationProposalRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
@@ -38,7 +37,6 @@ public class ItemServiceImpl implements ItemService {
     private final SprintInsertionRepository sprintInsertionRepository;
     private final RoadmapInsertionRepository roadmapInsertionRepository;
     private final HintRepository hintRepository;
-    private final ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository;
     private final EvaluationProposalRepository evaluationProposalRepository;
 
 
@@ -50,7 +48,6 @@ public class ItemServiceImpl implements ItemService {
                             SprintInsertionRepository sprintInsertionRepository,
                             RoadmapInsertionRepository roadmapInsertionRepository,
                             HintRepository hintRepository,
-                            ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository,
                             EvaluationProposalRepository evaluationProposalRepository){
 
     this.pbiRepository = pbiRepository;
@@ -60,7 +57,6 @@ public class ItemServiceImpl implements ItemService {
     this.sprintInsertionRepository = sprintInsertionRepository;
     this.roadmapInsertionRepository = roadmapInsertionRepository;
     this.hintRepository = hintRepository;
-    this.itemDefinitionOfDoneRepository = itemDefinitionOfDoneRepository;
     this.evaluationProposalRepository = evaluationProposalRepository;
 
     }
