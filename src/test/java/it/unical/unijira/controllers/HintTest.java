@@ -8,6 +8,7 @@ import it.unical.unijira.data.models.items.*;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.*;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +83,6 @@ public class HintTest extends UniJiraTest {
             }
             this.userId = p.getId();
             this.backlogId = backlog.getId();
-        System.err.println("HERE");
             List<Roadmap> roadmaps = roadmapService.findByBacklog(backlog,defaultPage,defaultSize);
             Roadmap roadmap = roadmaps.get(0);
             Sprint closedOneMonthAgo = Sprint.builder()
@@ -236,5 +236,13 @@ public class HintTest extends UniJiraTest {
 
         System.out.println(returnValue.getResponse().getContentAsString());
 
+        Sprint s = sprintService.findById(sprintId).orElse(null);
+        if (s != null) {
+            Long sprintId = s.getId();
+            s.setStatus(SprintStatus.INACTIVE);
+            this.sprintService.update(sprintId,s);
+        }
+
     }
+
 }
