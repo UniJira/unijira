@@ -18,6 +18,7 @@ import it.unical.unijira.services.common.ItemService;
 import it.unical.unijira.services.common.ProductBacklogInsertionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -35,8 +36,6 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemAssignmentRepository itemAssignmentRepository;
     private final ProductBacklogInsertionRepository productBacklogInsertionRepository;
-    private final SprintInsertionRepository sprintInsertionRepository;
-    private final RoadmapInsertionRepository roadmapInsertionRepository;
     private final HintRepository hintRepository;
     private final EvaluationProposalRepository evaluationProposalRepository;
     private final ProductBacklogInsertionService productBacklogInsertionService;
@@ -47,8 +46,6 @@ public class ItemServiceImpl implements ItemService {
                             UserRepository userRepository,
                             ItemAssignmentRepository itemAssignmentRepository,
                             ProductBacklogInsertionRepository productBacklogInsertionRepository,
-                            SprintInsertionRepository sprintInsertionRepository,
-                            RoadmapInsertionRepository roadmapInsertionRepository,
                             HintRepository hintRepository,
                             EvaluationProposalRepository evaluationProposalRepository,
                             ProductBacklogInsertionService productBacklogInsertionService){
@@ -57,8 +54,6 @@ public class ItemServiceImpl implements ItemService {
     this.userRepository = userRepository;
     this.itemAssignmentRepository = itemAssignmentRepository;
     this.productBacklogInsertionRepository = productBacklogInsertionRepository;
-    this.sprintInsertionRepository = sprintInsertionRepository;
-    this.roadmapInsertionRepository = roadmapInsertionRepository;
     this.hintRepository = hintRepository;
     this.evaluationProposalRepository = evaluationProposalRepository;
     this.productBacklogInsertionService = productBacklogInsertionService;
@@ -94,6 +89,9 @@ public class ItemServiceImpl implements ItemService {
     public Optional<Item> update(Long id, Item pbi) {
 
         // Prima di modificare l'item, salviamo a db gli assignment "nuovi"
+        itemAssignmentRepository.deleteAll(itemAssignmentRepository.findAllByItem(pbi, Pageable.unpaged()));
+        itemAssignmentRepository.saveAll(pbi.getAssignees());
+        /*
         if (pbi.getAssignees() != null) {
             for (ItemAssignment assignment : pbi.getAssignees()) {
                 assignment.setItem(pbi);
@@ -101,7 +99,7 @@ public class ItemServiceImpl implements ItemService {
                     itemAssignmentRepository.saveAndFlush(assignment);
                 }
             }
-        }
+        }*/
 
         return pbiRepository.findById(id)
                 .stream()
