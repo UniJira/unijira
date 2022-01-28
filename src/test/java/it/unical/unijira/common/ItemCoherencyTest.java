@@ -476,7 +476,7 @@ public class ItemCoherencyTest extends UniJiraTest {
         Assertions.assertNotNull(roadmapInsertionService.update(first.getId(), first).orElse(null));
     }
 
-    @Test
+    /*@Test
     void updateRoadmapInsertionFailure() {
         Assertions.assertNotNull(addBacklogInsertion(0).orElse(null));
         RoadmapInsertion first = addRoadmapInsertion(0).orElse(null);
@@ -524,7 +524,7 @@ public class ItemCoherencyTest extends UniJiraTest {
         first.setItem(item);
         first.setRoadmap(anotherRoadmap);
         Assertions.assertNull(roadmapInsertionService.update(first.getId(), first).orElse(null));
-    }
+    }*/
 
     @Test
     void addDefOfDoneEntrySuccess() {
