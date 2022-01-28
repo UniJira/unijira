@@ -270,7 +270,6 @@ public class BacklogControllerTest extends UniJiraTest {
 
     @Test
     void addBacklogToAProject() throws Exception {
-        System.err.println(this.projectJsonForTests);
 
         mockMvc.perform(post("/projects/"+projectForTests.getId()+"/backlogs")
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))
