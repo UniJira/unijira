@@ -160,8 +160,6 @@ public class UserServiceImpl implements UserService {
                     updatedUser.setLinkedin(user.getLinkedin());
                     updatedUser.setGithub(user.getGithub());
                     updatedUser.setPhoneNumber(user.getPhoneNumber());
-                    updatedUser.setPreferedLanguage(user.getPreferedLanguage());
-                    updatedUser.setPreferedTheme(user.getPreferedTheme());
                 })
                 .findFirst()
                 .map(userRepository::saveAndFlush);

@@ -1,24 +1,26 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
+
 import it.unical.unijira.data.dao.UserRepository;
+import it.unical.unijira.data.dao.items.HintRepository;
 import it.unical.unijira.data.dao.items.EvaluationProposalRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
-import it.unical.unijira.data.dao.items.ItemDefinitionOfDoneRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import it.unical.unijira.data.models.ProductBacklog;
-import it.unical.unijira.data.models.Roadmap;
-import it.unical.unijira.data.models.Sprint;
-import it.unical.unijira.data.models.User;
+import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.data.models.items.ItemStatus;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
+import it.unical.unijira.services.common.ProductBacklogInsertionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -27,14 +29,35 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public record ItemServiceImpl(ItemRepository pbiRepository,
-                              UserRepository userRepository,
-                              ItemDefinitionOfDoneRepository itemDefinitionOfDoneRepository,
-                              ItemAssignmentRepository itemAssignmentRepository,
-                              ProductBacklogInsertionRepository productBacklogInsertionRepository,
-                              EvaluationProposalRepository evaluationProposalRepository)
+public class ItemServiceImpl implements ItemService {
 
-        implements ItemService {
+    private final ItemRepository pbiRepository;
+    private final UserRepository userRepository;
+    private final ItemAssignmentRepository itemAssignmentRepository;
+    private final ProductBacklogInsertionRepository productBacklogInsertionRepository;
+    private final HintRepository hintRepository;
+    private final EvaluationProposalRepository evaluationProposalRepository;
+    private final ProductBacklogInsertionService productBacklogInsertionService;
+
+
+    @Autowired
+    public ItemServiceImpl (ItemRepository pbiRepository,
+                            UserRepository userRepository,
+                            ItemAssignmentRepository itemAssignmentRepository,
+                            ProductBacklogInsertionRepository productBacklogInsertionRepository,
+                            HintRepository hintRepository,
+                            EvaluationProposalRepository evaluationProposalRepository,
+                            ProductBacklogInsertionService productBacklogInsertionService){
+
+    this.pbiRepository = pbiRepository;
+    this.userRepository = userRepository;
+    this.itemAssignmentRepository = itemAssignmentRepository;
+    this.productBacklogInsertionRepository = productBacklogInsertionRepository;
+    this.hintRepository = hintRepository;
+    this.evaluationProposalRepository = evaluationProposalRepository;
+    this.productBacklogInsertionService = productBacklogInsertionService;
+    }
+
 
     public Optional<Item> save(Item pbi) {
 
@@ -65,13 +88,9 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
     public Optional<Item> update(Long id, Item pbi) {
 
         // Prima di modificare l'item, salviamo a db gli assignment "nuovi"
-        if (pbi.getAssignees() != null) {
-            for (ItemAssignment assignment : pbi.getAssignees()) {
-                assignment.setItem(pbi);
-                if (itemAssignmentRepository.isPresentAssignment(id, assignment.getId()) > 0) {
-                    itemAssignmentRepository.saveAndFlush(assignment);
-                }
-            }
+        if (!pbi.getAssignees().isEmpty() && pbi.getAssignees()!=null) {
+            itemAssignmentRepository.deleteAll(itemAssignmentRepository.findAllByItem(pbi, Pageable.unpaged()));
+            itemAssignmentRepository.saveAll(pbi.getAssignees());
         }
 
         return pbiRepository.findById(id)
@@ -112,7 +131,17 @@ public record ItemServiceImpl(ItemRepository pbiRepository,
 
 
     @Override
+    @Transactional
     public void delete(Item pbi) {
+        if (pbi.getAssignees() != null) {
+            for (ItemAssignment assignment : pbi.getAssignees()) {
+                assignment.setItem(pbi);
+                itemAssignmentRepository.delete(assignment);
+            }
+        }
+
+        productBacklogInsertionService.delete(productBacklogInsertionRepository.findByItemId(pbi.getId()).orElse(null));
+        hintRepository.deleteAllByItem(pbi);
         pbiRepository.delete(pbi);
 
     }

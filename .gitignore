@@ -32,3 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 .history
+/src/main/java/it/unical/unijira/utils/InitDB.java

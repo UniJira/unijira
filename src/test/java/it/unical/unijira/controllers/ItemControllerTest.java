@@ -120,7 +120,7 @@ public class ItemControllerTest extends UniJiraTest {
     }
 
     @Test
-    void updateProjectSuccessful() throws Exception {
+    void updateItemSuccessful() throws Exception {
 
         mockMvc.perform(put("/items/"+this.chooseMyId)
                         .header("Authorization", "Bearer " + this.performLogin(UniJiraTest.USERNAME, UniJiraTest.PASSWORD))

@@ -86,6 +86,8 @@ public class ProductBacklogInsertionServiceImpl implements ProductBacklogInserti
     @Override
     @Transactional
     public void delete(ProductBacklogInsertion backlogIns) {
+        if (backlogIns ==null)
+            return;
         cleanAllAssociations(backlogIns.getItem().getId(), false);
         backlogInsertionRepository.delete(backlogIns);
     }
