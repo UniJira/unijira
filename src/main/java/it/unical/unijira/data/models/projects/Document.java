@@ -23,6 +23,9 @@ public class Document extends AbstractBaseEntity {
     private URL path;
 
     @Column
+    private String mime;
+
+    @Column
     @Basic(optional = false)
     private String filename;
 

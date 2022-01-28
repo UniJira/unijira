@@ -65,8 +65,6 @@ public class UsersController implements CrudController<UserInfoDTO, Long> {
     @Override
     public ResponseEntity<UserInfoDTO> update(Long id, UserInfoDTO dto) {
 
-        System.err.println(dto.getAvatar() !=null ? dto.getAvatar().toString() : "NULL");
-
         if(User.CURRENT_USER_ID.equals(id))
             id = getAuthenticatedUser().getId();
 

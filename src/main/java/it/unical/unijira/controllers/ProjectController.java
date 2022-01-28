@@ -227,7 +227,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 var user = User.builder()
                         .username(mail)
                         .password(passwordEncoder.encode(mail))
-                        .status(User.Status.ACTIVE)
+                        .status(User.Status.REQUIRE_PASSWORD)
                         .ownedProjects(Collections.emptyList())
                         .memberships(Collections.emptyList())
                         .build();

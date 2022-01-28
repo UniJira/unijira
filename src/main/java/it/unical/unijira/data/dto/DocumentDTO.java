@@ -12,9 +12,12 @@ public class DocumentDTO extends AbstractBaseDTO {
     private Long id;
     private URL path;
     private String filename;
+    private String mime;
     private Long projectId;
     private Long userId;
     private String userFirstName;
     private String userLastName;
+    private URL userAvatar;
+    private String userUsername;
 
 }
