@@ -1,5 +1,6 @@
 package it.unical.unijira.data.dto;
 
+import it.unical.unijira.data.models.SprintStatus;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -17,5 +18,6 @@ public class SprintDTO {
     private LocalDate endingDate;
     private List<SprintInsertionDTO> insertions;
     private Long backlogId;
+    private SprintStatus status;
 
 }
