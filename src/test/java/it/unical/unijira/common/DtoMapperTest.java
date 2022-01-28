@@ -10,6 +10,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 @SpringBootTest
 public class DtoMapperTest extends UniJiraTest {
 
@@ -18,23 +21,26 @@ public class DtoMapperTest extends UniJiraTest {
 
 
     @Test
-    void notifyToDTOTest() {
+    void notifyToDTOTest() throws MalformedURLException {
 
-        var notify = new Notify() {{
-            setId(1L);
-            setTitle("title");
-            setMessage("message");
-            setUser(new User() {{
-                setId(2L);
-                setUsername("username");
-            }});
-        }};
+        var notify = Notify.builder()
+                .id(1L)
+                .title("title")
+                .message("message")
+                .target(new URL("http://www.google.com"))
+                .user(User.builder()
+                        .id(2L)
+                        .username("username")
+                        .build())
+                .build();
+
 
         NotifyDTO notifyDTO = modelMapper.map(notify, NotifyDTO.class);
 
         Assertions.assertEquals("title", notifyDTO.getTitle());
         Assertions.assertEquals("message", notifyDTO.getMessage());
         Assertions.assertEquals(2L, notifyDTO.getUserId());
+        Assertions.assertEquals("http://www.google.com", notifyDTO.getTarget().toString());
 
 
     }

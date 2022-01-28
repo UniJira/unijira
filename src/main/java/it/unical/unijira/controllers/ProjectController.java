@@ -34,10 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -223,7 +220,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 var user = User.builder()
                         .username(mail)
                         .password(passwordEncoder.encode(mail))
-                        .status(User.Status.ACTIVE)
+                        .status(User.Status.REQUIRE_PASSWORD)
                         .ownedProjects(Collections.emptyList())
                         .memberships(Collections.emptyList())
                         .build();
