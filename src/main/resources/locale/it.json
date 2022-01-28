@@ -2,7 +2,7 @@
   "MAIL_ACCOUNT_CONFIRM_SUBJECT": "Registrazione",
   "MAIL_ACCOUNT_CONFIRM_BODY": "Benvenuto su UniJira!<br>Clicca su <a href=\"%s/activate?q=%s\">Attiva il mio account</a> per confermare la tua email.",
   "NOTIFY_PROJECT_CONFIRM_SUBJECT": "Sei stato invitato a partecipare a un progetto",
-  "NOTIFY_PROJECT_CONFIRM_BODY": "Sei stato invitato a partecipare a un progetto!<br>Clicca su <a href=\"%s/projects/%d/invite?q=%s&k=%d\">Partecipa al progetto</a> per diventare un membro del team.",
+  "NOTIFY_PROJECT_CONFIRM_BODY": "Sei stato invitato a partecipare a un progetto!<br>Clicca su <a href=\"%s/invite?q=%s&k=%d\">Partecipa al progetto</a> per diventare un membro del team.",
   "NOTIFY_PASSWORD_RESET_SUCCESSFUL_SUBJECT": "Reset della password",
   "NOTIFY_PASSWORD_RESET_SUCCESSFUL_BODY": "La tua password è stata resettata con successo"
 }

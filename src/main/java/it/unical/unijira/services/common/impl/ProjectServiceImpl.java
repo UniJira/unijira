@@ -128,7 +128,7 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
 
             try {
 
-                url = URI.create("%s/projects/%d/invite?q=%s&k=%d".formatted(config.getBaseURL(), project.getId(),
+                url = URI.create("%s/invite?q=%s&k=%d".formatted(config.getBaseURL(),
                         token, User.Status.REQUIRE_PASSWORD.equals(user.getStatus()) ? 1 : 0)).toURL();
 
             } catch (MalformedURLException ignored) {}
@@ -137,7 +137,6 @@ public record ProjectServiceImpl(ProjectRepository projectRepository, NotifyServ
                     locale.get("NOTIFY_PROJECT_CONFIRM_SUBJECT"),
                     locale.get("NOTIFY_PROJECT_CONFIRM_BODY",
                             config.getBaseURL(),
-                            project.getId(),
                             token,
                             User.Status.REQUIRE_PASSWORD.equals(user.getStatus()) ? 1 : 0),
                     url,
