@@ -16,6 +16,6 @@ public class ItemAssignmentDTO {
     private Long itemId;
     private Long assigneeId;
     private String assigneeUsername;
-    private URL assigneeAvatar;
+    private String assigneeAvatar;
 
 }
