@@ -1487,6 +1487,14 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
         definitionOfDoneEntryDTO.setProjectId(projectId);
 
+        Project project = projectService.findById(projectId).orElse(null);
+
+        if(project == null)
+            return ResponseEntity.badRequest().build();
+
+        if(sprintService.findActiveSprint(project).isPresent())
+            return ResponseEntity.badRequest().build();
+
         return definitionOfDoneEntryService.create(modelMapper.map(definitionOfDoneEntryDTO, DefinitionOfDoneEntry.class))
                 .map(found -> modelMapper.map(found, DefinitionOfDoneEntryDTO.class))
                 .map(ResponseEntity::ok)
@@ -1513,6 +1521,14 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         if(!definitionOfDoneEntryDTO.getProjectId().equals(projectId))
             return ResponseEntity.badRequest().build();
 
+        Project project = projectService.findById(projectId).orElse(null);
+
+        if(project == null)
+            return ResponseEntity.badRequest().build();
+
+        if(sprintService.findActiveSprint(project).isPresent())
+            return ResponseEntity.badRequest().build();
+
         return definitionOfDoneEntryService.update(entryId, modelMapper.map(definitionOfDoneEntryDTO, DefinitionOfDoneEntry.class))
                 .map(found -> modelMapper.map(found, DefinitionOfDoneEntryDTO.class))
                 .map(ResponseEntity::ok)
@@ -1523,6 +1539,15 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     @DeleteMapping("/{projectId}/defofdone/{entryId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Boolean> deleteDefinitionOfDoneEntry(@PathVariable Long projectId, @PathVariable Long entryId) {
+
+        Project project = projectService.findById(projectId).orElse(null);
+
+        if(project == null)
+            return ResponseEntity.badRequest().build();
+
+        if(sprintService.findActiveSprint(project).isPresent())
+            return ResponseEntity.badRequest().build();
+
         return definitionOfDoneEntryService.findById(entryId).stream()
                 .filter(found -> found.getProject().getId().equals(projectId))
                 .peek(definitionOfDoneEntryService::delete)
