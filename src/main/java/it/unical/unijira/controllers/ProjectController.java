@@ -6,6 +6,7 @@ import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.dto.discussions.MessageDTO;
 import it.unical.unijira.data.dto.discussions.TopicDTO;
 import it.unical.unijira.data.dto.items.ItemDTO;
+import it.unical.unijira.data.dto.items.ItemStatusHistoryDTO;
 import it.unical.unijira.data.dto.projects.DefinitionOfDoneEntryDTO;
 import it.unical.unijira.data.dto.projects.ReleaseDTO;
 import it.unical.unijira.data.dto.user.RoadmapTreeDTO;
@@ -15,7 +16,6 @@ import it.unical.unijira.data.models.discussions.Topic;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.*;
 import it.unical.unijira.data.models.projects.releases.Release;
-import it.unical.unijira.services.common.HintService;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.services.discussions.MessageService;
@@ -34,11 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -61,6 +57,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final TopicService topicService;
     private final DefinitionOfDoneEntryService definitionOfDoneEntryService;
     private final HintService hintService;
+    private final ItemStatusHistoryService itemStatusHistoryService;
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -80,6 +77,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              MessageService messageService,
                              DefinitionOfDoneEntryService definitionOfDoneEntryService,
                              HintService hintService,
+                             ItemStatusHistoryService itemStatusHistoryService,
                              ModelMapper modelMapper) {
 
         this.userService = userService;
@@ -98,6 +96,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.topicService = topicService;
         this.definitionOfDoneEntryService = definitionOfDoneEntryService;
         this.hintService = hintService;
+        this.itemStatusHistoryService = itemStatusHistoryService;
         this.modelMapper = modelMapper;
 
     }
@@ -1657,5 +1656,15 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                 .findFirst()
                 .<ResponseEntity<Boolean>>map(x -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping ("/{project}/items/history")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ItemStatusHistoryDTO>> itemsStatusHistoryByProject(@PathVariable Long project) {
+
+        return ResponseEntity.ok(itemStatusHistoryService.findAllByProjectId(project)
+                .stream()
+                .map(p -> modelMapper.map(p, ItemStatusHistoryDTO.class))
+                .collect(Collectors.toList()));
     }
 }

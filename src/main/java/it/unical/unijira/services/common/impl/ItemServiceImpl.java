@@ -12,8 +12,10 @@ import it.unical.unijira.data.models.*;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.data.models.items.ItemStatus;
+import it.unical.unijira.data.models.items.ItemStatusHistory;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.ItemService;
+import it.unical.unijira.services.common.ItemStatusHistoryService;
 import it.unical.unijira.services.common.ProductBacklogInsertionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private final HintRepository hintRepository;
     private final EvaluationProposalRepository evaluationProposalRepository;
     private final ProductBacklogInsertionService productBacklogInsertionService;
-
+    private final ItemStatusHistoryService itemStatusHistoryService;
 
     @Autowired
     public ItemServiceImpl (ItemRepository pbiRepository,
@@ -47,7 +49,8 @@ public class ItemServiceImpl implements ItemService {
                             ProductBacklogInsertionRepository productBacklogInsertionRepository,
                             HintRepository hintRepository,
                             EvaluationProposalRepository evaluationProposalRepository,
-                            ProductBacklogInsertionService productBacklogInsertionService){
+                            ProductBacklogInsertionService productBacklogInsertionService,
+                            ItemStatusHistoryService itemStatusHistoryService){
 
     this.pbiRepository = pbiRepository;
     this.userRepository = userRepository;
@@ -56,13 +59,24 @@ public class ItemServiceImpl implements ItemService {
     this.hintRepository = hintRepository;
     this.evaluationProposalRepository = evaluationProposalRepository;
     this.productBacklogInsertionService = productBacklogInsertionService;
+    this.itemStatusHistoryService = itemStatusHistoryService;
     }
 
 
+    @Transactional
     public Optional<Item> save(Item pbi) {
 
         // Salvo prima l'item
         Item toReturn = pbiRepository.saveAndFlush(pbi);
+
+        // Salvo nella storia degli stati
+        itemStatusHistoryService.create(ItemStatusHistory.builder()
+                .item(pbi)
+                .newStatus(ItemStatus.OPEN)
+                .changeDate(LocalDateTime.now())
+                .build()
+        );
+
         // Dopo di che salvo gli assignments dell'item
         if (pbi.getAssignees() != null) {
             for (ItemAssignment assignment : pbi.getAssignees()) {
@@ -85,6 +99,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Optional<Item> update(Long id, Item pbi) {
 
         // Prima di modificare l'item, salviamo a db gli assignment "nuovi"
@@ -109,6 +124,18 @@ public class ItemServiceImpl implements ItemService {
                     updatedItem.setOwner(pbi.getOwner());
                     updatedItem.setSummary(pbi.getSummary());
                     updatedItem.setType(pbi.getType());
+
+                    // Controllo cambio stato
+                    if(!updatedItem.getStatus().equals(pbi.getStatus())) {
+                        itemStatusHistoryService.create(ItemStatusHistory.builder()
+                                .item(updatedItem)
+                                .oldStatus(updatedItem.getStatus())
+                                .newStatus(pbi.getStatus())
+                                .changeDate(LocalDateTime.now())
+                                .build()
+                        );
+                    }
+
                     updatedItem.setStatus(pbi.getStatus());
                     updatedItem.setRelease(pbi.getRelease());
                     updatedItem.setUpdatedAt(LocalDateTime.now());
