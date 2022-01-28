@@ -54,10 +54,10 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
                         updatedItem.setStartingDate(roadmapInsertion.getStartingDate());
                         updatedItem.setEndingDate((roadmapInsertion.getEndingDate()));
 
-                        Item oldItem = updatedItem.getItem();
+                    /*      Item oldItem = updatedItem.getItem();
                         Roadmap oldRoadmap = updatedItem.getRoadmap();
 
-                        if(roadmapInsertion.getItem() != null)
+                      if(roadmapInsertion.getItem() != null)
                             updatedItem.setItem(roadmapInsertion.getItem());
 
                         if(roadmapInsertion.getRoadmap() != null) {
@@ -74,7 +74,7 @@ public record RoadmapInsertionServiceImpl(RoadmapInsertionRepository roadmapInse
                             Optional<ProductBacklogInsertion> productBacklogInsertion = productBacklogInsertionRepository.findByItemId(updatedItem.getItem().getId());
                             if(productBacklogInsertion.isEmpty() || !productBacklogInsertion.get().getBacklog().getId().equals(updatedItem.getRoadmap().getBacklog().getId()))
                                 throw new DataIntegrityViolationException("An item can be assigned to a unique project");
-                        }
+                        }*/
                     })
                     .findFirst()
                     .map(roadmapInsertionRepository::saveAndFlush);
