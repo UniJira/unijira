@@ -8,7 +8,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +49,7 @@ public class User extends AbstractBaseEntity {
     private boolean disabled = false;
 
     @Column
-    private URL avatar;
+    private String avatar;
 
     @OneToMany
     @ToString.Exclude
