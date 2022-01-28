@@ -17,6 +17,9 @@ public interface ItemAssignmentRepository extends JpaRepository<ItemAssignment, 
 
     List<ItemAssignment> findAllByAssignee(User assignee, Pageable pageable);
     List<ItemAssignment> findAllByItem(Item pbi, Pageable pageable);
+
+    void deleteAllByItem(Item item);
+
     @Query(value = "SELECT COUNT(ia) FROM ItemAssignment ia where ia.item.id = :itemId and ia.assignee.id = :assigneeId")
     int isPresentAssignment(Long itemId, Long assigneeId);
 

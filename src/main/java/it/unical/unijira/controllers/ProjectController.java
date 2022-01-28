@@ -15,7 +15,6 @@ import it.unical.unijira.data.models.discussions.Topic;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.*;
 import it.unical.unijira.data.models.projects.releases.Release;
-import it.unical.unijira.services.common.HintService;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.services.discussions.MessageService;
@@ -34,11 +33,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
