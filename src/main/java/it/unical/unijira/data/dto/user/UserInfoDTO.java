@@ -16,7 +16,7 @@ public class UserInfoDTO {
     private String username;
     private User.Status status;
     private boolean disabled;
-    private URL avatar;
+    private String avatar;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDate birthDate;
