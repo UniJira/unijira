@@ -100,10 +100,6 @@ public class User extends AbstractBaseEntity {
     @Column
     private String phoneNumber;
     
-    @Column
-    private String preferedTheme;
-    
-    @Column
-    private String preferedLanguage;
+
 
 }

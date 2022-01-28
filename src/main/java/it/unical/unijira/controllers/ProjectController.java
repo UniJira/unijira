@@ -1,7 +1,6 @@
 package it.unical.unijira.controllers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.dto.discussions.MessageDTO;
@@ -16,6 +15,7 @@ import it.unical.unijira.data.models.discussions.Topic;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.projects.*;
 import it.unical.unijira.data.models.projects.releases.Release;
+import it.unical.unijira.services.common.HintService;
 import it.unical.unijira.services.auth.AuthService;
 import it.unical.unijira.services.common.*;
 import it.unical.unijira.services.discussions.MessageService;
@@ -34,7 +34,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -56,6 +60,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     private final MessageService messageService;
     private final TopicService topicService;
     private final DefinitionOfDoneEntryService definitionOfDoneEntryService;
+    private final HintService hintService;
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -74,6 +79,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                              TopicService topicService,
                              MessageService messageService,
                              DefinitionOfDoneEntryService definitionOfDoneEntryService,
+                             HintService hintService,
                              ModelMapper modelMapper) {
 
         this.userService = userService;
@@ -91,6 +97,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         this.messageService = messageService;
         this.topicService = topicService;
         this.definitionOfDoneEntryService = definitionOfDoneEntryService;
+        this.hintService = hintService;
         this.modelMapper = modelMapper;
 
     }
@@ -1109,6 +1116,61 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
     }
 
 
+    @GetMapping ("/{project}/backlogs/{backlog}/sprints/{sprint}/user/{user}/hint")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<Long>> hintNextTicket(@PathVariable Long project,
+                                                        @PathVariable Long backlog,
+                                                        @PathVariable Long sprint,
+                                                        @PathVariable Long user,
+                                                        @RequestParam(defaultValue = "QUICK") String type) {
+
+        Project projectObj = projectService.findById(project).orElse(null);
+        ProductBacklog backlogObj = backlogService.findById(backlog).orElse(null);
+        Sprint sprintObj = sprintService.findById(sprint).orElse(null);
+
+        if (!ControllerUtilities.checkSprintCoherence(projectObj,backlogObj,sprintObj)) {
+            return ResponseEntity.notFound().build();
+        }
+        // User is not found
+         User userObj = userService.findById(user).orElse(null);
+         if (userObj == null) {
+            return ResponseEntity.notFound().build();
+        }
+        // User is not enrolled in projects
+        List<Membership> memberships = userObj.getMemberships();
+        if(memberships == null || memberships.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        // User is not enrolled in the current project
+        boolean isEnrolledInThisProject = false;
+        for (Membership membership : memberships) {
+            if(project.equals(membership.getKey().getProject().getId())) {
+                isEnrolledInThisProject = true;
+                break;
+            }
+        }
+        if (!isEnrolledInThisProject) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // There are no closed sprints, so I can't hint
+        List<Sprint> sprints = sprintService.findSprintsByBacklog(backlogObj, 0, 100000);
+        boolean hintable = false;
+        for (Sprint s : sprints) {
+            if (SprintStatus.INACTIVE.equals(s.getStatus())) {
+                hintable = true;
+                break;
+            }
+        }
+        if(!hintable) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(new ArrayList<>(hintService.sendHint(sprintObj, userObj, type)));
+    }
+
+
+
     @GetMapping ("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/items")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ItemDTO>> itemsOfTheRoadmap(@PathVariable Long project, @PathVariable Long backlog, @PathVariable Long roadmap,
@@ -1337,11 +1399,18 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.badRequest().build();
         }
 
+        List <Message> messagesFound = messageService.findAll(topicId,page,size);
+        List <MessageDTO> mapped = new ArrayList<>();
+        for(Message m : messagesFound) {
+            MessageDTO current = modelMapper.map(m,MessageDTO.class);
+            if (m.getRepliesTo()!=null) {
+                current.setRepliesToId(m.getRepliesTo().getId());
+            }
+            mapped.add(current);
+        }
 
 
-        return ResponseEntity.ok(messageService.findAll(topicId,page,size).stream()
-                .map(message -> modelMapper.map(message, MessageDTO.class))
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok(mapped);
 
     }
 
@@ -1355,10 +1424,15 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.badRequest().build();
         }
 
-        return messageService.findById(messageId,topicId)
-                .map(message -> modelMapper.map(message, MessageDTO.class))
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Message found = messageService.findById(messageId,topicId).orElse(null);
+        if(found!=null){
+        MessageDTO retValue = modelMapper.map(found, MessageDTO.class);
+        if (found.getRepliesTo()!= null ) {
+            retValue.setRepliesToId(found.getRepliesTo().getId());
+        }
+            return ResponseEntity.ok(retValue);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping("{projectId}/topics/{topicId}/messages")
@@ -1377,11 +1451,26 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         else if (!dto.getTopicId().equals(topicId)) {
             return ResponseEntity.badRequest().build();
         }
+        Message mapped = modelMapper.map(dto, Message.class);
+        if (mapped.getRepliesTo() == null && dto.getRepliesToId()!=null) {
+            mapped.setRepliesTo(messageService.findById(dto.getTopicId(),dto.getTopicId()).orElse(null));
+        }
 
-        return messageService.save(modelMapper.map(dto, Message.class))
-                .map(savedObject -> ResponseEntity
-                        .created(URI.create("/projects/%d/topics/%d/messages/%d".formatted(projectId,topicId,savedObject.getId())))
-                        .body(modelMapper.map(savedObject, MessageDTO.class))).orElse(ResponseEntity.badRequest().build());
+        Message saved = messageService.save(mapped).orElse(null);
+        if (saved != null) {
+            MessageDTO backToFrontend = modelMapper.map(saved, MessageDTO.class);
+            if (saved.getRepliesTo() != null) {
+                backToFrontend.setRepliesToId(
+                        saved.getRepliesTo().getId() != null
+                                ? saved.getRepliesTo().getId() : null);
+            }
+
+            return ResponseEntity
+                    .created(URI.create("/projects/%d/topics/%d/messages/%d".formatted(projectId, topicId, saved.getId())))
+                    .body(modelMapper.map(saved, MessageDTO.class));
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
     // Can edit just the text of the message
@@ -1401,10 +1490,24 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.badRequest().build();
         }
 
-        return messageService.update(messageId, modelMapper.map(dto,Message.class),projectId,topicId)
-                .map(updated -> modelMapper.map(updated, MessageDTO.class))
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Message mapped = modelMapper.map(dto, Message.class);
+        if (mapped.getRepliesTo() == null && dto.getRepliesToId()!=null) {
+            mapped.setRepliesTo(messageService.findById(dto.getTopicId(),dto.getTopicId()).orElse(null));
+        }
+
+        Message saved = messageService.update(messageId, mapped,projectId,topicId).orElse(null);
+        if (saved == null) {
+            ResponseEntity.notFound().build();
+        }
+        MessageDTO backToFrontend = modelMapper.map(saved, MessageDTO.class);
+        if (saved!= null && saved.getRepliesTo()!=null) {
+            backToFrontend.setRepliesToId(
+                    saved.getRepliesTo().getId()!=null
+                            ? saved.getRepliesTo().getId() : null);
+        }
+
+        return ResponseEntity.ok(backToFrontend);
+
     }
 
     @DeleteMapping("{projectId}/topics/{topicId}/messages/{messageId}")

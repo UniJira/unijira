@@ -53,8 +53,6 @@ public class Item extends AbstractBaseEntity {
 
 
     @Column
-    @Getter
-    @Setter
     private Integer evaluation;
 
 
@@ -119,7 +117,7 @@ public class Item extends AbstractBaseEntity {
     @Getter
     private Item father;
 
-    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "father", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @Getter
     @ToString.Exclude
     private List<Item> sons;
@@ -131,19 +129,41 @@ public class Item extends AbstractBaseEntity {
 
     @ManyToOne
     @JoinColumn
-    @Getter @Setter
+    @Getter
+    @Setter
     private Release release;
 
 
-    public void setFather(Item father) throws NonValidItemTypeException{
+    public void setFather(Item father) throws NonValidItemTypeException {
 
         if (father == null) return;
         if (!ItemUtils.isValidAssignment(father.getType(), this.type))
             throw new NonValidItemTypeException(String.format(Errors.INVALID_FATHER_ITEM_TYPE,
                     father.getType(), this.getType()));
-        this.father  = ItemUtils.isValidAssignment(father.getType(), this.type)
+        this.father = ItemUtils.isValidAssignment(father.getType(), this.type)
                 ? father : null;
 
+    }
+
+
+    public Integer getEvaluation() {
+        Integer tmpEval = 0;
+        if (this.getSons() == null || this.getSons().isEmpty()) {
+            return this.evaluation;
+        }
+        for (Item son : this.getSons()) {
+            tmpEval += son.getEvaluation();
+        }
+
+        return tmpEval;
+    }
+
+    public void setEvaluation(Integer evaluation) {
+        if (this.getSons() == null || this.getSons().isEmpty()) {
+            this.evaluation = evaluation;
+        } else {
+            this.evaluation = 0;
+        }
     }
 
     @ManyToOne

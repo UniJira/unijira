@@ -1,36 +1,85 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.SprintRepository;
+import it.unical.unijira.data.dao.UserScoreboardRepository;
+import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.models.ProductBacklog;
 import it.unical.unijira.data.models.Sprint;
+import it.unical.unijira.data.models.SprintStatus;
+import it.unical.unijira.data.models.UserScoreboard;
+import it.unical.unijira.data.models.items.Item;
+import it.unical.unijira.data.models.projects.Membership;
 import it.unical.unijira.data.models.projects.Project;
 import it.unical.unijira.services.common.SprintService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public record SprintServiceImpl(SprintRepository sprintRepository)
-        implements SprintService {
+public class SprintServiceImpl implements  SprintService {
+
+    private final SprintRepository sprintRepository;
+    private final UserScoreboardRepository userScoreboardRepository;
+    private final ItemRepository pbiRepository;
+
+
+    @Autowired
+    public SprintServiceImpl(SprintRepository sprintRepository,
+                             UserScoreboardRepository userScoreboardRepository,
+                             ItemRepository pbiRepository) {
+        this.sprintRepository = sprintRepository;
+        this.userScoreboardRepository =userScoreboardRepository;
+        this.pbiRepository = pbiRepository;
+    }
+
     @Override
     public Optional<Sprint> save(Sprint sprint) {
         return Optional.of(sprintRepository.save(sprint));
     }
 
     @Override
+    @Transactional
     public Optional<Sprint> update(Long id, Sprint sprint) {
-        return sprintRepository.findById(id)
+        Optional<Sprint> returnValue = sprintRepository.findById(id)
                 .stream()
                 .peek(updatedItem -> {
                     updatedItem.setBacklog(sprint.getBacklog());
                     updatedItem.setEndingDate(sprint.getEndingDate());
                     updatedItem.setStartingDate(sprint.getStartingDate());
                     updatedItem.setInsertions(sprint.getInsertions());
+                    updatedItem.setStatus(sprint.getStatus());
                     })
                 .findFirst()
                 .map(sprintRepository::saveAndFlush);
+
+        if (SprintStatus.INACTIVE.equals(returnValue.orElse(sprint).getStatus())) {
+            userScoreboardRepository.deleteAllBySprint(returnValue.orElse(sprint));
+            List<Membership> members = returnValue.orElse(sprint).getBacklog().getProject().getMemberships();
+            int score = 0;
+            for (Membership member : members) {
+                List<Item> myCompletedItems = pbiRepository
+                        .findAllClosedByAssigneeAndSprint(member.getKey().getUser(),returnValue.orElse(sprint));
+                for (Item item : myCompletedItems) {
+                    if (item.getSons()== null || item.getSons().isEmpty()) {
+                        score+=item.getEvaluation();
+                    }
+                }
+                UserScoreboard usb = UserScoreboard.builder()
+                        .sprint(returnValue.orElse(sprint))
+                                .user(member.getKey().getUser())
+                                .score(score)
+                                .build();
+
+                userScoreboardRepository.saveAndFlush(usb);
+            }
+        }
+
+
+        return returnValue;
     }
 
     @Override
