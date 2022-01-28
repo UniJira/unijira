@@ -126,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
                     updatedItem.setType(pbi.getType());
 
                     // Controllo cambio stato
-                    if(!updatedItem.getStatus().equals(pbi.getStatus())) {
+                    if(pbi.getStatus() != null && !updatedItem.getStatus().equals(pbi.getStatus())) {
                         itemStatusHistoryService.create(ItemStatusHistory.builder()
                                 .item(updatedItem)
                                 .oldStatus(updatedItem.getStatus())
