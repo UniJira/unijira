@@ -1,7 +1,6 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.SprintInsertionRepository;
-import it.unical.unijira.data.dao.SprintRepository;
 import it.unical.unijira.data.dao.UserScoreboardRepository;
 import it.unical.unijira.data.dao.items.HintRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;

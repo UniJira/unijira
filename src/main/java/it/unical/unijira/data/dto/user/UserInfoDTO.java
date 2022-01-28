@@ -3,7 +3,6 @@ package it.unical.unijira.data.dto.user;
 import it.unical.unijira.data.models.User;
 import lombok.*;
 
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

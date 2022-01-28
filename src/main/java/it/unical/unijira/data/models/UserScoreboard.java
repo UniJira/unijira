@@ -1,5 +1,7 @@
 package it.unical.unijira.data.models;
+
 import lombok.*;
+
 import javax.persistence.*;
 
 @Entity

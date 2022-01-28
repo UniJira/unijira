@@ -1,14 +1,16 @@
 package it.unical.unijira.services.common.impl;
 
 import it.unical.unijira.data.dao.ProductBacklogInsertionRepository;
-
 import it.unical.unijira.data.dao.UserRepository;
-import it.unical.unijira.data.dao.items.HintRepository;
 import it.unical.unijira.data.dao.items.EvaluationProposalRepository;
+import it.unical.unijira.data.dao.items.HintRepository;
 import it.unical.unijira.data.dao.items.ItemAssignmentRepository;
 import it.unical.unijira.data.dao.items.ItemRepository;
 import it.unical.unijira.data.exceptions.NonValidItemTypeException;
-import it.unical.unijira.data.models.*;
+import it.unical.unijira.data.models.ProductBacklog;
+import it.unical.unijira.data.models.Roadmap;
+import it.unical.unijira.data.models.Sprint;
+import it.unical.unijira.data.models.User;
 import it.unical.unijira.data.models.items.Item;
 import it.unical.unijira.data.models.items.ItemAssignment;
 import it.unical.unijira.data.models.items.ItemStatus;
@@ -19,7 +21,6 @@ import it.unical.unijira.services.common.ItemStatusHistoryService;
 import it.unical.unijira.services.common.ProductBacklogInsertionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -102,12 +103,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public Optional<Item> update(Long id, Item pbi) {
 
-        // Prima di modificare l'item, salviamo a db gli assignment "nuovi"
-        if (!pbi.getAssignees().isEmpty() && pbi.getAssignees()!=null) {
-            itemAssignmentRepository.deleteAll(itemAssignmentRepository.findAllByItem(pbi, Pageable.unpaged()));
-            itemAssignmentRepository.saveAll(pbi.getAssignees());
-        }
-
         return pbiRepository.findById(id)
                 .stream()
                 .peek(updatedItem -> {
@@ -115,7 +110,19 @@ public class ItemServiceImpl implements ItemService {
                     updatedItem.setDescription(pbi.getDescription());
                     updatedItem.setEvaluation(pbi.getEvaluation());
                     updatedItem.setNotes(pbi.getNotes());
-                    updatedItem.setAssignees(pbi.getAssignees());
+
+                    if(Objects.nonNull(pbi.getAssignees())) {
+
+                        itemAssignmentRepository.deleteAllByItem(updatedItem);
+
+                        updatedItem.setAssignees(itemAssignmentRepository.saveAll(pbi.getAssignees()
+                                .stream()
+                                .peek(assignment -> assignment.setId(null))
+                                .peek(assignment -> assignment.setItem(updatedItem))
+                                .toList()));
+
+                    }
+
                     try {
                         updatedItem.setFather(pbi.getFather());
                     } catch (NonValidItemTypeException e) {
