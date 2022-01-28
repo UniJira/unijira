@@ -1399,11 +1399,18 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.badRequest().build();
         }
 
+        List <Message> messagesFound = messageService.findAll(topicId,page,size);
+        List <MessageDTO> mapped = new ArrayList<>();
+        for(Message m : messagesFound) {
+            MessageDTO current = modelMapper.map(m,MessageDTO.class);
+            if (m.getRepliesTo()!=null) {
+                current.setRepliesToId(m.getRepliesTo().getId());
+            }
+            mapped.add(current);
+        }
 
 
-        return ResponseEntity.ok(messageService.findAll(topicId,page,size).stream()
-                .map(message -> modelMapper.map(message, MessageDTO.class))
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok(mapped);
 
     }
 
@@ -1417,10 +1424,15 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.badRequest().build();
         }
 
-        return messageService.findById(messageId,topicId)
-                .map(message -> modelMapper.map(message, MessageDTO.class))
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Message found = messageService.findById(messageId,topicId).orElse(null);
+        if(found!=null){
+        MessageDTO retValue = modelMapper.map(found, MessageDTO.class);
+        if (found.getRepliesTo()!= null ) {
+            retValue.setRepliesToId(found.getRepliesTo().getId());
+        }
+            return ResponseEntity.ok(retValue);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping("{projectId}/topics/{topicId}/messages")
