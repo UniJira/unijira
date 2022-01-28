@@ -1,7 +1,6 @@
 package it.unical.unijira.controllers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
 import it.unical.unijira.controllers.common.CrudController;
 import it.unical.unijira.data.dto.*;
 import it.unical.unijira.data.dto.discussions.MessageDTO;
@@ -1440,11 +1439,26 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
         else if (!dto.getTopicId().equals(topicId)) {
             return ResponseEntity.badRequest().build();
         }
+        Message mapped = modelMapper.map(dto, Message.class);
+        if (mapped.getRepliesTo() == null && dto.getRepliesToId()!=null) {
+            mapped.setRepliesTo(messageService.findById(dto.getTopicId(),dto.getTopicId()).orElse(null));
+        }
 
-        return messageService.save(modelMapper.map(dto, Message.class))
-                .map(savedObject -> ResponseEntity
-                        .created(URI.create("/projects/%d/topics/%d/messages/%d".formatted(projectId,topicId,savedObject.getId())))
-                        .body(modelMapper.map(savedObject, MessageDTO.class))).orElse(ResponseEntity.badRequest().build());
+        Message saved = messageService.save(mapped).orElse(null);
+        if (saved != null) {
+            MessageDTO backToFrontend = modelMapper.map(saved, MessageDTO.class);
+            if (saved.getRepliesTo() != null) {
+                backToFrontend.setRepliesToId(
+                        saved.getRepliesTo().getId() != null
+                                ? saved.getRepliesTo().getId() : null);
+            }
+
+            return ResponseEntity
+                    .created(URI.create("/projects/%d/topics/%d/messages/%d".formatted(projectId, topicId, saved.getId())))
+                    .body(modelMapper.map(saved, MessageDTO.class));
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
     // Can edit just the text of the message
@@ -1464,10 +1478,24 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
             return ResponseEntity.badRequest().build();
         }
 
-        return messageService.update(messageId, modelMapper.map(dto,Message.class),projectId,topicId)
-                .map(updated -> modelMapper.map(updated, MessageDTO.class))
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Message mapped = modelMapper.map(dto, Message.class);
+        if (mapped.getRepliesTo() == null && dto.getRepliesToId()!=null) {
+            mapped.setRepliesTo(messageService.findById(dto.getTopicId(),dto.getTopicId()).orElse(null));
+        }
+
+        Message saved = messageService.update(messageId, mapped,projectId,topicId).orElse(null);
+        if (saved == null) {
+            ResponseEntity.notFound().build();
+        }
+        MessageDTO backToFrontend = modelMapper.map(saved, MessageDTO.class);
+        if (saved!= null && saved.getRepliesTo()!=null) {
+            backToFrontend.setRepliesToId(
+                    saved.getRepliesTo().getId()!=null
+                            ? saved.getRepliesTo().getId() : null);
+        }
+
+        return ResponseEntity.ok(backToFrontend);
+
     }
 
     @DeleteMapping("{projectId}/topics/{topicId}/messages/{messageId}")
