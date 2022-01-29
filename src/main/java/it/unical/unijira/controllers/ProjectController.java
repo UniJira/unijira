@@ -961,7 +961,7 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
                         .created(URI.create("projects/%d/backlogs/%d/roadmaps/%d/insertions/%d"
                                 .formatted(project,backlog,roadmap,createdDTO.getId())))
                         .body(modelMapper.map(createdDTO, RoadmapInsertionDTO.class)))
-                .orElse(ResponseEntity.ok().build());
+                .orElse(ResponseEntity.badRequest().build());
     }
 
     @GetMapping("/{project}/backlogs/{backlog}/roadmaps/{roadmap}/insertions")
