@@ -67,7 +67,9 @@ public class ItemUtils {
 
                 List<RoadmapTreeDTO> nextLevel = new ArrayList<>();
                 for (Item son : first.getSons()) {
-                    nextLevel.add(manageTree(son, roadmap, roadmapInsertionService, modelMapper));
+                    RoadmapTreeDTO toAdd = manageTree(son, roadmap, roadmapInsertionService, modelMapper);
+                    if(toAdd!=null)
+                    nextLevel.add(toAdd);
                 }
                 toSend.setChildren(nextLevel);
             }
