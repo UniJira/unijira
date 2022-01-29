@@ -71,7 +71,9 @@ public class ItemUtils {
                     if(toAdd!=null)
                     nextLevel.add(toAdd);
                 }
-                toSend.setChildren(nextLevel);
+                if(!(nextLevel == null || nextLevel.isEmpty())) {
+                    toSend.setChildren(nextLevel);
+                }
             }
         }
         return toSend;
