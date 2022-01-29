@@ -881,16 +881,25 @@ public class ProjectController implements CrudController<ProjectDTO, Long>  {
 
         List<Item> items = itemService.finAllByRoadmapNoFather(roadmapObj,0,100000);
 
-        RoadmapTreeDTO[] tree = new RoadmapTreeDTO[items.size()];
+        List<RoadmapTreeDTO> tree = new ArrayList<>();
+        //RoadmapTreeDTO[] tree = new RoadmapTreeDTO[items.size()];
         var i=0;
         for (Item item : items) {
-            tree[i] = ItemUtils.manageTree(item,roadmapObj,roadmapInsertionService, modelMapper);
+            RoadmapTreeDTO tmp = ItemUtils.manageTree(item,roadmapObj,roadmapInsertionService, modelMapper);
+            if(tmp!=null) {
+                tree.add(tmp);
+            }
+            i++;
+        }
+        RoadmapTreeDTO[] array = new RoadmapTreeDTO[tree.size()];
+        i=0;
+        for (RoadmapTreeDTO treeElement: tree ) {
+            array[i] = treeElement;
             i++;
         }
 
-
-        if (tree.length > 0) {
-            return ResponseEntity.ok(tree);
+        if (tree.size() > 0) {
+            return ResponseEntity.ok(array);
         }
 
         return ResponseEntity.notFound().build();
