@@ -45,31 +45,32 @@ public class ItemUtils {
                                             RoadmapInsertionService roadmapInsertionService, ModelMapper modelMapper) {
         RoadmapTreeDTO toSend = null;
         List <RoadmapInsertion> insertionList = roadmapInsertionService.findByItemAndRoadmap(first, roadmap);
-        if (insertionList.size() > 0) {
-            RoadmapInsertion currentInsertion = insertionList.get(0);
-            RoadmapInsertionDTO dto = modelMapper.map(currentInsertion, RoadmapInsertionDTO.class);
-            toSend = RoadmapTreeDTO.builder()
-                    .roadmapInsertionId(dto.getId())
-                    .roadmapInsertionStartingDate(dto.getStartingDate())
-                    .roadmapInsertionEndingDate(dto.getEndingDate())
-                    .itemAssignees(dto.getItem().getAssignees())
-                    .itemType(dto.getItem().getType())
-                    .itemTags(dto.getItem().getTags())
-                    .itemSummary(dto.getItem().getSummary())
-                    .itemStatus(dto.getItem().getStatus())
-                    .itemMeasureUnit(dto.getItem().getMeasureUnit())
-                    .itemOwner(dto.getItem().getOwner())
-                    .itemEvaluation(dto.getItem().getEvaluation())
-                    .itemDescription(dto.getItem().getDescription())
-                    .itemId(dto.getItem().getId())
-                    .itemFatherId(dto.getItem().getFatherId()).build();
+        for (RoadmapInsertion insertion : insertionList) {
+            if (insertion != null) {
+                RoadmapInsertion currentInsertion = insertionList.get(0);
+                RoadmapInsertionDTO dto = modelMapper.map(currentInsertion, RoadmapInsertionDTO.class);
+                toSend = RoadmapTreeDTO.builder()
+                        .roadmapInsertionId(dto.getId())
+                        .roadmapInsertionStartingDate(dto.getStartingDate())
+                        .roadmapInsertionEndingDate(dto.getEndingDate())
+                        .itemAssignees(dto.getItem().getAssignees())
+                        .itemType(dto.getItem().getType())
+                        .itemTags(dto.getItem().getTags())
+                        .itemSummary(dto.getItem().getSummary())
+                        .itemStatus(dto.getItem().getStatus())
+                        .itemMeasureUnit(dto.getItem().getMeasureUnit())
+                        .itemOwner(dto.getItem().getOwner())
+                        .itemEvaluation(dto.getItem().getEvaluation())
+                        .itemDescription(dto.getItem().getDescription())
+                        .itemId(dto.getItem().getId())
+                        .itemFatherId(dto.getItem().getFatherId()).build();
 
-            List<RoadmapTreeDTO> nextLevel = new ArrayList<>();
-            for (Item son : first.getSons()){
-                nextLevel.add(manageTree(son,roadmap,roadmapInsertionService,modelMapper));
+                List<RoadmapTreeDTO> nextLevel = new ArrayList<>();
+                for (Item son : first.getSons()) {
+                    nextLevel.add(manageTree(son, roadmap, roadmapInsertionService, modelMapper));
+                }
+                toSend.setChildren(nextLevel);
             }
-            toSend.setChildren(nextLevel);
-
         }
         return toSend;
 
