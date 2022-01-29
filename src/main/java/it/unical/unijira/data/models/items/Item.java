@@ -181,5 +181,10 @@ public class Item extends AbstractBaseEntity {
     @ToString.Exclude
     private List<EvaluationProposal> evaluationProposals = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    @Getter
+    @Setter
+    @Builder.Default
+    @ToString.Exclude
+    private List<ItemStatusHistory> statusHistory = new ArrayList<>();
 }

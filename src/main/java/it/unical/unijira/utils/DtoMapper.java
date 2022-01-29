@@ -9,11 +9,12 @@ import org.modelmapper.module.jdk8.Jdk8Module;
 import org.modelmapper.module.jsr310.Jsr310Module;
 
 import javax.persistence.*;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class DtoMapper extends ModelMapper {
